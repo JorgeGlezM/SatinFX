@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ConceptosViewController">
+    <children>
+      <VBox alignment="TOP_CENTER" prefHeight="475.0" prefWidth="695.0">
+         <children>
+            <Pane prefHeight="88.0" prefWidth="616.0" style="-fx-background-color: #2B3D74;">
+               <children>
+                  <Label fx:id="lbl" alignment="CENTER" layoutX="242.0" layoutY="14.0" prefHeight="61.0" prefWidth="194.0" style="-fx-font-weight: BOLD;" text="Registro Conceptos" textFill="WHITE">
+                     <font>
+                     </font>
+                  </Label>
+               </children>
+            </Pane>
+            <GridPane prefHeight="377.0" prefWidth="695.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="343.0" minWidth="10.0" prefWidth="271.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="427.0" minWidth="10.0" prefWidth="424.0" />
+              </columnConstraints>
+              <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label prefHeight="21.0" prefWidth="99.0" style="-fx-font-weight: bold;" text="Clave SAT:" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+                  <Label prefHeight="21.0" prefWidth="110.0" style="-fx-font-weight: bold;" text="Descripcion:" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+                  <TextField fx:id="txtClave" maxWidth="300.0" minWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <Button fx:id="btnRegistrar" mnemonicParsing="false" onAction="#btnRegistrar" prefHeight="42.0" prefWidth="94.0" text="Registrar" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
+                     <GridPane.margin>
+                        <Insets right="35.0" />
+                     </GridPane.margin></Button>
+                  <Label prefHeight="21.0" prefWidth="85.0" style="-fx-font-weight: bold;" text="Activo" GridPane.halignment="RIGHT" GridPane.rowIndex="3" />
+                  <TextField fx:id="txtDescripcion" maxWidth="300.0" minWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <ChoiceBox fx:id="cmbActivo" prefHeight="31.0" prefWidth="301.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <Label prefHeight="21.0" prefWidth="49.0" style="-fx-font-weight: bold;" text="ID:" GridPane.halignment="RIGHT" />
+                  <TextField fx:id="txtID" maxWidth="300.0" minWidth="300.0" GridPane.columnIndex="1" />
+               </children>
+            </GridPane>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

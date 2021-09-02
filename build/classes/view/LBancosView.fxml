@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="468.0" prefWidth="695.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LBancosViewController">
+   <children>
+      <VBox alignment="TOP_CENTER" prefHeight="468.0" prefWidth="695.0">
+         <children>
+            <Pane prefHeight="88.0" prefWidth="616.0" style="-fx-background-color: #2B3D74;">
+               <children>
+                  <Label alignment="CENTER" layoutX="242.0" layoutY="14.0" prefHeight="61.0" prefWidth="194.0" style="-fx-font-weight: BOLD;" text="Bancos" textFill="WHITE">
+                     <font>
+                        <Font size="23.0" />
+                     </font>
+                  </Label>
+               </children>
+            </Pane>
+            <HBox prefHeight="50.0" prefWidth="695.0">
+               <children>
+                  <Label prefHeight="39.0" prefWidth="78.0" text="Búsqueda:">
+                     <HBox.margin>
+                        <Insets left="135.0" />
+                     </HBox.margin>
+                  </Label>
+                  <TextField fx:id="txtBusqueda" prefHeight="31.0" prefWidth="360.0">
+                     <HBox.margin>
+                        <Insets top="5.0" />
+                     </HBox.margin>
+                  </TextField>
+               </children>
+            </HBox>
+            <StackPane prefWidth="200.0">
+               <children>
+                  <TableView fx:id="tblRegistros" prefHeight="275.0" prefWidth="695.0" />
+               </children>
+            </StackPane>
+            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <VBox prefHeight="100.0" prefWidth="117.0">
+                     <children>
+                        <Button fx:id="btnAdd" mnemonicParsing="false" onAction="#btnAdd" prefHeight="28.0" prefWidth="90.0" text="Añadir">
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="5.0" />
+                           </VBox.margin>
+                        </Button>
+                        <Button fx:id="btnEdit" mnemonicParsing="false" onAction="#btnEdit" prefHeight="31.0" prefWidth="90.0" text="Editar" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

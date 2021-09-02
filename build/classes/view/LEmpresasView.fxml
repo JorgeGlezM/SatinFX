@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="468.0" prefWidth="695.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LEmpresasViewController">
+   <children>
+      <VBox alignment="TOP_CENTER" prefHeight="468.0" prefWidth="695.0">
+         <children>
+            <Pane prefHeight="88.0" prefWidth="616.0" style="-fx-background-color: #2B3D74;">
+               <children>
+                  <Label alignment="CENTER" layoutX="241.0" layoutY="14.0" prefHeight="61.0" prefWidth="194.0" style="-fx-font-weight: BOLD;" text="Empresas" textFill="WHITE">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="btnRegresar" layoutX="14.0" layoutY="29.0" mnemonicParsing="false" onAction="#btnRegresar" text="Regresar" />
+               </children>
+            </Pane>
+            <StackPane prefWidth="200.0">
+               <children>
+                  <TableView fx:id="tblRegistros" prefHeight="275.0" prefWidth="695.0" />
+               </children>
+            </StackPane>
+            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <VBox prefHeight="100.0" prefWidth="117.0">
+                     <children>
+                        <Button fx:id="btnAdd" mnemonicParsing="false" onAction="#btnAdd" prefHeight="38.0" prefWidth="90.0" text="Añadir">
+                           <VBox.margin>
+                              <Insets bottom="10.0" top="5.0" />
+                           </VBox.margin>
+                        </Button>
+                        <Button fx:id="btnEdit" mnemonicParsing="false" onAction="#btnEdit" prefHeight="38.0" prefWidth="90.0" text="Editar" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
