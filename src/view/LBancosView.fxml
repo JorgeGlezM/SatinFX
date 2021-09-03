@@ -19,6 +19,7 @@
                         <Font size="23.0" />
                      </font>
                   </Label>
+                  <Button fx:id="btnRegresar" layoutX="16.0" layoutY="20.0" mnemonicParsing="false" onAction="#btnRegresar" text="Regresar" />
                </children>
             </Pane>
             <HBox prefHeight="50.0" prefWidth="695.0">

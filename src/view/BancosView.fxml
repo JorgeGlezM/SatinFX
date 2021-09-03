@@ -16,6 +16,7 @@
                      <font>
                      </font>
                   </Label>
+                  <Button fx:id="btnRegresar" layoutX="14.0" layoutY="29.0" mnemonicParsing="false" onAction="#btnRegresar" text="Regresar" />
                </children>
             </Pane>
             <GridPane prefHeight="377.0" prefWidth="695.0">
