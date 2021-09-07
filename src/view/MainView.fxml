@@ -45,7 +45,7 @@
                               <Button fx:id="btnPagaduria" mnemonicParsing="false" text="Pagaduria" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                               <Button fx:id="btnPartida" mnemonicParsing="false" text="Partida" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                               <Button fx:id="btnPrograma" mnemonicParsing="false" text="Programa" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
-                              <Button fx:id="btnPuestos" mnemonicParsing="false" text="Puestos" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                              <Button fx:id="btnPuestos" mnemonicParsing="false" onAction="#btnPuestos" text="Puestos" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                               <Button fx:id="btnTipoNomina" mnemonicParsing="false" text="Tipo Nomina" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                               <Button fx:id="btnTipoTrabajador" mnemonicParsing="false" text="Tipo Trabajador" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
                               <Button fx:id="btnUnidad" mnemonicParsing="false" text="Unidad Responsable" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
