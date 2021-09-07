@@ -36,7 +36,7 @@
                               <Button fx:id="btnConceptos" mnemonicParsing="false" onAction="#btnConceptos" text="Conceptos" GridPane.columnIndex="3" GridPane.halignment="CENTER" />
                               <Button fx:id="btnConceptosSAT" mnemonicParsing="false" onAction="#btnConceptosSAT" text="Conceptos SAT" GridPane.columnIndex="4" GridPane.halignment="CENTER" />
                               <Button fx:id="btnDatos" mnemonicParsing="false" text="Datos Patronales" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                              <Button fx:id="btnEmpleados" mnemonicParsing="false" text="Empleados" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                              <Button fx:id="btnEmpleados" mnemonicParsing="false" onAction="#btnEmpleados" text="Empleados" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                               <Button fx:id="btnEmpleadosP" mnemonicParsing="false" text="Empleados P" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                               <Button fx:id="btnEmpresa" mnemonicParsing="false" text="Empresa" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                               <Button fx:id="btnFormas" mnemonicParsing="false" text="Formas de Pago" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" />

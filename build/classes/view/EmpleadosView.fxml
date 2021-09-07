@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="771.0" prefWidth="690.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.EmpleadosViewController">
+    <children>
+      <VBox alignment="TOP_CENTER" prefHeight="771.0" prefWidth="695.0">
+         <children>
+            <Pane prefHeight="88.0" prefWidth="616.0" style="-fx-background-color: #2B3D74;">
+               <children>
+                  <Label fx:id="lbl" alignment="CENTER" layoutX="242.0" layoutY="14.0" prefHeight="61.0" prefWidth="194.0" style="-fx-font-weight: BOLD;" text="Registro Empleados" textFill="WHITE">
+                     <font>
+                     </font>
+                  </Label>
+                  <Button fx:id="btnRegresar" layoutX="14.0" layoutY="29.0" mnemonicParsing="false" onAction="#btnRegresar" text="Regresar" />
+               </children>
+            </Pane>
+            <GridPane prefHeight="690.0" prefWidth="671.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="343.0" minWidth="10.0" prefWidth="175.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="520.0" minWidth="10.0" prefWidth="520.0" />
+              </columnConstraints>
+              <rowConstraints>
+                  <RowConstraints maxHeight="598.0" minHeight="10.0" prefHeight="81.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="598.0" minHeight="10.0" prefHeight="76.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="605.0" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="605.0" minHeight="10.0" prefHeight="78.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="605.0" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="605.0" minHeight="10.0" prefHeight="78.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="605.0" minHeight="10.0" prefHeight="78.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="605.0" minHeight="10.0" prefHeight="93.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="605.0" minHeight="10.0" prefHeight="85.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="605.0" minHeight="10.0" prefHeight="97.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="491.0" minHeight="10.0" prefHeight="104.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label prefHeight="21.0" prefWidth="89.0" style="-fx-font-weight: bold;" text="Nombre:" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                     <GridPane.margin>
+                        <Insets top="15.0" />
+                     </GridPane.margin>
+                  </Label>
+                  <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints maxHeight="51.0" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="84.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label text="Nombre:" GridPane.halignment="CENTER" />
+                        <Label prefHeight="21.0" prefWidth="127.0" text="Apellido Paterno:" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                        <Label text="Apellido Materno:" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+                        <TextField fx:id="txtNombre" maxWidth="145.0" prefWidth="145.0" GridPane.rowIndex="1" />
+                        <TextField fx:id="txtApellidoP" maxWidth="145.0" prefWidth="145.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TextField>
+                        <TextField fx:id="txtApellidoM" maxWidth="140.0" prefWidth="140.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TextField>
+                     </children>
+                  </GridPane>
+                  <Label prefHeight="21.0" prefWidth="162.0" style="-fx-font-weight: bold;" text="Clave de Empleado:" GridPane.halignment="RIGHT" />
+                  <TextField fx:id="txtClave" maxWidth="500.0" prefWidth="500.0" GridPane.columnIndex="1" />
+                  <Label prefHeight="0.0" prefWidth="166.0" style="-fx-font-weight: bold;" text="Datos del Empleado:" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+                     <GridPane.margin>
+                        <Insets top="15.0" />
+                     </GridPane.margin>
+                  </Label>
+                  <GridPane GridPane.columnIndex="1" GridPane.rowIndex="3">
+                     <children>
+                        <Label text="RFC:" GridPane.halignment="CENTER" />
+                        <Label prefHeight="21.0" prefWidth="44.0" text="CURP:" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                        <Label text="NSS:" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+                        <TextField fx:id="txtRFC" maxWidth="160.0" prefWidth="150.0" GridPane.rowIndex="1" />
+                        <TextField fx:id="txtCURP" maxWidth="160.0" prefWidth="145.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TextField>
+                        <TextField fx:id="txtNSS" maxWidth="160.0" prefWidth="140.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TextField>
+                     </children>
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints maxHeight="51.0" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="84.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                  </GridPane>
+                  <GridPane GridPane.columnIndex="1" GridPane.rowIndex="5">
+                     <children>
+                        <Label fx:id="date" text="Fecha Ingreso:" GridPane.halignment="CENTER" />
+                        <Label prefHeight="21.0" prefWidth="55.0" text="Activo:" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                        <Label text="repss???" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+                        <TextField fx:id="txtRepss" maxWidth="160.0" prefWidth="140.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TextField>
+                        <DatePicker fx:id="dpFecha" maxWidth="170.0" GridPane.rowIndex="1" />
+                        <ChoiceBox fx:id="cmbActivo" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                     </children>
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="191.0" minWidth="10.0" prefWidth="177.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="170.0" minWidth="10.0" prefWidth="170.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints maxHeight="51.0" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="84.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                  </GridPane>
+                  <GridPane GridPane.columnIndex="1" GridPane.rowIndex="6">
+                     <children>
+                        <Label text="Correo:" GridPane.halignment="CENTER" />
+                        <Label prefHeight="21.0" prefWidth="95.0" text="Contraseña:" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                        <TextField fx:id="txtCorreo" maxWidth="254.0" prefHeight="31.0" prefWidth="254.0" GridPane.rowIndex="1" />
+                        <TextField fx:id="txtContrasena" maxWidth="240.0" prefHeight="31.0" prefWidth="240.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TextField>
+                     </children>
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints maxHeight="51.0" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="84.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                  </GridPane>
+                  <GridPane GridPane.columnIndex="1" GridPane.rowIndex="7">
+                     <children>
+                        <Label text="Jornada:" GridPane.halignment="CENTER" />
+                        <Label prefHeight="21.0" prefWidth="58.0" text="Año:" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                        <Label text="Ultimo Sueldo:" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+                        <TextField fx:id="txtAnio" maxWidth="160.0" prefWidth="145.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TextField>
+                        <TextField fx:id="txtUltimoS" maxWidth="160.0" prefWidth="140.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TextField>
+                        <ChoiceBox fx:id="cmbJornada" prefWidth="150.0" GridPane.rowIndex="1" />
+                     </children>
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints maxHeight="51.0" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="84.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                  </GridPane>
+                  <GridPane GridPane.columnIndex="1" GridPane.rowIndex="8">
+                     <children>
+                        <Label text="Ingreso Acumulable:" GridPane.halignment="CENTER" />
+                        <Label prefHeight="21.0" prefWidth="166.0" text="Ingreso no acumulable:" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                        <Label text="Turno:" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+                        <TextField fx:id="txtIngresoA" maxWidth="160.0" prefWidth="150.0" GridPane.rowIndex="1" />
+                        <TextField fx:id="txtIngresoN" maxWidth="160.0" prefWidth="145.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TextField>
+                        <TextField fx:id="txtTurno" maxWidth="160.0" prefWidth="140.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TextField>
+                     </children>
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints maxHeight="51.0" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="84.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                  </GridPane>
+                  <GridPane GridPane.columnIndex="1" GridPane.rowIndex="9">
+                     <children>
+                        <Label text="Cedula:" GridPane.halignment="CENTER" />
+                        <Label prefHeight="21.0" prefWidth="112.0" text="Tipo de Cedula:" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                        <Label text="Entidad Cedula:" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+                        <TextField fx:id="txtCedula" maxWidth="160.0" prefWidth="150.0" GridPane.rowIndex="1" />
+                        <TextField fx:id="txtTipoC" maxWidth="160.0" prefWidth="145.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TextField>
+                        <TextField fx:id="txtEntidadC" maxWidth="160.0" prefWidth="140.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </TextField>
+                     </children>
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints maxHeight="51.0" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="84.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                  </GridPane>
+                  <GridPane GridPane.columnIndex="1" GridPane.rowIndex="10">
+                     <children>
+                        <Label text="Especialidad:" GridPane.halignment="CENTER" />
+                        <TextField fx:id="txtEspecialidad" maxWidth="160.0" prefWidth="150.0" GridPane.rowIndex="1" />
+                        <Button fx:id="btnRegistrar" mnemonicParsing="false" onAction="#btnRegistrar" prefHeight="42.0" prefWidth="92.0" text="Registrar" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                           <GridPane.margin>
+                              <Insets right="60.0" />
+                           </GridPane.margin>
+                        </Button>
+                     </children>
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints maxHeight="51.0" minHeight="10.0" prefHeight="28.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="95.0" minHeight="10.0" prefHeight="84.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                  </GridPane>
+               </children>
+            </GridPane>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

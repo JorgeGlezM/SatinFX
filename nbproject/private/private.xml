@@ -3,11 +3,20 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/ConceptosViewController.java</file>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/EmpleadosViewController.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/view/ConceptosView.fxml</file>
-            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/LBancosViewController.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/Bancos.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/MySQL.java</file>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/LConceptosSATViewController.java</file>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/LCentrosTrabajoViewController.java</file>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/LEmpleadosViewController.java</file>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/LBancosViewController.java</file>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/Empleados.java</file>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/Empleados2.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/MainViewController.java</file>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/BancosViewController.java</file>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/CentrosTrabajo.java</file>
         </group>
     </open-files>
 </project-private>
