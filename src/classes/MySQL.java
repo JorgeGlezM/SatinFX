@@ -69,7 +69,7 @@ public  class MySQL {
         
         try {
             Statement stmt = conn.createStatement();
-            System.out.println(sql);
+            //System.out.println(sql);
             stmt.executeUpdate(sql);
             //el booleano indica si la inserción fue correcta o no.
             b=true;

@@ -15,7 +15,7 @@
                <content>
                   <AnchorPane prefHeight="200.0" prefWidth="200.0">
                      <children>
-                        <GridPane alignment="CENTER" layoutX="7.0" layoutY="-8.0" prefHeight="507.0" prefWidth="1032.0">
+                        <GridPane alignment="CENTER" layoutX="4.0" layoutY="3.0" prefHeight="507.0" prefWidth="1032.0">
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -55,9 +55,47 @@
                   </AnchorPane>
                </content>
           </Tab>
-          <Tab text="Untitled Tab 1">
+          <Tab text="Operaciones">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <GridPane alignment="CENTER" layoutX="7.0" layoutY="3.0" prefHeight="507.0" prefWidth="1032.0">
+                           <children>
+                              <Button fx:id="btnCargaNomina" mnemonicParsing="false" onAction="#btnCargaNomina" prefHeight="32.0" prefWidth="207.0" style="-fx-wrap-text: false;" text="Carga de Archivo Nómina" GridPane.halignment="CENTER" />
+                              <Button fx:id="btnCentros1" mnemonicParsing="false" onAction="#btnCentros" text="Centros Trabajo" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                              <Button fx:id="btnClues1" mnemonicParsing="false" onAction="#btnClues" text="Clues" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
+                              <Button fx:id="btnConceptos1" mnemonicParsing="false" onAction="#btnConceptos" text="Conceptos" GridPane.columnIndex="3" GridPane.halignment="CENTER" />
+                              <Button fx:id="btnConceptosSAT1" mnemonicParsing="false" onAction="#btnConceptosSAT" text="Conceptos SAT" GridPane.columnIndex="4" GridPane.halignment="CENTER" />
+                              <Button fx:id="btnDatos1" mnemonicParsing="false" text="Datos Patronales" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                              <Button fx:id="btnEmpleados1" mnemonicParsing="false" onAction="#btnEmpleados" text="Empleados" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                              <Button fx:id="btnEmpleadosP1" mnemonicParsing="false" text="Empleados P" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                              <Button fx:id="btnEmpresa1" mnemonicParsing="false" text="Empresa" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                              <Button fx:id="btnFormas1" mnemonicParsing="false" text="Formas de Pago" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
+                              <Button fx:id="btnIndicador1" mnemonicParsing="false" text="Indicador Mando" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                              <Button fx:id="btnJornadas1" mnemonicParsing="false" text="Jornadas" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                              <Button fx:id="btnPagaduria1" mnemonicParsing="false" text="Pagaduria" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                              <Button fx:id="btnPartida1" mnemonicParsing="false" text="Partida" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                              <Button fx:id="btnPrograma1" mnemonicParsing="false" text="Programa" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                              <Button fx:id="btnPuestos1" mnemonicParsing="false" onAction="#btnPuestos" text="Puestos" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                              <Button fx:id="btnTipoNomina1" mnemonicParsing="false" text="Tipo Nomina" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                              <Button fx:id="btnTipoTrabajador1" mnemonicParsing="false" text="Tipo Trabajador" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                              <Button fx:id="btnUnidad1" mnemonicParsing="false" text="Unidad Responsable" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
+                           </children>
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                           </rowConstraints>
+                        </GridPane>
+                     </children></AnchorPane>
             </content>
           </Tab>
             <Tab text="Untitled Tab 2">

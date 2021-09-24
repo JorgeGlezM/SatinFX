@@ -19,6 +19,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javax.swing.JOptionPane;
 import classes.MySQL;
+import classes.Numero_Letras;
 import java.io.IOException;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
@@ -118,6 +119,10 @@ public class LoginViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        //Código basura para testear convertir números a letras. 
+        Numero_Letras test= new Numero_Letras();
+        test.Convertir("1995.32",true);
+        System.out.println(test.Convertir("3233321.32",true));
      }    
     
 }
