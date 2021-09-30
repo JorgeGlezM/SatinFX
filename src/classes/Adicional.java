@@ -12,6 +12,11 @@ package classes;
 public class Adicional {
     String dID,adicional;
 
+    public Adicional(String dID, String adicional) {
+        this.dID = dID;
+        this.adicional = adicional;
+    }
+
     public String getdID() {
         return dID;
     }

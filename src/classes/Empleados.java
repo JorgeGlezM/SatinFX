@@ -11,6 +11,31 @@ package classes;
  */
 public class Empleados
 {
+    String nombres,aPaterno,aMaterno,fecha;
+
+    public String getNombres() {
+        return nombres;
+    }
+
+    public void setNombres(String nombres) {
+        this.nombres = nombres;
+    }
+
+    public String getaPaterno() {
+        return aPaterno;
+    }
+
+    public void setaPaterno(String aPaterno) {
+        this.aPaterno = aPaterno;
+    }
+
+    public String getaMaterno() {
+        return aMaterno;
+    }
+
+    public void setaMaterno(String aMaterno) {
+        this.aMaterno = aMaterno;
+    }
 	private String Clave;
 	public String getClave()
 	{
@@ -80,4 +105,24 @@ public class Empleados
 		this.NSS = NSS_;
 		this.Correo = Correo_;
 	}
+        
+        public Empleados(String clave,String aPaterno,String aMaterno,String nombres,String RFC,String CURP, String NSS, String fecha)
+	{
+		this.Clave = clave;
+                this.aPaterno=aPaterno;
+                this.aMaterno=aMaterno;
+		this.nombres = nombres;
+		this.RFC = RFC;
+		this.CURP = CURP;
+		this.NSS = NSS;
+		this.fecha = fecha;
+	}
+
+    public String getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(String fecha) {
+        this.fecha = fecha;
+    }
 }
