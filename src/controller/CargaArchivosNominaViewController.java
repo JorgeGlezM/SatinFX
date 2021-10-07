@@ -33,8 +33,10 @@ import classes.DetalleConceptos;
 import classes.DetalleNomina;
 import classes.Empleados;
 import classes.Horas;
+import classes.Productos;
 import com.linuxense.javadbf.DBFReader;
 import java.io.FileInputStream;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,12 +60,18 @@ public class CargaArchivosNominaViewController implements Initializable {
     //Strings para tabla detalle
     String dClave, dNumEmp,dRFC,dBanco,dCuentaBancaria,dClaveP2,dCentroTrabajo,dCodigoPuesto,dClavePago,dContrato,dClaveContrato
             ,dDescripcion,dFechaInicial,dFechaFinal,dMovimiento,dPercepciones,dDeducciones,dFaltas,dDiaIncapacidad,dTipoIncapacidad,dImporteIncapacidad
-            ,dDiasHorasDobles,dHorasDobles,dImporteHorasDobles,dDiasHorasTriples,dHorasTriples,dImporteHorasTriples,dClue,dSindicalizado,dConceptos, dID;
+            ,dDiasHorasDobles,dHorasDobles,dImporteHorasDobles,dDiasHorasTriples,dHorasTriples,dImporteHorasTriples,dClue,dSindicalizado,dConceptos, dID,
+            dTipoR,dNoPuesto,dIndicadorMando,dSalarioDiario,dSecuencia, dUnidadResponsable,dInstrumentoPago,dHoras,dFonac,dDigito,dPagaduria,
+            dControlSar,dTipoTrabajador,dNivel,dRango,dPorcentaje,dEstado,dMunicipio,dActividad,dProyecto,dPartida,dGfSf,dSelloSat;
     String adicional;
     //Strings para tabla conceptos
     String cConcepto,cGrabado,cNoGrabado;
     //Strings para inserciones SQL
     String sqlEmpleado="", sqlProducto="",sqlDetalle="",sqlAdicional="",sqlConceptos="",sqlHoras="",sqlFaltas="";
+    String preClave="";
+    int c=0;
+    BigDecimal totales=new BigDecimal(0);
+    BigDecimal deducciones=new BigDecimal(0);
     Scanner sc;
     Scanner lineScanner;
     @FXML ChoiceBox cmbTipo;
@@ -73,8 +81,10 @@ public class CargaArchivosNominaViewController implements Initializable {
     List<Adicional> adicionales=new ArrayList<Adicional>();
     List<Conceptos> conceptos=new ArrayList<Conceptos>();
     List<Horas> horas=new ArrayList<Horas>();
-    Object[] rowObjects;
+    List<Productos> productos=new ArrayList<Productos>();
 
+    Object[] rowObjects;
+    DBFReader dbfreader;
 
 
 
@@ -89,6 +99,7 @@ public class CargaArchivosNominaViewController implements Initializable {
         cmbTipo.getItems().add((Object)"txt");
         cmbTipo.getItems().add((Object)"dbf");
         cmbTipo.getItems().add((Object)"dat");
+        cmbTipo.setValue("dbf");
 
     }    
     @FXML private void btnRegresar (ActionEvent event) throws IOException{
@@ -106,7 +117,9 @@ public class CargaArchivosNominaViewController implements Initializable {
     }
     @FXML private void btnCargar (ActionEvent event) throws IOException{
 
-        cargarTXT();
+        //Hacer case para tipos de archivo
+        extraerDatosDBF();
+        //cargarTXT();
     }
     @FXML private void btnSeleccionar (ActionEvent event) throws IOException{
         FileChooser fc = new FileChooser();
@@ -133,17 +146,19 @@ public class CargaArchivosNominaViewController implements Initializable {
             }break;
             
             case "dbf":
+            
             extFilter = 
             new FileChooser.ExtensionFilter("Archivos dbf (*.dbf)", "*.dbf");
             fc.getExtensionFilters().add(extFilter);
             JOptionPane.showMessageDialog(null, "Seleccione el archivo de nómina a cargar");
             selectedFile = fc.showOpenDialog(null);
             if(selectedFile!=null){
-                JOptionPane.showMessageDialog(null, "Seleccione el archivo de empleados a cargar");
+                JOptionPane.showMessageDialog(null, "Seleccione el archivo de conceptos a cargar");
                 empleadoFile=fc.showOpenDialog(null);
                 lblFile.setText(selectedFile.getAbsolutePath());
                 lblFile.setWrapText(true);
-            }break;
+            }
+            break;
         
 
         }
@@ -157,7 +172,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             insertsTXT(); break;    
             
             case "dbf":
-            extraerEmpleadoDBF();
+            extraerConceptoDBF();
             break;
         }
 
@@ -342,7 +357,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                 System.out.println(e);
             }
                         
-                        
+                            
             //Insercion Producto
             mysql.stmt(sqlProducto);
             
@@ -450,21 +465,200 @@ public class CargaArchivosNominaViewController implements Initializable {
 
                     
     }
-
-    private void extraerEmpleadoDBF() {
+    
+    private void extraerDatosDBF() {
         try {
-            DBFReader reader = new DBFReader(new FileInputStream(empleadoFile));
-            int numberOfFields = reader.getFieldCount();
+            dbfreader = new DBFReader(new FileInputStream(selectedFile));
+            
+                        //Ciclo de registros dbf
+			while ((rowObjects = dbfreader.nextRecord()) != null) {
+                            //Inicia extracción empleado
+                            eClave=rowObjects[0].toString();
+                            //Separamos la cadena del nombre
+                            String nombre=rowObjects[3].toString();
+                            String temp=nombre.substring(0,nombre.indexOf(" "));
+                            nombre=nombre.substring(nombre.indexOf(" ")+1,nombre.length());
+                            eAPaterno=temp;
+                            if(temp.equalsIgnoreCase("de")||temp.equalsIgnoreCase("del")){
+                                temp=nombre.substring(0,nombre.indexOf(" "));
+                                eAPaterno=eAPaterno+" "+temp;
+                                nombre=nombre.substring(nombre.indexOf(" ")+1,nombre.length());
+                                if(temp.equalsIgnoreCase("el")||temp.equalsIgnoreCase("la")||temp.equalsIgnoreCase("las")||temp.equalsIgnoreCase("los")){
+                                    temp=nombre.substring(0,nombre.indexOf(" "));
+                                    eAPaterno=eAPaterno+" "+temp;
+                                    nombre=nombre.substring(nombre.indexOf(" ")+1,nombre.length());
+                                }
+                            }
+                            temp=nombre.substring(0,nombre.indexOf(" "));
+                            nombre=nombre.substring(nombre.indexOf(" ")+1,nombre.length());
+                            eAMaterno=temp;
+                            if(temp.equalsIgnoreCase("de")||temp.equalsIgnoreCase("del")){
+                                temp=nombre.substring(0,nombre.indexOf(" "));
+                                eAMaterno=eAMaterno+" "+temp;
+                                nombre=nombre.substring(nombre.indexOf(" ")+1,nombre.length());
+                                if(temp.equalsIgnoreCase("el")||temp.equalsIgnoreCase("la")||temp.equalsIgnoreCase("las")||temp.equalsIgnoreCase("los")){
+                                    temp=nombre.substring(0,nombre.indexOf(" "));
+                                    eAMaterno=eAMaterno+" "+temp;
+                                    nombre=nombre.substring(nombre.indexOf(" ")+1,nombre.length());
+                                }
+                            }
+                            eNombres=nombre;
+                            eRFC=rowObjects[1].toString();
+                            eCURP=rowObjects[2].toString();
+                            eNSS="0";
+                            eFecha=rowObjects[39].toString();
+                            empleados.add(new Empleados(eClave,eAPaterno,eAMaterno,eNombres,eRFC,eCURP,eNSS,eFecha));
+                            //Termina extracción empleado
+                            
+                            
+                            
+                            //Inicia extracción producto nomina
+                            //String pClave,pAnio,pMes,pFechaPago,pRenglones,pTotal;
+                            if(preClave.equals("")){
+                                //Iniciamos el primer producto
+                                preClave=rowObjects[58].toString();
+                                pAnio=rowObjects[49].toString();
+                                pClave="E"+preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
+                                System.out.println(pClave);
+                                pMes=rowObjects[48].toString();
+                                pFechaPago=rowObjects[43].toString();
+                                totales=new BigDecimal(rowObjects[53].toString());
 
-			while ((rowObjects = reader.nextRecord()) != null) {
-                            eRFC=rowObjects[0].toString();
-                            System.out.println(eRFC);
+                                deducciones=new BigDecimal(rowObjects[54].toString());
+                                
+                            }else if(rowObjects[58].toString().equals(preClave)){
+                                //Sumamos totales al producto
+                                totales=totales.add(new BigDecimal(rowObjects[53].toString()));
+                                deducciones=deducciones.add(new BigDecimal(rowObjects[54].toString()));
+                            }else if(!preClave.equals("")&&!rowObjects[58].toString().equals(preClave)){
+                                //Concluimos el registro anterior y lo agregamos a la lista
+                                //System.out.println("percepcion:" +totales);
+                                //System.out.println("Deduccion:" +deducciones);
+                                System.out.println("percepcion:" + totales.toString());
+                                System.out.println("deducción:" + deducciones.toString());
+                                pTotal=totales.subtract(deducciones).toString();
+                                System.out.println(pTotal);
+                                productos.add(new Productos(pClave,pAnio,pMes,pFechaPago,pTotal));
+                                
+                                //Iniciamos el siguiente registro
+                                preClave=rowObjects[58].toString();
+                                pAnio=rowObjects[49].toString();
+                                pClave="E"+preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
+                                System.out.println(pClave);
+                                pMes=rowObjects[48].toString();
+                                pFechaPago=rowObjects[43].toString();
+                                totales=new BigDecimal(rowObjects[53].toString());
+                                deducciones=new BigDecimal(rowObjects[54].toString());
+                            }
+                            
+                            
+                            //Iniciamos extracción de detalle_nomina
+                            
+                            /*
+                                'Insert DETALLE_NOMINA
+    str = "insert into detalle_nomina (producto,clave,tipor,clavep,centro_trabajo,puesto,contrato,clav," & _
+    " clavepago,no_puesto,indicador_mando,descripcion,fechai,fechaf,movimiento,total1,total2,conceptos," & _
+    " salariodiario,sindicato,rfc,seq,unidad,letra,instrumento_pago,horas,fonac,digito_ver,pagaduria,control_sar," & _
+    " tipo_trabajador,nivel,rango,porcentaje,edo,mun,actividad,proyecto,partida,gf_sf,sellosat,banco,cuenta_bancaria) " & _
+    " values ('" & Trim(CFDIProducto) & "'," & CFDINumEmp & ",'" & CFDItipor & "','" & CFDIclavep & _
+    "','" & CFDIcentro & "','" & Trim(CFDIPuesto) & "','" & CFDIcontrato & "','" & CFDIclavecon & "','" & CFDIotro & "','" & CFDINoPuesto & _
+    "','" & CFDITipoMando & "','" & CFDIdescripcion & "','" & CFDIFechaI & "','" & CFDIFechaF & "','" & CFDIMovimiento & _
+    "','" & CFDITotal1 & "','" & CFDITotal2 & "','" & CFDIConceptos & "','" & CFDITotal2 & "','" & _
+    CFDSindicato & "','" & CFDRecepRFC & "','" & CFDISEQ & "','" & CFDUnidadResponsable & "','" & _
+    LETRA & "','" & CFDIInstrumentoPago & "','" & CFDIHoras & "','" & CFDIFonac & "','" & _
+    CFDIDigito & "','" & CFDIPagaduria & "','" & CFDIControlSar & "','" & CFDITipoTrabajador & _
+    "','" & CFDINivel & "','" & CFDIRango & "','" & CFDIPorcentaje & "','" & CFDIEdo & "','" & CFDIMun & _
+    "','" & CFDIActividad & "','" & CFDIProyecto & "','" & CFDIPartida & "','" & CFDIGF_SF & _
+    "','" & CFDInombre2 & "','" & CFDIBanco & "','" & CFDICuentaBancaria & "')"
+                            
+                            */
+                            dClave=pClave;
+                            dNumEmp=rowObjects[0].toString();
+                            dTipoR="0";
+                            dClavePago=rowObjects[7].toString();
+                            dCentroTrabajo=rowObjects[26].toString();
+                            dCodigoPuesto=rowObjects[22].toString();
+                            dContrato="0";
+                            dClaveContrato="0";
+                            dClavePago=rowObjects[14].toString()+rowObjects[18].toString()+rowObjects[19].toString()+rowObjects[22].toString()+rowObjects[23].toString()+rowObjects[16].toString()+rowObjects[17].toString()+rowObjects[18].toString();
+                            dNoPuesto=rowObjects[23].toString();
+                            dIndicadorMando=rowObjects[33].toString();
+                            dDescripcion="0";
+                            dFechaInicial=rowObjects[44].toString();
+                            dFechaFinal=rowObjects[45].toString();
+                            dMovimiento=rowObjects[60].toString();
+                            dPercepciones=rowObjects[53].toString();
+                            dDeducciones=rowObjects[54].toString();
+                            dConceptos=rowObjects[56].toString();
+                            dSalarioDiario=dDeducciones;
+                            dSindicalizado="NO";
+                            dRFC=rowObjects[1].toString();
+                            dSecuencia=rowObjects[59].toString();
+                            dUnidadResponsable=rowObjects[14].toString();
+                            //Variable letra falta aquí
+                            dInstrumentoPago=rowObjects[52].toString();
+                            dHoras=rowObjects[34].toString();
+                            dFonac=rowObjects[66].toString();
+                            dClue=rowObjects[68].toString();
+                            dPagaduria=rowObjects[28].toString();
+                            //            ,dTipoTrabajador,dNivel,dRango,dPorcentaje,dEstado,dMunicipio,dActividad,dProyecto,dPartida,dGfSf,dSelloSat;
+                            dControlSar=rowObjects[4].toString();
+                            dTipoTrabajador=rowObjects[36].toString();
+                            dNivel=rowObjects[37].toString();
+                            //dRango
+                            //dPorcentaje
+                            //dEstado
+                            //dMunicipio
+                            dActividad=rowObjects[19].toString();
+                            //dProyecto
+                            //dPartida
+                            //dGfSf
+                            //dSelloSat de donde viene la variable
+                            dBanco=rowObjects[4].toString();
+                            dCuentaBancaria=rowObjects[7].toString();
+                            
+                            
+                            
+                            
+                            
+                                    
+                                    
+                            dID=dRFC+dClave+dMovimiento;
+
+            }
+                        //Agregamos el registro final de producto al salir del diclo ya que nunca entraría a la condición de ser clave distinta porque no hay más registros.
+                            System.out.println("percepcion:" + totales.toString());
+                            System.out.println("deducción:" + deducciones.toString());
+                            pTotal=totales.subtract(deducciones).toString();
+                            System.out.println(pTotal);
+                            productos.add(new Productos(pClave,pAnio,pMes,pFechaPago,pTotal));
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    private void extraerConceptoDBF() {
+        try {
+            dbfreader = new DBFReader(new FileInputStream(empleadoFile));
+            /*String dClave, dNumEmp,dRFC,dBanco,dCuentaBancaria,dClaveP2,dCentroTrabajo,dCodigoPuesto,dClavePago,dContrato,dClaveContrato
+            ,dDescripcion,dFechaInicial,dFechaFinal,dMovimiento,dPercepciones,dDeducciones,dFaltas,dDiaIncapacidad,dTipoIncapacidad,dImporteIncapacidad
+            ,dDiasHorasDobles,dHorasDobles,dImporteHorasDobles,dDiasHorasTriples,dHorasTriples,dImporteHorasTriples,dClue,dSindicalizado;*/
+			while ((rowObjects = dbfreader.nextRecord()) != null) {
+                            dRFC=rowObjects[0].toString();
+                            dClave=rowObjects[1].toString();
+                            dMovimiento=rowObjects[2].toString();
+                            String c1,c2,c3;
+                            c1=rowObjects[3].toString();
+                            c2=rowObjects[4].toString();
+                            c3=rowObjects[8].toString();                             
 			}
         } catch (FileNotFoundException ex) {
             Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
+    
 
 
 }
