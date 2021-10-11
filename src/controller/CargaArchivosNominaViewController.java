@@ -32,8 +32,10 @@ import classes.Conceptos;
 import classes.DetalleConceptos;
 import classes.DetalleNomina;
 import classes.Empleados;
+import classes.Faltas;
 import classes.Horas;
 import classes.Productos;
+import classes.Validaciones;
 import com.linuxense.javadbf.DBFReader;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
@@ -52,6 +54,7 @@ public class CargaArchivosNominaViewController implements Initializable {
     private Parent root;
     File selectedFile;
     File empleadoFile;
+    String RFCEmisor="";
     String productoActual="";
     //Strings para tabla empleado
     String eClave,eAPaterno,eAMaterno, eNombres,eRFC,eCURP,eNSS,eFecha;
@@ -62,7 +65,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             ,dDescripcion,dFechaInicial,dFechaFinal,dMovimiento,dPercepciones,dDeducciones,dFaltas,dDiaIncapacidad,dTipoIncapacidad,dImporteIncapacidad
             ,dDiasHorasDobles,dHorasDobles,dImporteHorasDobles,dDiasHorasTriples,dHorasTriples,dImporteHorasTriples,dClue,dSindicalizado,dConceptos, dID,
             dTipoR,dNoPuesto,dIndicadorMando,dSalarioDiario,dSecuencia, dUnidadResponsable,dInstrumentoPago,dHoras,dFonac,dDigito,dPagaduria,
-            dControlSar,dTipoTrabajador,dNivel,dRango,dPorcentaje,dEstado,dMunicipio,dActividad,dProyecto,dPartida,dGfSf,dSelloSat;
+            dControlSar,dTipoTrabajador,dNivel,dRango,dPorcentaje,dEstado,dMunicipio,dActividad,dProyecto,dPartida,dGfSf,dNombre2;
     String adicional;
     //Strings para tabla conceptos
     String cConcepto,cGrabado,cNoGrabado;
@@ -82,6 +85,10 @@ public class CargaArchivosNominaViewController implements Initializable {
     List<Conceptos> conceptos=new ArrayList<Conceptos>();
     List<Horas> horas=new ArrayList<Horas>();
     List<Productos> productos=new ArrayList<Productos>();
+    List<Faltas> faltas=new ArrayList<Faltas>();
+    List<Validaciones> validaciones=new ArrayList<Validaciones>();
+
+
 
     Object[] rowObjects;
     DBFReader dbfreader;
@@ -117,9 +124,11 @@ public class CargaArchivosNominaViewController implements Initializable {
     }
     @FXML private void btnCargar (ActionEvent event) throws IOException{
 
-        //Hacer case para tipos de archivo
-        extraerDatosDBF();
-        //cargarTXT();
+        String tipo=(String) cmbTipo.getValue();
+        switch(tipo){
+            case "txt":cargarTXT();break;
+            case "dbf":extraerDatosDBF();break;
+        }        
     }
     @FXML private void btnSeleccionar (ActionEvent event) throws IOException{
         FileChooser fc = new FileChooser();
@@ -164,17 +173,10 @@ public class CargaArchivosNominaViewController implements Initializable {
         }
     }
     public void cargarTXT(){
-        String tipo=(String) cmbTipo.getValue();
-        switch(tipo){
-            case "txt":
-            extraerEmpleadoTXT();
-            extraerProductoTXT();
-            insertsTXT(); break;    
-            
-            case "dbf":
-            extraerConceptoDBF();
-            break;
-        }
+      
+        extraerEmpleadoTXT();
+        extraerProductoTXT();
+        insertsTXT(); 
 
     }
     public void extraerEmpleadoTXT(){
@@ -314,6 +316,8 @@ public class CargaArchivosNominaViewController implements Initializable {
             cNoGrabado=aScanner.next();
             i++;
             conceptos.add(new Conceptos(dID,cConcepto,cGrabado,cNoGrabado));
+            generarValidacionesTXT();
+
 
         }
     }
@@ -323,8 +327,14 @@ public class CargaArchivosNominaViewController implements Initializable {
     }
 
     private void extraerFaltasTXT() {
-        sqlHoras=sqlHoras+"insert into incapacidades (id_detalle_nomina,producto,faltas,dia,tipo) values "+
-        "('"+dID+"','"+dClave+"','"+dFaltas+"','"+dHorasDobles+"','"+dImporteHorasDobles+"','"+dDiasHorasTriples+"','"+dDiasHorasTriples+"','"+dImporteHorasTriples+"');"+"\n";    
+    if(!dFaltas.equals("0")){
+            faltas.add(new Faltas(dID,dClave,dFaltas,dDiaIncapacidad,dTipoIncapacidad));
+    }
+    }
+    private void generarValidacionesTXT() {
+        //dID,dClue,cConcepto,dNoPuesto
+        validaciones.add(new Validaciones(dID,dClue,cConcepto,dCodigoPuesto));
+        
     }
 
     private void insertsTXT() {
@@ -353,7 +363,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             empleados=new ArrayList<Empleados>();
                 System.out.println("Empleados insertados");
             }catch(Exception e){
-                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de Empleados", "Advertencia", JOptionPane.WARNING_MESSAGE);
                 System.out.println(e);
             }
                         
@@ -394,7 +404,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             System.out.println("Detalles insertados");
 
             }catch(Exception e){
-                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de detalles de nómina", "Advertencia", JOptionPane.WARNING_MESSAGE);
                 System.out.println(e);
             }
             
@@ -406,13 +416,12 @@ public class CargaArchivosNominaViewController implements Initializable {
                     pstmtAdicionales.setString(1, adicional.getdID()); 
                     pstmtAdicionales.setString(2, adicional.getAdicional());
                     pstmtAdicionales.addBatch();
-                    System.out.println(adicional.getdID());
             }
-            //pstmtAdicionales.executeBatch();
+            pstmtAdicionales.executeBatch();
             adicionales=new ArrayList<Adicional>();
                 System.out.println("Adicionales insertados");
             }catch(Exception e){
-                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de Adicionales", "Advertencia", JOptionPane.WARNING_MESSAGE);
                 System.out.println(e);
             }
             
@@ -431,7 +440,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             conceptos=new ArrayList<Conceptos>();
                 System.out.println("Conceptos insertados");
             }catch(Exception e){
-                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de detalle de conceptos", "Advertencia", JOptionPane.WARNING_MESSAGE);
                 System.out.println(e);
             }
             
@@ -457,7 +466,54 @@ public class CargaArchivosNominaViewController implements Initializable {
             horas=new ArrayList<Horas>();
                 System.out.println("Horas insertadas");
             }catch(Exception e){
-                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de Horas", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+            
+            //Inserción de faltas 
+            String insertFaltas="insert into incapacidades (id_detalle_nomina,producto,faltas,dia,tipo) values (?,?,?,?,?)";
+            try{
+                PreparedStatement pstmtFaltas = mysql.conn.prepareStatement(insertFaltas);
+                for (Faltas falta : faltas) {
+                    pstmtFaltas.setString(1, falta.getdID()); 
+                    pstmtFaltas.setString(2, falta.getdClave());
+                    pstmtFaltas.setString(3, falta.getdFaltas());
+                    if(falta.getdDiaIncapacidad().equals("")){
+                        pstmtFaltas.setString(4, "0");
+                    }else{
+                        pstmtFaltas.setString(4, falta.getdDiaIncapacidad());
+
+                    }
+                    pstmtFaltas.setString(5, falta.getdTipoIncapacidad());
+                    pstmtFaltas.addBatch();
+            }
+            pstmtFaltas.executeBatch();
+            faltas=new ArrayList<Faltas>();
+                            System.out.println("Faltas insertadas");
+
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de Faltas", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+            
+                        //Inserción de validaciones 
+            String insertValidaciones="insert into tmpvalidardetalle (iddetalle,clue,puesto,concepto) values (?,?,?,?)";
+            try{
+                PreparedStatement pstmtValidaciones = mysql.conn.prepareStatement(insertValidaciones);
+                for (Validaciones validacion : validaciones) {
+                    pstmtValidaciones.setString(1, validacion.getdID()); 
+                    pstmtValidaciones.setString(2, validacion.getdClue());
+                    pstmtValidaciones.setString(3, validacion.getdCodigoPuesto());
+                    pstmtValidaciones.setString(4, validacion.getcConcepto());
+
+                    
+                    pstmtValidaciones.addBatch();
+            }
+            pstmtValidaciones.executeBatch();
+            faltas=new ArrayList<Faltas>();
+                System.out.println("Validaciones insertadas");
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de la tabla de validación", "Advertencia", JOptionPane.WARNING_MESSAGE);
                 System.out.println(e);
             }
             
@@ -517,9 +573,12 @@ public class CargaArchivosNominaViewController implements Initializable {
                             if(preClave.equals("")){
                                 //Iniciamos el primer producto
                                 preClave=rowObjects[58].toString();
+                                if(RFCEmisor.equals("SSJ970331PM5")){
+                                    pClave="E"+preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
+                                }else{
+                                    pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
+                                }
                                 pAnio=rowObjects[49].toString();
-                                pClave="E"+preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
-                                System.out.println(pClave);
                                 pMes=rowObjects[48].toString();
                                 pFechaPago=rowObjects[43].toString();
                                 totales=new BigDecimal(rowObjects[53].toString());
@@ -595,35 +654,24 @@ public class CargaArchivosNominaViewController implements Initializable {
                             dRFC=rowObjects[1].toString();
                             dSecuencia=rowObjects[59].toString();
                             dUnidadResponsable=rowObjects[14].toString();
-                            //Variable letra falta aquí
                             dInstrumentoPago=rowObjects[52].toString();
                             dHoras=rowObjects[34].toString();
                             dFonac=rowObjects[66].toString();
                             dClue=rowObjects[68].toString();
                             dPagaduria=rowObjects[28].toString();
-                            //            ,dTipoTrabajador,dNivel,dRango,dPorcentaje,dEstado,dMunicipio,dActividad,dProyecto,dPartida,dGfSf,dSelloSat;
                             dControlSar=rowObjects[4].toString();
                             dTipoTrabajador=rowObjects[36].toString();
                             dNivel=rowObjects[37].toString();
-                            //dRango
-                            //dPorcentaje
-                            //dEstado
-                            //dMunicipio
                             dActividad=rowObjects[19].toString();
-                            //dProyecto
-                            //dPartida
-                            //dGfSf
-                            //dSelloSat de donde viene la variable
+                            char cuarto=rowObjects[58].toString().charAt(3);
+                            if(dTipoTrabajador.equals("20")||RFCEmisor.equals("SSO960923M2A")&&cuarto=='P'){
+                                dNombre2=rowObjects[3].toString();//Cargamos nombre del pensionado
+                            }else{dNombre2="";}                            
                             dBanco=rowObjects[4].toString();
-                            dCuentaBancaria=rowObjects[7].toString();
-                            
-                            
-                            
-                            
-                            
-                                    
-                                    
+                            dCuentaBancaria=rowObjects[7].toString();                 
                             dID=dRFC+dClave+dMovimiento;
+                            
+                            //Falta crear la lista de objetos
 
             }
                         //Agregamos el registro final de producto al salir del diclo ya que nunca entraría a la condición de ser clave distinta porque no hay más registros.
@@ -641,23 +689,35 @@ public class CargaArchivosNominaViewController implements Initializable {
     private void extraerConceptoDBF() {
         try {
             dbfreader = new DBFReader(new FileInputStream(empleadoFile));
-            /*String dClave, dNumEmp,dRFC,dBanco,dCuentaBancaria,dClaveP2,dCentroTrabajo,dCodigoPuesto,dClavePago,dContrato,dClaveContrato
-            ,dDescripcion,dFechaInicial,dFechaFinal,dMovimiento,dPercepciones,dDeducciones,dFaltas,dDiaIncapacidad,dTipoIncapacidad,dImporteIncapacidad
-            ,dDiasHorasDobles,dHorasDobles,dImporteHorasDobles,dDiasHorasTriples,dHorasTriples,dImporteHorasTriples,dClue,dSindicalizado;*/
 			while ((rowObjects = dbfreader.nextRecord()) != null) {
                             dRFC=rowObjects[0].toString();
-                            dClave=rowObjects[1].toString();
+                            preClave=rowObjects[11].toString();
+                            if(RFCEmisor.equals("SSJ970331PM5")){
+                                dClave="E"+preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
+                            }else{
+                                dClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
+                            }
                             dMovimiento=rowObjects[2].toString();
+                            dID=dRFC+dClave+dMovimiento;
                             String c1,c2,c3;
                             c1=rowObjects[3].toString();
                             c2=rowObjects[4].toString();
-                            c3=rowObjects[8].toString();                             
+                            c3=rowObjects[8].toString();             
+                            //    If c1 = "3" Then c1 = "2"
+                            if(c1.equals("1")){
+                                c1="2";
+                            }
+                            cConcepto=c1+c2+c3;
+                            cGrabado=rowObjects[13].toString();
+                            cNoGrabado=rowObjects[14].toString();
 			}
         } catch (FileNotFoundException ex) {
             Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
+
+
     
 
 
