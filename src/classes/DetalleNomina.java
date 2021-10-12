@@ -12,7 +12,167 @@ package classes;
 public class DetalleNomina {
         String dClave, dNumEmp,dRFC,dBanco,dCuentaBancaria,dClaveP2,dCentroTrabajo,dCodigoPuesto,dClavePago,dContrato,dClaveContrato
             ,dDescripcion,dFechaInicial,dFechaFinal,dMovimiento,dPercepciones,dDeducciones,dFaltas,dDiaIncapacidad,dTipoIncapacidad,dImporteIncapacidad
-            ,dDiasHorasDobles,dHorasDobles,dImporteHorasDobles,dDiasHorasTriples,dHorasTriples,dImporteHorasTriples,dClue,dSindicalizado,dConceptos, dID;
+            ,dDiasHorasDobles,dHorasDobles,dImporteHorasDobles,dDiasHorasTriples,dHorasTriples,dImporteHorasTriples,dClue,dSindicalizado,dConceptos, dID
+            ,dTipoR,dControlSar,dTipoTrabajador,dNivel,dRango,dPorcentaje,dEstado,dMunicipio,dActividad,dProyecto,dPartida,dGfSf,dNombre2,dNoPuesto,
+                dIndicadorMando,dClaveP,dSalarioDiario,dSecuencia,dUnidadResponsable,dInstrumentoPago,dHoras,dFonac,dPagaduria,dDigito;
+
+    public DetalleNomina(String dClave, String dNumEmp, String dRFC, String dBanco, String dCuentaBancaria, String dCentroTrabajo, String dCodigoPuesto, String dClavePago, String dContrato, String dClaveContrato, String dDescripcion, String dFechaInicial, String dFechaFinal, String dMovimiento, String dDeducciones, String dClue, String dSindicalizado, String dConceptos, String dID, String dTipoR, String dControlSar, String dTipoTrabajador, String dNivel, String dActividad, String dIndicadorMando, String dClaveP, String dSalarioDiario, String dSecuencia, String dUnidadResponsable, String dInstrumentoPago, String dHoras, String dFonac, String dPagaduria,String dDigito) {
+        this.dClave = dClave;
+        this.dNumEmp = dNumEmp;
+        this.dRFC = dRFC;
+        this.dBanco = dBanco;
+        this.dCuentaBancaria = dCuentaBancaria;
+        this.dCentroTrabajo = dCentroTrabajo;
+        this.dCodigoPuesto = dCodigoPuesto;
+        this.dClavePago = dClavePago;
+        this.dContrato = dContrato;
+        this.dClaveContrato = dClaveContrato;
+        this.dDescripcion = dDescripcion;
+        this.dFechaInicial = dFechaInicial;
+        this.dFechaFinal = dFechaFinal;
+        this.dMovimiento = dMovimiento;
+        this.dDeducciones = dDeducciones;
+        this.dClue = dClue;
+        this.dSindicalizado = dSindicalizado;
+        this.dConceptos = dConceptos;
+        this.dID = dID;
+        this.dTipoR = dTipoR;
+        this.dControlSar = dControlSar;
+        this.dTipoTrabajador = dTipoTrabajador;
+        this.dNivel = dNivel;
+        this.dActividad = dActividad;
+        this.dIndicadorMando = dIndicadorMando;
+        this.dClaveP = dClaveP;
+        this.dSalarioDiario = dSalarioDiario;
+        this.dSecuencia = dSecuencia;
+        this.dUnidadResponsable = dUnidadResponsable;
+        this.dInstrumentoPago = dInstrumentoPago;
+        this.dHoras = dHoras;
+        this.dFonac = dFonac;
+        this.dPagaduria = dPagaduria;
+        this.dDigito = dDigito;
+
+    }
+
+    public String getdNoPuesto() {
+        return dNoPuesto;
+    }
+
+    public void setdNoPuesto(String dNoPuesto) {
+        this.dNoPuesto = dNoPuesto;
+    }
+
+    public String getdIndicadorMando() {
+        return dIndicadorMando;
+    }
+
+    public void setdIndicadorMando(String dIndicadorMando) {
+        this.dIndicadorMando = dIndicadorMando;
+    }
+
+    public String getdTipoR() {
+        return dTipoR;
+    }
+
+    public void setdTipoR(String dTipoR) {
+        this.dTipoR = dTipoR;
+    }
+
+    public String getdControlSar() {
+        return dControlSar;
+    }
+
+    public void setdControlSar(String dControlSar) {
+        this.dControlSar = dControlSar;
+    }
+
+    public String getdTipoTrabajador() {
+        return dTipoTrabajador;
+    }
+
+    public void setdTipoTrabajador(String dTipoTrabajador) {
+        this.dTipoTrabajador = dTipoTrabajador;
+    }
+
+    public String getdNivel() {
+        return dNivel;
+    }
+
+    public void setdNivel(String dNivel) {
+        this.dNivel = dNivel;
+    }
+
+    public String getdRango() {
+        return dRango;
+    }
+
+    public void setdRango(String dRango) {
+        this.dRango = dRango;
+    }
+
+    public String getdPorcentaje() {
+        return dPorcentaje;
+    }
+
+    public void setdPorcentaje(String dPorcentaje) {
+        this.dPorcentaje = dPorcentaje;
+    }
+
+    public String getdEstado() {
+        return dEstado;
+    }
+
+    public void setdEstado(String dEstado) {
+        this.dEstado = dEstado;
+    }
+
+    public String getdMunicipio() {
+        return dMunicipio;
+    }
+
+    public void setdMunicipio(String dMunicipio) {
+        this.dMunicipio = dMunicipio;
+    }
+
+    public String getdActividad() {
+        return dActividad;
+    }
+
+    public void setdActividad(String dActividad) {
+        this.dActividad = dActividad;
+    }
+
+    public String getdProyecto() {
+        return dProyecto;
+    }
+
+    public void setdProyecto(String dProyecto) {
+        this.dProyecto = dProyecto;
+    }
+
+    public String getdPartida() {
+        return dPartida;
+    }
+
+    public void setdPartida(String dPartida) {
+        this.dPartida = dPartida;
+    }
+
+    public String getdGfSf() {
+        return dGfSf;
+    }
+
+    public void setdGfSf(String dGfSf) {
+        this.dGfSf = dGfSf;
+    }
+
+    public String getdNombre2() {
+        return dNombre2;
+    }
+
+    public void setdNombre2(String dNombre2) {
+        this.dNombre2 = dNombre2;
+    }
 
     public String getdClave() {
         return dClave;
@@ -168,6 +328,14 @@ public class DetalleNomina {
         this.dMovimiento = dMovimiento;
     }
 
+    public String getdClaveP() {
+        return dClaveP;
+    }
+
+    public void setdClaveP(String dClaveP) {
+        this.dClaveP = dClaveP;
+    }
+
     public String getdPercepciones() {
         return dPercepciones;
     }
@@ -274,6 +442,70 @@ public class DetalleNomina {
 
     public String getdSindicalizado() {
         return dSindicalizado;
+    }
+
+    public String getdSalarioDiario() {
+        return dSalarioDiario;
+    }
+
+    public void setdSalarioDiario(String dSalarioDiario) {
+        this.dSalarioDiario = dSalarioDiario;
+    }
+
+    public String getdSecuencia() {
+        return dSecuencia;
+    }
+
+    public void setdSecuencia(String dSecuencia) {
+        this.dSecuencia = dSecuencia;
+    }
+
+    public String getdUnidadResponsable() {
+        return dUnidadResponsable;
+    }
+
+    public void setdUnidadResponsable(String dUnidadResponsable) {
+        this.dUnidadResponsable = dUnidadResponsable;
+    }
+
+    public String getdInstrumentoPago() {
+        return dInstrumentoPago;
+    }
+
+    public void setdInstrumentoPago(String dInstrumentoPago) {
+        this.dInstrumentoPago = dInstrumentoPago;
+    }
+
+    public String getdHoras() {
+        return dHoras;
+    }
+
+    public void setdHoras(String dHoras) {
+        this.dHoras = dHoras;
+    }
+
+    public String getdFonac() {
+        return dFonac;
+    }
+
+    public void setdFonac(String dFonac) {
+        this.dFonac = dFonac;
+    }
+
+    public String getdPagaduria() {
+        return dPagaduria;
+    }
+
+    public void setdPagaduria(String dPagaduria) {
+        this.dPagaduria = dPagaduria;
+    }
+
+    public String getdDigito() {
+        return dDigito;
+    }
+
+    public void setdDigito(String dDigito) {
+        this.dDigito = dDigito;
     }
 
     public void setdSindicalizado(String dSindicalizado) {

@@ -65,7 +65,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             ,dDescripcion,dFechaInicial,dFechaFinal,dMovimiento,dPercepciones,dDeducciones,dFaltas,dDiaIncapacidad,dTipoIncapacidad,dImporteIncapacidad
             ,dDiasHorasDobles,dHorasDobles,dImporteHorasDobles,dDiasHorasTriples,dHorasTriples,dImporteHorasTriples,dClue,dSindicalizado,dConceptos, dID,
             dTipoR,dNoPuesto,dIndicadorMando,dSalarioDiario,dSecuencia, dUnidadResponsable,dInstrumentoPago,dHoras,dFonac,dDigito,dPagaduria,
-            dControlSar,dTipoTrabajador,dNivel,dRango,dPorcentaje,dEstado,dMunicipio,dActividad,dProyecto,dPartida,dGfSf,dNombre2;
+            dControlSar,dTipoTrabajador,dNivel,dRango,dPorcentaje,dEstado,dMunicipio,dActividad,dProyecto,dPartida,dGfSf,dNombre2,dClaveP;
     String adicional;
     //Strings para tabla conceptos
     String cConcepto,cGrabado,cNoGrabado;
@@ -105,8 +105,8 @@ public class CargaArchivosNominaViewController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         cmbTipo.getItems().add((Object)"txt");
         cmbTipo.getItems().add((Object)"dbf");
-        cmbTipo.getItems().add((Object)"dat");
-        cmbTipo.setValue("dbf");
+        cmbTipo.getItems().add((Object)"dat/tra");
+        cmbTipo.setValue("dat/tra");
 
     }    
     @FXML private void btnRegresar (ActionEvent event) throws IOException{
@@ -126,8 +126,8 @@ public class CargaArchivosNominaViewController implements Initializable {
 
         String tipo=(String) cmbTipo.getValue();
         switch(tipo){
-            case "txt":cargarTXT();break;
-            case "dbf":extraerDatosDBF();break;
+            case "txt":extraerEmpleadoTXT();extraerProductoTXT();insertsTXT(); break;
+            case "dbf":extraerDatosDBF();extraerConceptosDBF();insertsDBF();break;
         }        
     }
     @FXML private void btnSeleccionar (ActionEvent event) throws IOException{
@@ -171,13 +171,6 @@ public class CargaArchivosNominaViewController implements Initializable {
         
 
         }
-    }
-    public void cargarTXT(){
-      
-        extraerEmpleadoTXT();
-        extraerProductoTXT();
-        insertsTXT(); 
-
     }
     public void extraerEmpleadoTXT(){
         try {
@@ -522,6 +515,169 @@ public class CargaArchivosNominaViewController implements Initializable {
                     
     }
     
+        private void insertsDBF() {
+            classes.MySQL mysql= new classes.MySQL();
+            mysql.conectar();
+            
+            //Inserción empleados
+            String insertEmpleado="INSERT INTO satin.empleados (clave,nombre,apaterno,amaterno,rfc,curp,nss,fecha_ingreso) "+
+            "VALUES(?,?,?,?,?,?,?,?)";
+            try{
+                PreparedStatement pstmtEmpleado = mysql.conn.prepareStatement(insertEmpleado);
+                for (Empleados empleado : empleados) {
+                    pstmtEmpleado.setString(1, empleado.getClave()); 
+                    pstmtEmpleado.setString(2, empleado.getNombres());
+                    pstmtEmpleado.setString(3, empleado.getaPaterno());
+                    pstmtEmpleado.setString(4, empleado.getaMaterno());
+                    pstmtEmpleado.setString(5, empleado.getRFC());
+                    pstmtEmpleado.setString(6, empleado.getCURP());
+                    pstmtEmpleado.setString(7, empleado.getNSS());
+                    pstmtEmpleado.setString(8, empleado.getFecha());
+
+
+                    pstmtEmpleado.addBatch();
+            }
+            pstmtEmpleado.executeBatch();
+            empleados=new ArrayList<Empleados>();
+                System.out.println("Empleados insertados");
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de Empleados", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+                        
+                            
+            //Insercion Producto
+                            //productos.add(new Productos(pClave,pAnio,pMes,pFechaPago,pTotal));
+            String insertProducto="INSERT INTO satin.producto_nomina (clave,anio,mes,fechapago,total)"+
+               "VALUES(?,?,?,?,?)";
+            try{
+                
+                PreparedStatement pstmtProductos = mysql.conn.prepareStatement(insertProducto);
+                for (Productos producto : productos) {
+                    pstmtProductos.setString(1, producto.getpClave()); 
+                    pstmtProductos.setString(2, producto.getpAnio());
+                    pstmtProductos.setString(3, producto.getpMes());
+                    pstmtProductos.setString(4, producto.getpFechaPago());
+                    pstmtProductos.setString(5, producto.getpTotal());
+                    
+                    pstmtProductos.addBatch();
+            }
+            pstmtProductos.executeBatch();
+            productos=new ArrayList<Productos>();
+            System.out.println("Productos insertados");
+
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de productos de nómina", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+            
+            //Insercion detalle_nomina
+            String insertDetalleNomina="insert into detalle_nomina (id,producto,clave,tipor,clavep,centro_trabajo,puesto,contrato,clav,"+
+            " clavepago,no_puesto,indicador_mando,descripcion,fechai,fechaf,movimiento,total1,total2,conceptos,"+
+            " salariodiario,sindicato,rfc,seq,unidad,instrumento_pago,horas,fonac,digito_ver,pagaduria,control_sar,"+
+            " tipo_trabajador,nivel,actividad,sellosat,banco,cuenta_bancaria,clue) " +
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            try{
+                
+                PreparedStatement pstmtDetalle = mysql.conn.prepareStatement(insertDetalleNomina);
+                for (DetalleNomina detalleNomina : detallesNomina) {
+                    pstmtDetalle.setString(1, detalleNomina.getdID()); 
+                    pstmtDetalle.setString(2, detalleNomina.getdClave());
+                    pstmtDetalle.setString(3, detalleNomina.getdNumEmp());
+                    pstmtDetalle.setString(4, detalleNomina.getdTipoR());
+                    pstmtDetalle.setString(5, detalleNomina.getdClaveP());
+                    pstmtDetalle.setString(6, detalleNomina.getdCentroTrabajo());
+                    pstmtDetalle.setString(7, detalleNomina.getdCodigoPuesto());
+                    pstmtDetalle.setString(8, detalleNomina.getdContrato());
+                    pstmtDetalle.setString(9, detalleNomina.getdClaveContrato());
+                    pstmtDetalle.setString(10, detalleNomina.getdClavePago());
+                    pstmtDetalle.setString(11, detalleNomina.getdNoPuesto());
+                    pstmtDetalle.setString(12, detalleNomina.getdIndicadorMando());
+                    pstmtDetalle.setString(13, detalleNomina.getdDescripcion());
+                    pstmtDetalle.setString(14, detalleNomina.getdFechaInicial());
+                    pstmtDetalle.setString(15, detalleNomina.getdFechaFinal());
+                    pstmtDetalle.setString(16, detalleNomina.getdMovimiento());
+                    pstmtDetalle.setString(17, detalleNomina.getdPercepciones());
+                    pstmtDetalle.setString(18, detalleNomina.getdDeducciones());
+                    pstmtDetalle.setString(19, detalleNomina.getdConceptos());
+                    pstmtDetalle.setString(20, detalleNomina.getdSalarioDiario());
+                    pstmtDetalle.setString(21, detalleNomina.getdSindicalizado());
+                    pstmtDetalle.setString(22, detalleNomina.getdRFC());
+                    pstmtDetalle.setString(23, detalleNomina.getdSecuencia());
+                    pstmtDetalle.setString(24, detalleNomina.getdUnidadResponsable());
+                    pstmtDetalle.setString(25, detalleNomina.getdInstrumentoPago());
+                    pstmtDetalle.setString(26, detalleNomina.getdHoras());
+                    pstmtDetalle.setString(27, detalleNomina.getdFonac());
+                    pstmtDetalle.setString(28, detalleNomina.getdDigito());
+                    pstmtDetalle.setString(29, detalleNomina.getdPagaduria());
+                    pstmtDetalle.setString(30, detalleNomina.getdControlSar());
+                    pstmtDetalle.setString(31, detalleNomina.getdTipoTrabajador());
+                    pstmtDetalle.setString(32, detalleNomina.getdNivel());
+                    pstmtDetalle.setString(33, detalleNomina.getdActividad());
+                    pstmtDetalle.setString(34, detalleNomina.getdNombre2());
+                    pstmtDetalle.setString(35, detalleNomina.getdBanco());
+                    pstmtDetalle.setString(36, detalleNomina.getdCuentaBancaria());
+                    pstmtDetalle.setString(37, detalleNomina.getdClue());
+
+                    
+                    pstmtDetalle.addBatch();
+            }
+            pstmtDetalle.executeBatch();
+            detallesNomina=new ArrayList<DetalleNomina>();
+            System.out.println("Detalles insertados");
+
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de detalles de nómina", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+            
+            //Inserción de conceptos
+            String insertConceptos="insert into satin.detalle_conceptos (id_detalle_nomina,id_concepto,importe,importe_ng) VALUES(?,?,?,?)";
+            try{
+                PreparedStatement pstmtConceptos = mysql.conn.prepareStatement(insertConceptos);
+                for (Conceptos concepto : conceptos) {
+                    pstmtConceptos.setString(1, concepto.getdID()); 
+                    pstmtConceptos.setString(2, concepto.getcConcepto());
+                    pstmtConceptos.setString(3, concepto.getcGrabado());
+                    pstmtConceptos.setString(4, concepto.getcNoGrabado());
+                    pstmtConceptos.addBatch();
+            }
+            pstmtConceptos.executeBatch();
+            conceptos=new ArrayList<Conceptos>();
+                System.out.println("Conceptos insertados");
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de detalle de conceptos", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+            
+            
+                        //Inserción de validaciones 
+            String insertValidaciones="insert into tmpvalidardetalle (iddetalle,clue,puesto,concepto) values (?,?,?,?)";
+            try{
+                PreparedStatement pstmtValidaciones = mysql.conn.prepareStatement(insertValidaciones);
+                for (Validaciones validacion : validaciones) {
+                    pstmtValidaciones.setString(1, validacion.getdID()); 
+                    pstmtValidaciones.setString(2, validacion.getdClue());
+                    pstmtValidaciones.setString(3, validacion.getdCodigoPuesto());
+                    pstmtValidaciones.setString(4, validacion.getcConcepto());
+
+                    
+                    pstmtValidaciones.addBatch();
+            }
+            pstmtValidaciones.executeBatch();
+            faltas=new ArrayList<Faltas>();
+                System.out.println("Validaciones insertadas");
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de la tabla de validación", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+            
+            
+
+                    
+    }
+
+    
     private void extraerDatosDBF() {
         try {
             dbfreader = new DBFReader(new FileInputStream(selectedFile));
@@ -573,12 +729,12 @@ public class CargaArchivosNominaViewController implements Initializable {
                             if(preClave.equals("")){
                                 //Iniciamos el primer producto
                                 preClave=rowObjects[58].toString();
+                                pAnio=rowObjects[49].toString();
                                 if(RFCEmisor.equals("SSJ970331PM5")){
                                     pClave="E"+preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
                                 }else{
                                     pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
                                 }
-                                pAnio=rowObjects[49].toString();
                                 pMes=rowObjects[48].toString();
                                 pFechaPago=rowObjects[43].toString();
                                 totales=new BigDecimal(rowObjects[53].toString());
@@ -631,10 +787,12 @@ public class CargaArchivosNominaViewController implements Initializable {
     "','" & CFDInombre2 & "','" & CFDIBanco & "','" & CFDICuentaBancaria & "')"
                             
                             */
+                            
+
                             dClave=pClave;
                             dNumEmp=rowObjects[0].toString();
                             dTipoR="0";
-                            dClavePago=rowObjects[7].toString();
+                            dClaveP=rowObjects[7].toString();
                             dCentroTrabajo=rowObjects[26].toString();
                             dCodigoPuesto=rowObjects[22].toString();
                             dContrato="0";
@@ -658,6 +816,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                             dHoras=rowObjects[34].toString();
                             dFonac=rowObjects[66].toString();
                             dClue=rowObjects[68].toString();
+                            dDigito=rowObjects[61].toString();
                             dPagaduria=rowObjects[28].toString();
                             dControlSar=rowObjects[4].toString();
                             dTipoTrabajador=rowObjects[36].toString();
@@ -670,8 +829,8 @@ public class CargaArchivosNominaViewController implements Initializable {
                             dBanco=rowObjects[4].toString();
                             dCuentaBancaria=rowObjects[7].toString();                 
                             dID=dRFC+dClave+dMovimiento;
-                            
-                            //Falta crear la lista de objetos
+                            detallesNomina.add(new DetalleNomina(dClave,dNumEmp,dRFC,dBanco,dCuentaBancaria,dCentroTrabajo,dCodigoPuesto,dClavePago,dContrato,dClaveContrato,dDescripcion,dFechaInicial,dFechaFinal,dMovimiento,dDeducciones,dClue,dSindicalizado,dConceptos,dID,dTipoR,dControlSar,dTipoTrabajador,dNivel,dActividad,dIndicadorMando,dClaveP,dSalarioDiario,dSecuencia,dUnidadResponsable,dInstrumentoPago,dHoras,dFonac,dPagaduria,dDigito));
+                            validaciones.add(new Validaciones(dID,dClue,"NO",dCodigoPuesto));
 
             }
                         //Agregamos el registro final de producto al salir del diclo ya que nunca entraría a la condición de ser clave distinta porque no hay más registros.
@@ -686,7 +845,7 @@ public class CargaArchivosNominaViewController implements Initializable {
 
     }
 
-    private void extraerConceptoDBF() {
+    private void extraerConceptosDBF() {
         try {
             dbfreader = new DBFReader(new FileInputStream(empleadoFile));
 			while ((rowObjects = dbfreader.nextRecord()) != null) {
@@ -708,8 +867,13 @@ public class CargaArchivosNominaViewController implements Initializable {
                                 c1="2";
                             }
                             cConcepto=c1+c2+c3;
-                            cGrabado=rowObjects[13].toString();
-                            cNoGrabado=rowObjects[14].toString();
+                            //Ya que se agreguen los campos descomentar este codigo y quitar valores asignados
+                            cGrabado="12";
+                            cNoGrabado="23";
+                            //cGrabado=rowObjects[13].toString();
+                            //cNoGrabado=rowObjects[14].toString();
+                            conceptos.add(new Conceptos(dID,cConcepto,cGrabado,cNoGrabado));
+                            validaciones.add(new Validaciones(dID,"NO",cConcepto,"NO"));                            
 			}
         } catch (FileNotFoundException ex) {
             Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
