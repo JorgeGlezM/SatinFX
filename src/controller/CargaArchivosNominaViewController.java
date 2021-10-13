@@ -53,7 +53,7 @@ public class CargaArchivosNominaViewController implements Initializable {
     private Scene scene;
     private Parent root;
     File selectedFile;
-    File empleadoFile;
+    File selectedFile2;
     String RFCEmisor="";
     String productoActual="";
     //Strings para tabla empleado
@@ -126,8 +126,9 @@ public class CargaArchivosNominaViewController implements Initializable {
 
         String tipo=(String) cmbTipo.getValue();
         switch(tipo){
-            case "txt":extraerEmpleadoTXT();extraerProductoTXT();insertsTXT(); break;
+            case "txt":extraerEmpleadoTXT();extraerProductoTXT();insertsTXT();break;
             case "dbf":extraerDatosDBF();extraerConceptosDBF();insertsDBF();break;
+            case "dat/tra":extraerDatosTRA();break;
         }        
     }
     @FXML private void btnSeleccionar (ActionEvent event) throws IOException{
@@ -145,8 +146,8 @@ public class CargaArchivosNominaViewController implements Initializable {
                 lblFile.setText(selectedFile.getAbsolutePath());
                 lblFile.setWrapText(true);
                 String rutaEMP=lblFile.getText().substring(0,lblFile.getText().lastIndexOf("TXT"))+"EMP";
-                empleadoFile=new File(rutaEMP);
-                if(!empleadoFile.exists()){
+                selectedFile2=new File(rutaEMP);
+                if(!selectedFile2.exists()){
                     selectedFile=null;
                     JOptionPane.showMessageDialog(null, "El archivo EMP ligado al archivo seleccionado no existe. Verifique su existencia e intentelo denuevo.", "Advertencia", JOptionPane.WARNING_MESSAGE);
                     lblFile.setText("Archivo incorrecto");
@@ -163,18 +164,40 @@ public class CargaArchivosNominaViewController implements Initializable {
             selectedFile = fc.showOpenDialog(null);
             if(selectedFile!=null){
                 JOptionPane.showMessageDialog(null, "Seleccione el archivo de conceptos a cargar");
-                empleadoFile=fc.showOpenDialog(null);
+                selectedFile2=fc.showOpenDialog(null);
                 lblFile.setText(selectedFile.getAbsolutePath());
                 lblFile.setWrapText(true);
             }
+            break;
+            
+            case "dat/tra":
+                
+            extFilter = 
+            new FileChooser.ExtensionFilter("Archivos DAT (*.dat)", "*.dat");
+            fc.getExtensionFilters().add(extFilter);
+            JOptionPane.showMessageDialog(null, "Seleccione el archivo .dat a cargar");
+            selectedFile = fc.showOpenDialog(null);
+            if(selectedFile!=null){
+                fc = new FileChooser();
+                extFilter = 
+                new FileChooser.ExtensionFilter("Archivos TRA (*.tra)", "*.tra");
+                fc.getExtensionFilters().add(extFilter);
+                JOptionPane.showMessageDialog(null, "Seleccione el archivo .tra a cargar");
+                selectedFile2=fc.showOpenDialog(null);
+                lblFile.setText(selectedFile.getAbsolutePath());
+                lblFile.setWrapText(true);
+            }
+                
             break;
         
 
         }
     }
+    
+    
     public void extraerEmpleadoTXT(){
         try {
-            sc = new Scanner(empleadoFile);
+            sc = new Scanner(selectedFile2);
             while(sc.hasNextLine()){
             lineScanner = new Scanner(sc.nextLine());
             lineScanner.useDelimiter("\\|");
@@ -572,11 +595,11 @@ public class CargaArchivosNominaViewController implements Initializable {
             }
             
             //Insercion detalle_nomina
-            String insertDetalleNomina="insert into detalle_nomina (id,producto,clave,tipor,clavep,centro_trabajo,puesto,contrato,clav,"+
+            String insertDetalleNomina="insert into detalle_nomina (id,producto,clave,tipor,clavep,centro_trabajo,puesto,contrato"+
             " clavepago,no_puesto,indicador_mando,descripcion,fechai,fechaf,movimiento,total1,total2,conceptos,"+
             " salariodiario,sindicato,rfc,seq,unidad,instrumento_pago,horas,fonac,digito_ver,pagaduria,control_sar,"+
             " tipo_trabajador,nivel,actividad,sellosat,banco,cuenta_bancaria,clue) " +
-            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             try{
                 
                 PreparedStatement pstmtDetalle = mysql.conn.prepareStatement(insertDetalleNomina);
@@ -589,35 +612,34 @@ public class CargaArchivosNominaViewController implements Initializable {
                     pstmtDetalle.setString(6, detalleNomina.getdCentroTrabajo());
                     pstmtDetalle.setString(7, detalleNomina.getdCodigoPuesto());
                     pstmtDetalle.setString(8, detalleNomina.getdContrato());
-                    pstmtDetalle.setString(9, detalleNomina.getdClaveContrato());
-                    pstmtDetalle.setString(10, detalleNomina.getdClavePago());
-                    pstmtDetalle.setString(11, detalleNomina.getdNoPuesto());
-                    pstmtDetalle.setString(12, detalleNomina.getdIndicadorMando());
-                    pstmtDetalle.setString(13, detalleNomina.getdDescripcion());
-                    pstmtDetalle.setString(14, detalleNomina.getdFechaInicial());
-                    pstmtDetalle.setString(15, detalleNomina.getdFechaFinal());
-                    pstmtDetalle.setString(16, detalleNomina.getdMovimiento());
-                    pstmtDetalle.setString(17, detalleNomina.getdPercepciones());
-                    pstmtDetalle.setString(18, detalleNomina.getdDeducciones());
-                    pstmtDetalle.setString(19, detalleNomina.getdConceptos());
-                    pstmtDetalle.setString(20, detalleNomina.getdSalarioDiario());
-                    pstmtDetalle.setString(21, detalleNomina.getdSindicalizado());
-                    pstmtDetalle.setString(22, detalleNomina.getdRFC());
-                    pstmtDetalle.setString(23, detalleNomina.getdSecuencia());
-                    pstmtDetalle.setString(24, detalleNomina.getdUnidadResponsable());
-                    pstmtDetalle.setString(25, detalleNomina.getdInstrumentoPago());
-                    pstmtDetalle.setString(26, detalleNomina.getdHoras());
-                    pstmtDetalle.setString(27, detalleNomina.getdFonac());
-                    pstmtDetalle.setString(28, detalleNomina.getdDigito());
-                    pstmtDetalle.setString(29, detalleNomina.getdPagaduria());
-                    pstmtDetalle.setString(30, detalleNomina.getdControlSar());
-                    pstmtDetalle.setString(31, detalleNomina.getdTipoTrabajador());
-                    pstmtDetalle.setString(32, detalleNomina.getdNivel());
-                    pstmtDetalle.setString(33, detalleNomina.getdActividad());
-                    pstmtDetalle.setString(34, detalleNomina.getdNombre2());
-                    pstmtDetalle.setString(35, detalleNomina.getdBanco());
-                    pstmtDetalle.setString(36, detalleNomina.getdCuentaBancaria());
-                    pstmtDetalle.setString(37, detalleNomina.getdClue());
+                    pstmtDetalle.setString(9, detalleNomina.getdClavePago());
+                    pstmtDetalle.setString(10, detalleNomina.getdNoPuesto());
+                    pstmtDetalle.setString(11, detalleNomina.getdIndicadorMando());
+                    pstmtDetalle.setString(12, detalleNomina.getdDescripcion());
+                    pstmtDetalle.setString(13, detalleNomina.getdFechaInicial());
+                    pstmtDetalle.setString(14, detalleNomina.getdFechaFinal());
+                    pstmtDetalle.setString(15, detalleNomina.getdMovimiento());
+                    pstmtDetalle.setString(16, detalleNomina.getdPercepciones());
+                    pstmtDetalle.setString(17, detalleNomina.getdDeducciones());
+                    pstmtDetalle.setString(18, detalleNomina.getdConceptos());
+                    pstmtDetalle.setString(19, detalleNomina.getdSalarioDiario());
+                    pstmtDetalle.setString(20, detalleNomina.getdSindicalizado());
+                    pstmtDetalle.setString(21, detalleNomina.getdRFC());
+                    pstmtDetalle.setString(22, detalleNomina.getdSecuencia());
+                    pstmtDetalle.setString(23, detalleNomina.getdUnidadResponsable());
+                    pstmtDetalle.setString(24, detalleNomina.getdInstrumentoPago());
+                    pstmtDetalle.setString(25, detalleNomina.getdHoras());
+                    pstmtDetalle.setString(26, detalleNomina.getdFonac());
+                    pstmtDetalle.setString(27, detalleNomina.getdDigito());
+                    pstmtDetalle.setString(28, detalleNomina.getdPagaduria());
+                    pstmtDetalle.setString(29, detalleNomina.getdControlSar());
+                    pstmtDetalle.setString(30, detalleNomina.getdTipoTrabajador());
+                    pstmtDetalle.setString(31, detalleNomina.getdNivel());
+                    pstmtDetalle.setString(32, detalleNomina.getdActividad());
+                    pstmtDetalle.setString(33, detalleNomina.getdNombre2());
+                    pstmtDetalle.setString(34, detalleNomina.getdBanco());
+                    pstmtDetalle.setString(35, detalleNomina.getdCuentaBancaria());
+                    pstmtDetalle.setString(36, detalleNomina.getdClue());
 
                     
                     pstmtDetalle.addBatch();
@@ -677,7 +699,8 @@ public class CargaArchivosNominaViewController implements Initializable {
                     
     }
 
-    
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - -   EXTRAER DATOS DE DBF (TODO MENOS CONCEPTOS) - - - - - - - - - - - - - - - - - - - - - - - - - - 
+        
     private void extraerDatosDBF() {
         try {
             dbfreader = new DBFReader(new FileInputStream(selectedFile));
@@ -796,7 +819,6 @@ public class CargaArchivosNominaViewController implements Initializable {
                             dCentroTrabajo=rowObjects[26].toString();
                             dCodigoPuesto=rowObjects[22].toString();
                             dContrato="0";
-                            dClaveContrato="0";
                             dClavePago=rowObjects[14].toString()+rowObjects[18].toString()+rowObjects[19].toString()+rowObjects[22].toString()+rowObjects[23].toString()+rowObjects[16].toString()+rowObjects[17].toString()+rowObjects[18].toString();
                             dNoPuesto=rowObjects[23].toString();
                             dIndicadorMando=rowObjects[33].toString();
@@ -844,10 +866,11 @@ public class CargaArchivosNominaViewController implements Initializable {
         }
 
     }
-
+    
+   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - -  EXTRACCIÓN DE CONCEPTOS DBF - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     private void extraerConceptosDBF() {
         try {
-            dbfreader = new DBFReader(new FileInputStream(empleadoFile));
+            dbfreader = new DBFReader(new FileInputStream(selectedFile2));
 			while ((rowObjects = dbfreader.nextRecord()) != null) {
                             dRFC=rowObjects[0].toString();
                             preClave=rowObjects[11].toString();
@@ -881,7 +904,119 @@ public class CargaArchivosNominaViewController implements Initializable {
 
     }
 
-
+    private void extraerDatosTRA(){
+            try {
+            sc = new Scanner(selectedFile2);
+            while(sc.hasNextLine()){
+            lineScanner = new Scanner(sc.nextLine());
+            lineScanner.useDelimiter("\\|");
+            //    String eClave,eAPaterno,eAMaterno, eNombres,eRFC,eCURP,eNSS,eFecha;
+            dRFC=lineScanner.next();
+            lineScanner.next();
+            dMovimiento=lineScanner.next();
+            String c1=lineScanner.next();
+            if(c1.equals("3")){
+                c1="2";
+            }
+            String c2=lineScanner.next();
+            String importe=lineScanner.next();
+            pAnio=lineScanner.next();
+            pMes=lineScanner.next();
+            String c3=lineScanner.next();
+            cConcepto=c1+c2+c3;
+            String a1=lineScanner.next();
+            String a2=lineScanner.next();
+            //Falta ver que hacer con estas variables (a1,a2)
+            preClave=lineScanner.next();
+            System.out.println(preClave);
+            //Verifica si es de Coahuila, Oaxaca o Nuevo Leon ya que la clave de producto es distinta
+            if(RFCEmisor.equals("SSC961129CH3")||RFCEmisor.equals("SSO960923M2A")||RFCEmisor.equals("SSN970115QI9")){
+                pClave=preClave+pAnio.substring(2,4);
+            }else{
+                pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
+            }
+            dSecuencia=lineScanner.next();
+            //Falta importe1 e importe2
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    private void extraerDatosDAT(){
+                    try {
+            sc = new Scanner(selectedFile);
+            while(sc.hasNextLine()){
+            lineScanner = new Scanner(sc.nextLine());
+            lineScanner.useDelimiter("\\|");
+            dNumEmp=lineScanner.next();
+            eClave=dNumEmp;
+            eRFC=lineScanner.next();
+            dRFC=eRFC;
+            eCURP=lineScanner.next();
+            String nombre=lineScanner.next();
+            String temp=nombre.substring(0,nombre.indexOf(" "));
+                nombre=nombre.substring(nombre.indexOf(" ")+1,nombre.length());
+                eAPaterno=temp;
+                if(temp.equalsIgnoreCase("de")||temp.equalsIgnoreCase("del")){
+                    temp=nombre.substring(0,nombre.indexOf(" "));
+                    eAPaterno=eAPaterno+" "+temp;
+                    nombre=nombre.substring(nombre.indexOf(" ")+1,nombre.length());
+                    if(temp.equalsIgnoreCase("el")||temp.equalsIgnoreCase("la")||temp.equalsIgnoreCase("las")||temp.equalsIgnoreCase("los")){
+                        temp=nombre.substring(0,nombre.indexOf(" "));
+                        eAPaterno=eAPaterno+" "+temp;
+                        nombre=nombre.substring(nombre.indexOf(" ")+1,nombre.length());
+                    }
+                }
+                temp=nombre.substring(0,nombre.indexOf(" "));
+                nombre=nombre.substring(nombre.indexOf(" ")+1,nombre.length());
+                eAMaterno=temp;
+                if(temp.equalsIgnoreCase("de")||temp.equalsIgnoreCase("del")){
+                    temp=nombre.substring(0,nombre.indexOf(" "));
+                    eAMaterno=eAMaterno+" "+temp;
+                    nombre=nombre.substring(nombre.indexOf(" ")+1,nombre.length());
+                    if(temp.equalsIgnoreCase("el")||temp.equalsIgnoreCase("la")||temp.equalsIgnoreCase("las")||temp.equalsIgnoreCase("los")){
+                        temp=nombre.substring(0,nombre.indexOf(" "));
+                        eAMaterno=eAMaterno+" "+temp;
+                        nombre=nombre.substring(nombre.indexOf(" ")+1,nombre.length());
+                    }
+                }
+            eNombres=nombre;
+            dControlSar=lineScanner.next();
+            dTipoR=lineScanner.next();
+            dBanco=lineScanner.next();
+            dClavePago=lineScanner.next();
+            dCuentaBancaria=lineScanner.next();
+            dCentroTrabajo="1";
+            dContrato="0";
+            dDescripcion="0";
+            eNSS="0";
+            int i=0;
+            while(i>7){
+                i++;
+                lineScanner.next();
+            }
+            dUnidadResponsable=lineScanner.next();
+            String grupoFuncion=lineScanner.next();
+            String funcion=lineScanner.next();
+            String subfuncion=lineScanner.next();
+            String programa=lineScanner.next();
+            dGfSf=grupoFuncion+funcion+subfuncion;
+            dActividad=lineScanner.next();
+            dProyecto=lineScanner.next();
+            dPartida=lineScanner.next();
+            dCodigoPuesto=lineScanner.next();
+            dNoPuesto=lineScanner.next();
+            dEstado=lineScanner.next();
+            dMunicipio=lineScanner.next();
+            
+            
+            
+            
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
 
 
