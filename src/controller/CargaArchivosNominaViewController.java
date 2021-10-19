@@ -28,6 +28,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javax.swing.JOptionPane;
 import classes.Adicional;
+import classes.Clues;
 import classes.Conceptos;
 import classes.DetalleConceptos;
 import classes.DetalleNomina;
@@ -35,13 +36,15 @@ import classes.Empleados;
 import classes.Faltas;
 import classes.Horas;
 import classes.Productos;
-import classes.Validaciones;
 import com.linuxense.javadbf.DBFReader;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * FXML Controller class
@@ -65,7 +68,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             ,dDescripcion,dFechaInicial,dFechaFinal,dMovimiento,dPercepciones,dDeducciones,dFaltas,dDiaIncapacidad,dTipoIncapacidad,dImporteIncapacidad
             ,dDiasHorasDobles,dHorasDobles,dImporteHorasDobles,dDiasHorasTriples,dHorasTriples,dImporteHorasTriples,dClue,dSindicalizado,dConceptos, dID,
             dTipoR,dNoPuesto,dIndicadorMando,dSalarioDiario,dSecuencia, dUnidadResponsable,dInstrumentoPago,dHoras,dFonac,dDigito,dPagaduria,
-            dControlSar,dTipoTrabajador,dNivel,dRango,dPorcentaje,dEstado,dMunicipio,dActividad,dProyecto,dPartida,dGfSf,dNombre2,dClaveP;
+            dControlSar,dTipoTrabajador,dNivel,dRango,dPorcentaje,dEstado,dMunicipio,dActividad,dProyecto,dPartida,dGfSf,dNombre2,dClaveP,dDescripcionCentro;
     String adicional;
     //Strings para tabla conceptos
     String cConcepto,cGrabado,cNoGrabado;
@@ -86,7 +89,8 @@ public class CargaArchivosNominaViewController implements Initializable {
     List<Horas> horas=new ArrayList<Horas>();
     List<Productos> productos=new ArrayList<Productos>();
     List<Faltas> faltas=new ArrayList<Faltas>();
-    List<Validaciones> validaciones=new ArrayList<Validaciones>();
+    List<Clues> clues=new ArrayList<Clues>();
+
 
 
 
@@ -126,9 +130,9 @@ public class CargaArchivosNominaViewController implements Initializable {
 
         String tipo=(String) cmbTipo.getValue();
         switch(tipo){
-            case "txt":extraerEmpleadoTXT();extraerProductoTXT();insertsTXT();break;
-            case "dbf":extraerDatosDBF();extraerConceptosDBF();insertsDBF();break;
-            case "dat/tra":extraerDatosTRA();break;
+            case "txt":extraerEmpleadoTXT();extraerProductoTXT();insertsTXT();fillClues();break;
+            case "dbf":extraerDatosDBF();extraerConceptosDBF();insertsDBF();fillClues();break;
+            case "dat/tra":extraerDatosTRA();fillClues();break;
         }        
     }
     @FXML private void btnSeleccionar (ActionEvent event) throws IOException{
@@ -332,9 +336,6 @@ public class CargaArchivosNominaViewController implements Initializable {
             cNoGrabado=aScanner.next();
             i++;
             conceptos.add(new Conceptos(dID,cConcepto,cGrabado,cNoGrabado));
-            generarValidacionesTXT();
-
-
         }
     }
     
@@ -347,11 +348,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             faltas.add(new Faltas(dID,dClave,dFaltas,dDiaIncapacidad,dTipoIncapacidad));
     }
     }
-    private void generarValidacionesTXT() {
-        //dID,dClue,cConcepto,dNoPuesto
-        validaciones.add(new Validaciones(dID,dClue,cConcepto,dCodigoPuesto));
-        
-    }
+
 
     private void insertsTXT() {
             classes.MySQL mysql= new classes.MySQL();
@@ -459,8 +456,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                 JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de detalle de conceptos", "Advertencia", JOptionPane.WARNING_MESSAGE);
                 System.out.println(e);
             }
-            
-            
+
             
             
             //Inserción de horas
@@ -501,7 +497,9 @@ public class CargaArchivosNominaViewController implements Initializable {
 
                     }
                     pstmtFaltas.setString(5, falta.getdTipoIncapacidad());
-                    pstmtFaltas.addBatch();
+                    if(!falta.getdFaltas().equals("")){
+                        pstmtFaltas.addBatch();
+                    }
             }
             pstmtFaltas.executeBatch();
             faltas=new ArrayList<Faltas>();
@@ -512,27 +510,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                 System.out.println(e);
             }
             
-                        //Inserción de validaciones 
-            String insertValidaciones="insert into tmpvalidardetalle (iddetalle,clue,puesto,concepto) values (?,?,?,?)";
-            try{
-                PreparedStatement pstmtValidaciones = mysql.conn.prepareStatement(insertValidaciones);
-                for (Validaciones validacion : validaciones) {
-                    pstmtValidaciones.setString(1, validacion.getdID()); 
-                    pstmtValidaciones.setString(2, validacion.getdClue());
-                    pstmtValidaciones.setString(3, validacion.getdCodigoPuesto());
-                    pstmtValidaciones.setString(4, validacion.getcConcepto());
 
-                    
-                    pstmtValidaciones.addBatch();
-            }
-            pstmtValidaciones.executeBatch();
-            faltas=new ArrayList<Faltas>();
-                System.out.println("Validaciones insertadas");
-            }catch(Exception e){
-                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de la tabla de validación", "Advertencia", JOptionPane.WARNING_MESSAGE);
-                System.out.println(e);
-            }
-            
             
 
                     
@@ -595,11 +573,11 @@ public class CargaArchivosNominaViewController implements Initializable {
             }
             
             //Insercion detalle_nomina
-            String insertDetalleNomina="insert into detalle_nomina (id,producto,clave,tipor,clavep,centro_trabajo,puesto,contrato"+
-            " clavepago,no_puesto,indicador_mando,descripcion,fechai,fechaf,movimiento,total1,total2,conceptos,"+
+            String insertDetalleNomina="insert into detalle_nomina (id,producto,clave,tipor,clavep,centro_trabajo,puesto,contrato,"+
+            " clavepago,no_puesto,indicador_mando,fechai,fechaf,movimiento,total1,total2,conceptos,"+
             " salariodiario,sindicato,rfc,seq,unidad,instrumento_pago,horas,fonac,digito_ver,pagaduria,control_sar,"+
             " tipo_trabajador,nivel,actividad,sellosat,banco,cuenta_bancaria,clue) " +
-            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             try{
                 
                 PreparedStatement pstmtDetalle = mysql.conn.prepareStatement(insertDetalleNomina);
@@ -615,31 +593,31 @@ public class CargaArchivosNominaViewController implements Initializable {
                     pstmtDetalle.setString(9, detalleNomina.getdClavePago());
                     pstmtDetalle.setString(10, detalleNomina.getdNoPuesto());
                     pstmtDetalle.setString(11, detalleNomina.getdIndicadorMando());
-                    pstmtDetalle.setString(12, detalleNomina.getdDescripcion());
-                    pstmtDetalle.setString(13, detalleNomina.getdFechaInicial());
-                    pstmtDetalle.setString(14, detalleNomina.getdFechaFinal());
-                    pstmtDetalle.setString(15, detalleNomina.getdMovimiento());
-                    pstmtDetalle.setString(16, detalleNomina.getdPercepciones());
-                    pstmtDetalle.setString(17, detalleNomina.getdDeducciones());
-                    pstmtDetalle.setString(18, detalleNomina.getdConceptos());
-                    pstmtDetalle.setString(19, detalleNomina.getdSalarioDiario());
-                    pstmtDetalle.setString(20, detalleNomina.getdSindicalizado());
-                    pstmtDetalle.setString(21, detalleNomina.getdRFC());
-                    pstmtDetalle.setString(22, detalleNomina.getdSecuencia());
-                    pstmtDetalle.setString(23, detalleNomina.getdUnidadResponsable());
-                    pstmtDetalle.setString(24, detalleNomina.getdInstrumentoPago());
-                    pstmtDetalle.setString(25, detalleNomina.getdHoras());
-                    pstmtDetalle.setString(26, detalleNomina.getdFonac());
-                    pstmtDetalle.setString(27, detalleNomina.getdDigito());
-                    pstmtDetalle.setString(28, detalleNomina.getdPagaduria());
-                    pstmtDetalle.setString(29, detalleNomina.getdControlSar());
-                    pstmtDetalle.setString(30, detalleNomina.getdTipoTrabajador());
-                    pstmtDetalle.setString(31, detalleNomina.getdNivel());
-                    pstmtDetalle.setString(32, detalleNomina.getdActividad());
-                    pstmtDetalle.setString(33, detalleNomina.getdNombre2());
-                    pstmtDetalle.setString(34, detalleNomina.getdBanco());
-                    pstmtDetalle.setString(35, detalleNomina.getdCuentaBancaria());
-                    pstmtDetalle.setString(36, detalleNomina.getdClue());
+                    pstmtDetalle.setString(12, detalleNomina.getdFechaInicial());
+                    pstmtDetalle.setString(13, detalleNomina.getdFechaFinal());
+                    pstmtDetalle.setString(14, detalleNomina.getdMovimiento());
+                    pstmtDetalle.setString(15, detalleNomina.getdPercepciones());
+                    System.out.println("fecha insert: "+detalleNomina.getdFechaInicial());
+                    pstmtDetalle.setString(16, detalleNomina.getdDeducciones());
+                    pstmtDetalle.setString(17, detalleNomina.getdConceptos());
+                    pstmtDetalle.setString(18, detalleNomina.getdSalarioDiario());
+                    pstmtDetalle.setString(19, detalleNomina.getdSindicalizado());
+                    pstmtDetalle.setString(20, detalleNomina.getdRFC());
+                    pstmtDetalle.setString(21, detalleNomina.getdSecuencia());
+                    pstmtDetalle.setString(22, detalleNomina.getdUnidadResponsable());
+                    pstmtDetalle.setString(23, detalleNomina.getdInstrumentoPago());
+                    pstmtDetalle.setString(24, detalleNomina.getdHoras());
+                    pstmtDetalle.setString(25, detalleNomina.getdFonac());
+                    pstmtDetalle.setString(26, detalleNomina.getdDigito());
+                    pstmtDetalle.setString(27, detalleNomina.getdPagaduria());
+                    pstmtDetalle.setString(28, detalleNomina.getdControlSar());
+                    pstmtDetalle.setString(29, detalleNomina.getdTipoTrabajador());
+                    pstmtDetalle.setString(30, detalleNomina.getdNivel());
+                    pstmtDetalle.setString(31, detalleNomina.getdActividad());
+                    pstmtDetalle.setString(32, detalleNomina.getdNombre2());
+                    pstmtDetalle.setString(33, detalleNomina.getdBanco());
+                    pstmtDetalle.setString(34, detalleNomina.getdCuentaBancaria());
+                    pstmtDetalle.setString(35, detalleNomina.getdClue());
 
                     
                     pstmtDetalle.addBatch();
@@ -669,28 +647,6 @@ public class CargaArchivosNominaViewController implements Initializable {
                 System.out.println("Conceptos insertados");
             }catch(Exception e){
                 JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de detalle de conceptos", "Advertencia", JOptionPane.WARNING_MESSAGE);
-                System.out.println(e);
-            }
-            
-            
-                        //Inserción de validaciones 
-            String insertValidaciones="insert into tmpvalidardetalle (iddetalle,clue,puesto,concepto) values (?,?,?,?)";
-            try{
-                PreparedStatement pstmtValidaciones = mysql.conn.prepareStatement(insertValidaciones);
-                for (Validaciones validacion : validaciones) {
-                    pstmtValidaciones.setString(1, validacion.getdID()); 
-                    pstmtValidaciones.setString(2, validacion.getdClue());
-                    pstmtValidaciones.setString(3, validacion.getdCodigoPuesto());
-                    pstmtValidaciones.setString(4, validacion.getcConcepto());
-
-                    
-                    pstmtValidaciones.addBatch();
-            }
-            pstmtValidaciones.executeBatch();
-            faltas=new ArrayList<Faltas>();
-                System.out.println("Validaciones insertadas");
-            }catch(Exception e){
-                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de la tabla de validación", "Advertencia", JOptionPane.WARNING_MESSAGE);
                 System.out.println(e);
             }
             
@@ -749,6 +705,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                             
                             //Inicia extracción producto nomina
                             //String pClave,pAnio,pMes,pFechaPago,pRenglones,pTotal;
+
                             if(preClave.equals("")){
                                 //Iniciamos el primer producto
                                 preClave=rowObjects[58].toString();
@@ -760,6 +717,10 @@ public class CargaArchivosNominaViewController implements Initializable {
                                 }
                                 pMes=rowObjects[48].toString();
                                 pFechaPago=rowObjects[43].toString();
+                                if(!pFechaPago.equals("")){
+                                    pMes=pFechaPago.substring(5,7);
+                                    pAnio=pFechaPago.substring(0,4);
+                                }
                                 totales=new BigDecimal(rowObjects[53].toString());
 
                                 deducciones=new BigDecimal(rowObjects[54].toString());
@@ -776,15 +737,25 @@ public class CargaArchivosNominaViewController implements Initializable {
                                 System.out.println("deducción:" + deducciones.toString());
                                 pTotal=totales.subtract(deducciones).toString();
                                 System.out.println(pTotal);
+                                if(pFechaPago.equals("")){
+                                    pFechaPago=rowObjects[45].toString();
+                                }
                                 productos.add(new Productos(pClave,pAnio,pMes,pFechaPago,pTotal));
                                 
                                 //Iniciamos el siguiente registro
                                 preClave=rowObjects[58].toString();
                                 pAnio=rowObjects[49].toString();
-                                pClave="E"+preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
-                                System.out.println(pClave);
+                                if(RFCEmisor.equals("SSC961129CH3")||RFCEmisor.equals("SSO960923M2A")||RFCEmisor.equals("SSN970115QI9")){
+                                    pClave=preClave+pAnio.substring(2,4);
+                                }else{
+                                    pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
+                                }                                System.out.println(pClave);
                                 pMes=rowObjects[48].toString();
                                 pFechaPago=rowObjects[43].toString();
+                                if(!pFechaPago.equals("")){
+                                    pMes=pFechaPago.substring(5,7);
+                                    pAnio=pFechaPago.substring(0,4);
+                                }
                                 totales=new BigDecimal(rowObjects[53].toString());
                                 deducciones=new BigDecimal(rowObjects[54].toString());
                             }
@@ -792,25 +763,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                             
                             //Iniciamos extracción de detalle_nomina
                             
-                            /*
-                                'Insert DETALLE_NOMINA
-    str = "insert into detalle_nomina (producto,clave,tipor,clavep,centro_trabajo,puesto,contrato,clav," & _
-    " clavepago,no_puesto,indicador_mando,descripcion,fechai,fechaf,movimiento,total1,total2,conceptos," & _
-    " salariodiario,sindicato,rfc,seq,unidad,letra,instrumento_pago,horas,fonac,digito_ver,pagaduria,control_sar," & _
-    " tipo_trabajador,nivel,rango,porcentaje,edo,mun,actividad,proyecto,partida,gf_sf,sellosat,banco,cuenta_bancaria) " & _
-    " values ('" & Trim(CFDIProducto) & "'," & CFDINumEmp & ",'" & CFDItipor & "','" & CFDIclavep & _
-    "','" & CFDIcentro & "','" & Trim(CFDIPuesto) & "','" & CFDIcontrato & "','" & CFDIclavecon & "','" & CFDIotro & "','" & CFDINoPuesto & _
-    "','" & CFDITipoMando & "','" & CFDIdescripcion & "','" & CFDIFechaI & "','" & CFDIFechaF & "','" & CFDIMovimiento & _
-    "','" & CFDITotal1 & "','" & CFDITotal2 & "','" & CFDIConceptos & "','" & CFDITotal2 & "','" & _
-    CFDSindicato & "','" & CFDRecepRFC & "','" & CFDISEQ & "','" & CFDUnidadResponsable & "','" & _
-    LETRA & "','" & CFDIInstrumentoPago & "','" & CFDIHoras & "','" & CFDIFonac & "','" & _
-    CFDIDigito & "','" & CFDIPagaduria & "','" & CFDIControlSar & "','" & CFDITipoTrabajador & _
-    "','" & CFDINivel & "','" & CFDIRango & "','" & CFDIPorcentaje & "','" & CFDIEdo & "','" & CFDIMun & _
-    "','" & CFDIActividad & "','" & CFDIProyecto & "','" & CFDIPartida & "','" & CFDIGF_SF & _
-    "','" & CFDInombre2 & "','" & CFDIBanco & "','" & CFDICuentaBancaria & "')"
-                            
-                            */
-                            
+
 
                             dClave=pClave;
                             dNumEmp=rowObjects[0].toString();
@@ -838,6 +791,11 @@ public class CargaArchivosNominaViewController implements Initializable {
                             dHoras=rowObjects[34].toString();
                             dFonac=rowObjects[66].toString();
                             dClue=rowObjects[68].toString();
+                            if(dClue.equals("")){
+                                                            dClue=rowObjects[68].toString();
+
+                                                        System.out.println("el clue es: "+dClue);
+                            }
                             dDigito=rowObjects[61].toString();
                             dPagaduria=rowObjects[28].toString();
                             dControlSar=rowObjects[4].toString();
@@ -851,8 +809,8 @@ public class CargaArchivosNominaViewController implements Initializable {
                             dBanco=rowObjects[4].toString();
                             dCuentaBancaria=rowObjects[7].toString();                 
                             dID=dRFC+dClave+dMovimiento;
-                            detallesNomina.add(new DetalleNomina(dClave,dNumEmp,dRFC,dBanco,dCuentaBancaria,dCentroTrabajo,dCodigoPuesto,dClavePago,dContrato,dClaveContrato,dDescripcion,dFechaInicial,dFechaFinal,dMovimiento,dDeducciones,dClue,dSindicalizado,dConceptos,dID,dTipoR,dControlSar,dTipoTrabajador,dNivel,dActividad,dIndicadorMando,dClaveP,dSalarioDiario,dSecuencia,dUnidadResponsable,dInstrumentoPago,dHoras,dFonac,dPagaduria,dDigito));
-                            validaciones.add(new Validaciones(dID,dClue,"NO",dCodigoPuesto));
+                            dDescripcionCentro=rowObjects[76].toString(); 
+                            detallesNomina.add(new DetalleNomina(dClave,dNumEmp,dRFC,dBanco,dCuentaBancaria,dCentroTrabajo,dCodigoPuesto,dClavePago,dContrato,dClaveContrato,dDescripcion,dFechaInicial,dFechaFinal,dMovimiento,dDeducciones,dClue,dSindicalizado,dConceptos,dID,dTipoR,dControlSar,dTipoTrabajador,dNivel,dActividad,dIndicadorMando,dClaveP,dSalarioDiario,dSecuencia,dUnidadResponsable,dInstrumentoPago,dHoras,dFonac,dPagaduria,dDigito,dNoPuesto,dPercepciones,dNombre2));
 
             }
                         //Agregamos el registro final de producto al salir del diclo ya que nunca entraría a la condición de ser clave distinta porque no hay más registros.
@@ -860,6 +818,9 @@ public class CargaArchivosNominaViewController implements Initializable {
                             System.out.println("deducción:" + deducciones.toString());
                             pTotal=totales.subtract(deducciones).toString();
                             System.out.println(pTotal);
+                            if(pFechaPago.equals("")){
+                                    pFechaPago=dFechaFinal;
+                            }
                             productos.add(new Productos(pClave,pAnio,pMes,pFechaPago,pTotal));
         } catch (FileNotFoundException ex) {
             Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
@@ -896,7 +857,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                             //cGrabado=rowObjects[13].toString();
                             //cNoGrabado=rowObjects[14].toString();
                             conceptos.add(new Conceptos(dID,cConcepto,cGrabado,cNoGrabado));
-                            validaciones.add(new Validaciones(dID,"NO",cConcepto,"NO"));                            
+
 			}
         } catch (FileNotFoundException ex) {
             Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
@@ -925,7 +886,15 @@ public class CargaArchivosNominaViewController implements Initializable {
             String c3=lineScanner.next();
             cConcepto=c1+c2+c3;
             String a1=lineScanner.next();
+            if(a1.length()>0){
+                a1=StringUtils.leftPad(a1, 4, '0');
+            }
+            
             String a2=lineScanner.next();
+            if(a2.length()>0){
+                a2=StringUtils.leftPad(a2, 4, '0');
+            }
+            adicional=a1+a2;
             //Falta ver que hacer con estas variables (a1,a2)
             preClave=lineScanner.next();
             System.out.println(preClave);
@@ -938,19 +907,24 @@ public class CargaArchivosNominaViewController implements Initializable {
             dSecuencia=lineScanner.next();
             //Falta importe1 e importe2
             }
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception e) {
+            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, e);
+            System.out.println(e);
         }
     }
     private void extraerDatosDAT(){
                     try {
-            sc = new Scanner(selectedFile);
+            sc = new Scanner(selectedFile,"UTF-8");
+            int j=0;
             while(sc.hasNextLine()){
             lineScanner = new Scanner(sc.nextLine());
+            j++;
+            System.out.println(j);
             lineScanner.useDelimiter("\\|");
             dNumEmp=lineScanner.next();
             eClave=dNumEmp;
             eRFC=lineScanner.next();
+            System.out.println(eRFC);
             dRFC=eRFC;
             eCURP=lineScanner.next();
             String nombre=lineScanner.next();
@@ -983,17 +957,17 @@ public class CargaArchivosNominaViewController implements Initializable {
             eNombres=nombre;
             dControlSar=lineScanner.next();
             dTipoR=lineScanner.next();
-            dBanco=lineScanner.next();
-            dClavePago=lineScanner.next();
+            dBanco=dTipoR;
+            dClaveP=lineScanner.next();
             dCuentaBancaria=lineScanner.next();
             dCentroTrabajo="1";
             dContrato="0";
             dDescripcion="0";
             eNSS="0";
             int i=0;
-            while(i>7){
+            while(i<6){
                 i++;
-                lineScanner.next();
+                String t=lineScanner.next();
             }
             dUnidadResponsable=lineScanner.next();
             String grupoFuncion=lineScanner.next();
@@ -1008,12 +982,174 @@ public class CargaArchivosNominaViewController implements Initializable {
             dNoPuesto=lineScanner.next();
             dEstado=lineScanner.next();
             dMunicipio=lineScanner.next();
+            if(RFCEmisor.equals("SSO960923M2A")){
+                dClavePago=dProyecto+" "+dUnidadResponsable+" "+dPartida+" "+dCodigoPuesto+" "+programa+dActividad+"0"+dNoPuesto;
+            }else if(RFCEmisor.equals("OPD970314U91")){
+                dClavePago=dProyecto+" "+dUnidadResponsable+" "+dPartida+" "+dCodigoPuesto+" "+dEstado+" "+dActividad+" "+dGfSf+" "+dNoPuesto;
+            }else if(RFCEmisor.equals("SSC961129CH3")){
+                dClavePago=dProyecto+" "+dUnidadResponsable+" "+dPartida+" "+dCodigoPuesto+" "+programa+" "+dActividad+" "+dNoPuesto+" "+dGfSf;
+
+            }else if(RFCEmisor.equals("SSM9609248P8")){
+                dClavePago=dUnidadResponsable+" "+dProyecto+" "+programa+" "+dActividad+" "+dPartida+" "+dCodigoPuesto+" "+dNoPuesto;
+            }else{
+                dClavePago=dProyecto+" "+dUnidadResponsable+" "+dPartida+" "+dCodigoPuesto+" "+dEstado+" "+dActividad+" "+dNoPuesto;
+            }
+            dCentroTrabajo=lineScanner.next();
+            eNSS=lineScanner.next();
+            if(eNSS.length()>11){
+                eNSS=eNSS.substring((eNSS.length()-11),eNSS.length());
+            }
+            dPagaduria=lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            String nivel=lineScanner.next();
+            dRango=lineScanner.next();
+            dIndicadorMando=lineScanner.next();
+            dHoras=lineScanner.next();
+            dPorcentaje=lineScanner.next();
+            dTipoTrabajador=lineScanner.next();
+            dNivel=lineScanner.next();
+            lineScanner.next();
+            eFecha=lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            //Pendiente separar mes y año y formato fechas
+            pFechaPago=lineScanner.next();
+            pMes=pFechaPago.substring(5,7);
+            pAnio=pFechaPago.substring(0,4);
+            dFechaInicial=lineScanner.next();
+            dFechaFinal=lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            String tipoPago=lineScanner.next();
+            lineScanner.next();
+            dInstrumentoPago=lineScanner.next();
+            //En Oaxaca Inst Pago está en posición 4
+            if(RFCEmisor.equals("SSO960923M2A")){
+                dInstrumentoPago=dTipoR;
+            }
+            dPercepciones=lineScanner.next();
+            dDeducciones=lineScanner.next();
+            lineScanner.next();
+            dConceptos=lineScanner.next();
+            lineScanner.next();
+            String producto=lineScanner.next();
+            System.out.println(producto);
+
+            
+            if(preClave.equals("")){
+                                preClave=producto;
+                                System.out.println(preClave);
+                                //Iniciamos el primer producto
+                                //Verifica si es de Coahuila, Oaxaca o Nuevo Leon ya que la clave de producto es distinta
+                                if(RFCEmisor.equals("SSC961129CH3")||RFCEmisor.equals("SSO960923M2A")||RFCEmisor.equals("SSN970115QI9")){
+                                    pClave=preClave+pAnio.substring(2,4);
+                                }else{
+                                    pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
+                                }
+                                totales=new BigDecimal(dPercepciones);
+
+                                deducciones=new BigDecimal(dDeducciones);
+                                
+                            }else if(producto.equals(preClave)){
+                                //Sumamos totales al producto
+                                totales=totales.add(new BigDecimal(dPercepciones));
+                                deducciones=deducciones.add(new BigDecimal(dDeducciones));
+                            }else{
+                                //Concluimos el registro anterior y lo agregamos a la lista
+                                System.out.println("Entra nuevo producto");
+                                preClave=producto;
+                                System.out.println("percepcion:" + totales.toString());
+                                System.out.println("deducción:" + deducciones.toString());
+                                pTotal=totales.subtract(deducciones).toString();
+                                System.out.println("total: "+pTotal);
+                                if(pFechaPago.equals("")){
+                                    pFechaPago=dFechaFinal;
+                                }
+                                productos.add(new Productos(pClave,pAnio,pMes,pFechaPago,pTotal));
+                                
+                                //Iniciamos el siguiente registro
+                                preClave=producto;
+                                if(RFCEmisor.equals("SSC961129CH3")||RFCEmisor.equals("SSO960923M2A")||RFCEmisor.equals("SSN970115QI9")){
+                                    pClave=preClave+pAnio.substring(2,4);
+                                }else{
+                                    pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
+                                }                                System.out.println(pClave);
+                                totales=new BigDecimal(dPercepciones);
+                                deducciones=new BigDecimal(dDeducciones);
+                            }
+            dSecuencia=lineScanner.next();
+            dMovimiento=lineScanner.next();
+            dDigito=lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            dFonac=lineScanner.next();
+            lineScanner.next();
+            dClue=lineScanner.next();
+            System.out.println("Clue: "+dClue);
+            if(RFCEmisor.equals("SSO960923M2A")){
+                dSindicalizado=dClue;
+                dClue="";
+            }else{
+                dSindicalizado="NO";
+            }
+            lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            lineScanner.next();
+            dDescripcionCentro=lineScanner.next();
+            System.out.println("Descripcion: "+dDescripcionCentro);
+            
+            
+                            
+            
+            
+            
+            
             
             
             
             
             }
-        } catch (FileNotFoundException ex) {
+            //Ultimo registro de nomina al salir del ciclo
+                            System.out.println("percepcion:" + totales.toString());
+                            System.out.println("deducción:" + deducciones.toString());
+                            pTotal=totales.subtract(deducciones).toString();
+                            System.out.println(pTotal);
+                            if(pFechaPago.equals("")){
+                                    pFechaPago=dFechaFinal;
+                            }
+                            productos.add(new Productos(pClave,pAnio,pMes,pFechaPago,pTotal));
+        } catch (Exception e) {
+            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, e);
+            System.out.println(e);
+        }
+    }
+    
+    public void fillClues(){
+        try {
+            classes.MySQL mysql= new classes.MySQL();
+            ResultSet rs= mysql.select("SELECT clue,centro_trabajo  FROM satin.detalle_nomina where CLUE NOT IN (SELECT clue from satin.clues) AND clue !=\"\" group by clue;");
+            while(rs.next()){
+                clues.add(new Clues(rs.getString(1),rs.getString(2)));
+            }
+            PreparedStatement pstmtClues = mysql.conn.prepareStatement("INSERT INTO `satin`.`clues` (`clue`, `id_centrotrabajo`) VALUES (?, ?);");
+                for (Clues clue : clues) {
+                    pstmtClues.setString(1, clue.getClue());
+                    pstmtClues.setString(2, clue.getCentro());
+                    pstmtClues.addBatch();
+                }
+                pstmtClues.executeBatch();
+                System.out.println("Clues insertados correctamente");
+        } catch (SQLException ex) {
             Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

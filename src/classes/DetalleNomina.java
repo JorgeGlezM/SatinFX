@@ -16,7 +16,7 @@ public class DetalleNomina {
             ,dTipoR,dControlSar,dTipoTrabajador,dNivel,dRango,dPorcentaje,dEstado,dMunicipio,dActividad,dProyecto,dPartida,dGfSf,dNombre2,dNoPuesto,
                 dIndicadorMando,dClaveP,dSalarioDiario,dSecuencia,dUnidadResponsable,dInstrumentoPago,dHoras,dFonac,dPagaduria,dDigito;
 
-    public DetalleNomina(String dClave, String dNumEmp, String dRFC, String dBanco, String dCuentaBancaria, String dCentroTrabajo, String dCodigoPuesto, String dClavePago, String dContrato, String dClaveContrato, String dDescripcion, String dFechaInicial, String dFechaFinal, String dMovimiento, String dDeducciones, String dClue, String dSindicalizado, String dConceptos, String dID, String dTipoR, String dControlSar, String dTipoTrabajador, String dNivel, String dActividad, String dIndicadorMando, String dClaveP, String dSalarioDiario, String dSecuencia, String dUnidadResponsable, String dInstrumentoPago, String dHoras, String dFonac, String dPagaduria,String dDigito) {
+    public DetalleNomina(String dClave, String dNumEmp, String dRFC, String dBanco, String dCuentaBancaria, String dCentroTrabajo, String dCodigoPuesto, String dClavePago, String dContrato, String dClaveContrato, String dDescripcion, String dFechaInicial, String dFechaFinal, String dMovimiento, String dDeducciones, String dClue, String dSindicalizado, String dConceptos, String dID, String dTipoR, String dControlSar, String dTipoTrabajador, String dNivel, String dActividad, String dIndicadorMando, String dClaveP, String dSalarioDiario, String dSecuencia, String dUnidadResponsable, String dInstrumentoPago, String dHoras, String dFonac, String dPagaduria,String dDigito,String dNoPuesto,String dPercepciones,String dNombre2) {
         this.dClave = dClave;
         this.dNumEmp = dNumEmp;
         this.dRFC = dRFC;
@@ -51,6 +51,9 @@ public class DetalleNomina {
         this.dFonac = dFonac;
         this.dPagaduria = dPagaduria;
         this.dDigito = dDigito;
+        this.dNoPuesto=dNoPuesto;
+        this.dPercepciones=dPercepciones;
+        this.dNombre2=dNombre2;
 
     }
 
