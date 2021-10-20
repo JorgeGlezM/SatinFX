@@ -130,10 +130,12 @@ public class CargaArchivosNominaViewController implements Initializable {
 
         String tipo=(String) cmbTipo.getValue();
         switch(tipo){
-            case "txt":extraerEmpleadoTXT();extraerProductoTXT();insertsTXT();fillClues();break;
-            case "dbf":extraerDatosDBF();extraerConceptosDBF();insertsDBF();fillClues();break;
-            case "dat/tra":extraerDatosTRA();fillClues();break;
-        }        
+            case "txt":extraerEmpleadoTXT();extraerProductoTXT();insertsTXT();break;
+            case "dbf":extraerDatosDBF();extraerConceptosDBF();insertsDBF();break;
+            case "dat/tra":extraerDatosTRA();break;
+        }       
+        fillClues();
+        validaciones();
     }
     @FXML private void btnSeleccionar (ActionEvent event) throws IOException{
         FileChooser fc = new FileChooser();
@@ -1041,46 +1043,46 @@ public class CargaArchivosNominaViewController implements Initializable {
 
             
             if(preClave.equals("")){
-                                preClave=producto;
-                                System.out.println(preClave);
-                                //Iniciamos el primer producto
-                                //Verifica si es de Coahuila, Oaxaca o Nuevo Leon ya que la clave de producto es distinta
-                                if(RFCEmisor.equals("SSC961129CH3")||RFCEmisor.equals("SSO960923M2A")||RFCEmisor.equals("SSN970115QI9")){
-                                    pClave=preClave+pAnio.substring(2,4);
-                                }else{
-                                    pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
-                                }
-                                totales=new BigDecimal(dPercepciones);
+                preClave=producto;
+                System.out.println(preClave);
+                //Iniciamos el primer producto
+                //Verifica si es de Coahuila, Oaxaca o Nuevo Leon ya que la clave de producto es distinta
+                if(RFCEmisor.equals("SSC961129CH3")||RFCEmisor.equals("SSO960923M2A")||RFCEmisor.equals("SSN970115QI9")){
+                    pClave=preClave+pAnio.substring(2,4);
+                }else{
+                    pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
+                }
+                totales=new BigDecimal(dPercepciones);
 
-                                deducciones=new BigDecimal(dDeducciones);
-                                
-                            }else if(producto.equals(preClave)){
-                                //Sumamos totales al producto
-                                totales=totales.add(new BigDecimal(dPercepciones));
-                                deducciones=deducciones.add(new BigDecimal(dDeducciones));
-                            }else{
-                                //Concluimos el registro anterior y lo agregamos a la lista
-                                System.out.println("Entra nuevo producto");
-                                preClave=producto;
-                                System.out.println("percepcion:" + totales.toString());
-                                System.out.println("deducción:" + deducciones.toString());
-                                pTotal=totales.subtract(deducciones).toString();
-                                System.out.println("total: "+pTotal);
-                                if(pFechaPago.equals("")){
-                                    pFechaPago=dFechaFinal;
-                                }
-                                productos.add(new Productos(pClave,pAnio,pMes,pFechaPago,pTotal));
-                                
-                                //Iniciamos el siguiente registro
-                                preClave=producto;
-                                if(RFCEmisor.equals("SSC961129CH3")||RFCEmisor.equals("SSO960923M2A")||RFCEmisor.equals("SSN970115QI9")){
-                                    pClave=preClave+pAnio.substring(2,4);
-                                }else{
-                                    pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
-                                }                                System.out.println(pClave);
-                                totales=new BigDecimal(dPercepciones);
-                                deducciones=new BigDecimal(dDeducciones);
-                            }
+                deducciones=new BigDecimal(dDeducciones);
+
+            }else if(producto.equals(preClave)){
+                //Sumamos totales al producto
+                totales=totales.add(new BigDecimal(dPercepciones));
+                deducciones=deducciones.add(new BigDecimal(dDeducciones));
+            }else{
+                //Concluimos el registro anterior y lo agregamos a la lista
+                System.out.println("Entra nuevo producto");
+                preClave=producto;
+                System.out.println("percepcion:" + totales.toString());
+                System.out.println("deducción:" + deducciones.toString());
+                pTotal=totales.subtract(deducciones).toString();
+                System.out.println("total: "+pTotal);
+                if(pFechaPago.equals("")){
+                    pFechaPago=dFechaFinal;
+                }
+                productos.add(new Productos(pClave,pAnio,pMes,pFechaPago,pTotal));
+
+                //Iniciamos el siguiente registro
+                preClave=producto;
+                if(RFCEmisor.equals("SSC961129CH3")||RFCEmisor.equals("SSO960923M2A")||RFCEmisor.equals("SSN970115QI9")){
+                    pClave=preClave+pAnio.substring(2,4);
+                }else{
+                    pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
+                }                                System.out.println(pClave);
+                totales=new BigDecimal(dPercepciones);
+                deducciones=new BigDecimal(dDeducciones);
+            }
             dSecuencia=lineScanner.next();
             dMovimiento=lineScanner.next();
             dDigito=lineScanner.next();
@@ -1107,17 +1109,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             lineScanner.next();
             dDescripcionCentro=lineScanner.next();
             System.out.println("Descripcion: "+dDescripcionCentro);
-            
-            
-                            
-            
-            
-            
-            
-            
-            
-            
-            
+          
             }
             //Ultimo registro de nomina al salir del ciclo
                             System.out.println("percepcion:" + totales.toString());
@@ -1152,6 +1144,82 @@ public class CargaArchivosNominaViewController implements Initializable {
         } catch (SQLException ex) {
             Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public void validaciones(){
+        //Pasamos todos aquellos que no se encuentran en catalogo a estatus pendiente (P)
+        classes.MySQL mysql=new classes.MySQL();
+        ResultSet rs= mysql.select("SELECT id,rfc  FROM satin.detalle_nomina where puesto NOT IN (SELECT id_puestos from satin.puestos) AND puesto !=\"\" AND vpuesto=\"N\"");
+        try {
+            PreparedStatement pstmtPuestosP=mysql.conn.prepareStatement("UPDATE `satin`.`detalle_nomina` SET `vpuesto` = 'P' WHERE (`id` = ?) and (`rfc` = ?)");
+            while(rs.next()){
+                    pstmtPuestosP.setString(1, rs.getString(1));
+                    pstmtPuestosP.setString(2, rs.getString(2));
+                    pstmtPuestosP.addBatch();
+
+            }
+            pstmtPuestosP.executeBatch();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        //Ahora verificamos aquellos que si existen y los cambiamos a estatus "V
+        rs= mysql.select("SELECT id,rfc  FROM satin.detalle_nomina where puesto IN (SELECT id_puestos from satin.puestos) AND puesto !=\"\" AND vpuesto=\"N\"");
+        try {
+            PreparedStatement pstmtPuestosV=mysql.conn.prepareStatement("UPDATE `satin`.`detalle_nomina` SET `vpuesto` = 'V' WHERE (`id` = ?) and (`rfc` = ?)");
+            while(rs.next()){
+                    pstmtPuestosV.setString(1, rs.getString(1));
+                    pstmtPuestosV.setString(2, rs.getString(2));
+                    pstmtPuestosV.addBatch();
+
+            }
+            pstmtPuestosV.executeBatch();
+        } catch (SQLException ex) {
+            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        //Pasamos a pendiente los detalle_conceptos que no se encuentren en conceptos
+        rs= mysql.select("SELECT id FROM satin.detalle_conceptos where id_concepto not in (SELECT id_concepto FROM satin.conceptos)");
+        try {
+            PreparedStatement pstmtConceptosP=mysql.conn.prepareStatement("UPDATE `satin`.`detalle_conceptos` SET `validacion` = 'P' WHERE (`id` = ?);");
+            while(rs.next()){
+                    pstmtConceptosP.setString(1, rs.getString(1));
+                    pstmtConceptosP.addBatch();
+
+            }
+            pstmtConceptosP.executeBatch();
+        } catch (SQLException ex) {
+            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        //Validamos aquellos detalle_conceptos que si se encuentran en conceptos
+        rs= mysql.select("SELECT id FROM satin.detalle_conceptos where id_concepto in (SELECT id_concepto FROM satin.conceptos)");
+        try {
+            PreparedStatement pstmtConceptosV=mysql.conn.prepareStatement("UPDATE `satin`.`detalle_conceptos` SET `validacion` = 'V' WHERE (`id` = ?);");
+            while(rs.next()){
+                    pstmtConceptosV.setString(1, rs.getString(1));
+                    pstmtConceptosV.addBatch();
+
+            }
+            pstmtConceptosV.executeBatch();
+        } catch (SQLException ex) {
+            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        //Finalmente verificamos que el número de conceptos validados sea mayor o igual al número de conceptos en detalle_nomina y pasamos aquellos registros que cumplan la condicion a verificados 
+        rs= mysql.select("select dn.id,dn.rfc from satin.detalle_nomina dn left join (SELECT id_detalle_nomina, COUNT(*) as contador FROM satin.detalle_conceptos where validacion=\"P\" group by id_detalle_nomina) c on c.id_detalle_nomina=dn.id where dn.conceptos<=c.contador and dn.vconceptos=\"N\"");
+        try {
+            PreparedStatement pstmtVConceptos=mysql.conn.prepareStatement("UPDATE `satin`.`detalle_nomina` SET `vconceptos` = 'V' WHERE (`id` = ?) and (`rfc` = ?)");
+            while(rs.next()){
+                    pstmtVConceptos.setString(1, rs.getString(1));
+                    pstmtVConceptos.setString(2, rs.getString(2));
+                    pstmtVConceptos.addBatch();
+            }
+            pstmtVConceptos.executeBatch();
+        } catch (SQLException ex) {
+            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
     
 
