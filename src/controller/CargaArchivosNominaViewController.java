@@ -38,7 +38,10 @@ import classes.Horas;
 import classes.Productos;
 import com.linuxense.javadbf.DBFReader;
 import java.io.FileInputStream;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -1147,12 +1150,14 @@ public class CargaArchivosNominaViewController implements Initializable {
     }
     
     public void validaciones(){
+        String noValidados="Algunos registros no pudieron ser validados. Para timbrarlos, es necesario completar la información en el módulo VALIDACIONES PENDIENTES: \n --------------------------------NO EXISTE EL PUESTO:---------------------------------- \n";
         //Pasamos todos aquellos que no se encuentran en catalogo a estatus pendiente (P)
         classes.MySQL mysql=new classes.MySQL();
-        ResultSet rs= mysql.select("SELECT id,rfc  FROM satin.detalle_nomina where puesto NOT IN (SELECT id_puestos from satin.puestos) AND puesto !=\"\" AND vpuesto=\"N\"");
+        ResultSet rs= mysql.select("SELECT id,rfc,movimiento,fechaf  FROM satin.detalle_nomina where puesto NOT IN (SELECT id_puestos from satin.puestos) AND puesto !=\"\" AND vpuesto=\"N\"");
         try {
             PreparedStatement pstmtPuestosP=mysql.conn.prepareStatement("UPDATE `satin`.`detalle_nomina` SET `vpuesto` = 'P' WHERE (`id` = ?) and (`rfc` = ?)");
             while(rs.next()){
+                noValidados=noValidados+"RFC: "+rs.getString(2)+" Movimiento: "+rs.getString(3)+" Fecha Final: "+rs.getString(4)+"\n";
                     pstmtPuestosP.setString(1, rs.getString(1));
                     pstmtPuestosP.setString(2, rs.getString(2));
                     pstmtPuestosP.addBatch();
@@ -1206,8 +1211,8 @@ public class CargaArchivosNominaViewController implements Initializable {
             Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        //Finalmente verificamos que el número de conceptos validados sea mayor o igual al número de conceptos en detalle_nomina y pasamos aquellos registros que cumplan la condicion a verificados 
-        rs= mysql.select("select dn.id,dn.rfc from satin.detalle_nomina dn left join (SELECT id_detalle_nomina, COUNT(*) as contador FROM satin.detalle_conceptos where validacion=\"P\" group by id_detalle_nomina) c on c.id_detalle_nomina=dn.id where dn.conceptos<=c.contador and dn.vconceptos=\"N\"");
+        //Finalmente verificamos que el número de conceptos validados sea mayor o igual al número de conceptos en detalle_nomina y pasamos aquellos registros que cumplan la condicion a verificados  y los que no a pendientes
+        rs= mysql.select("select dn.id,dn.rfc from satin.detalle_nomina dn left join (SELECT id_detalle_nomina, COUNT(*) as contador FROM satin.detalle_conceptos where validacion=\"V\" group by id_detalle_nomina) c on c.id_detalle_nomina=dn.id where dn.conceptos<=c.contador and dn.vconceptos=\"N\"");
         try {
             PreparedStatement pstmtVConceptos=mysql.conn.prepareStatement("UPDATE `satin`.`detalle_nomina` SET `vconceptos` = 'V' WHERE (`id` = ?) and (`rfc` = ?)");
             while(rs.next()){
@@ -1217,6 +1222,48 @@ public class CargaArchivosNominaViewController implements Initializable {
             }
             pstmtVConceptos.executeBatch();
         } catch (SQLException ex) {
+            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        rs= mysql.select("select id,rfc,movimiento,fechaf from satin.detalle_nomina where vconceptos=\"N\"");
+        try {
+            noValidados=noValidados+"--------------------------------CONCEPTOS FALTANTES:----------------------------------\n";
+            PreparedStatement pstmtPConceptos=mysql.conn.prepareStatement("UPDATE `satin`.`detalle_nomina` SET `vconceptos` = 'P' WHERE (`id` = ?) and (`rfc` = ?)");
+            while(rs.next()){
+                    noValidados=noValidados+"RFC: "+rs.getString(2)+" Movimiento: "+rs.getString(3)+" Fecha Final: "+rs.getString(4)+"\n";
+                    pstmtPConceptos.setString(1, rs.getString(1));
+                    pstmtPConceptos.setString(2, rs.getString(2));
+                    pstmtPConceptos.addBatch();
+            }
+            pstmtPConceptos.executeBatch();
+        } catch (SQLException ex) {
+            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        rs=mysql.select("SELECT rfc, movimiento,fechaf,vpuesto,vconceptos from satin.detalle_nomina where vpuesto=\"P\" or vconceptos=\"P\"");
+        System.out.println(noValidados);       
+        
+        JOptionPane.showMessageDialog(null, "Algunos registros no fueron validados. Se generará un archivo con los registros pendientes.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+        FileChooser fileChooser = new FileChooser();
+
+        //Set extension filter for text files
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Archivo de texto (*.txt)", "*.txt");
+            fileChooser.getExtensionFilters().add(extFilter);
+ 
+            //Show save file dialog
+            File file = fileChooser.showSaveDialog(stage);
+            if(file!=null){
+            PrintWriter writer;
+            try {
+                writer = new PrintWriter(file);
+                writer.println(noValidados);
+                writer.close();
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            }
+                    try {
+            Files.write(Paths.get("./DetallesPendientes.txt"), noValidados.getBytes());
+        } catch (IOException ex) {
             Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
         

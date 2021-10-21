@@ -62,7 +62,7 @@
                         <GridPane alignment="CENTER" layoutX="7.0" layoutY="3.0" prefHeight="507.0" prefWidth="1032.0">
                            <children>
                               <Button fx:id="btnCargaNomina" mnemonicParsing="false" onAction="#btnCargaNomina" prefHeight="32.0" prefWidth="207.0" style="-fx-wrap-text: false;" text="Carga de Archivo Nómina" GridPane.halignment="CENTER" />
-                              <Button fx:id="btnCentros1" mnemonicParsing="false" onAction="#btnCentros" text="Centros Trabajo" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                              <Button fx:id="btnValidacionesP" mnemonicParsing="false" onAction="#btnValidacionesP" text="Validaciones Pendientes" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
                               <Button fx:id="btnClues1" mnemonicParsing="false" onAction="#btnClues" text="Clues" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
                               <Button fx:id="btnConceptos1" mnemonicParsing="false" onAction="#btnConceptos" text="Conceptos" GridPane.columnIndex="3" GridPane.halignment="CENTER" />
                               <Button fx:id="btnConceptosSAT1" mnemonicParsing="false" onAction="#btnConceptosSAT" text="Conceptos SAT" GridPane.columnIndex="4" GridPane.halignment="CENTER" />

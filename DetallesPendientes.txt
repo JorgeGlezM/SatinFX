@@ -1,0 +1,5 @@
+Algunos registros no pudieron ser validados. Para timbrarlos, es necesario completar la información en el módulo VALIDACIONES PENDIENTES: 
+ --------------------------------NO EXISTE EL PUESTO:---------------------------------- 
+RFC: CAOG670104G35 Movimiento: 300113357 Fecha Final: 2021-05-31
+--------------------------------CONCEPTOS FALTANTES:----------------------------------
+RFC: CAOG670104G35 Movimiento: 300113357 Fecha Final: 2021-05-31
