@@ -47,5 +47,10 @@ public class CentrosTrabajo {
 		this.nombre = nombre;
 		this.descripcion = descripcion;
 	}
+
+    public CentrosTrabajo(String id, String descripcion) {
+        this.id = id;
+        this.descripcion = descripcion;
+    }
     
 }
