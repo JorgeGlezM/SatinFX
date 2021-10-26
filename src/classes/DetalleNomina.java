@@ -57,6 +57,49 @@ public class DetalleNomina {
 
     }
 
+    public DetalleNomina(String dClave, String dBanco, String dCuentaBancaria, String dCentroTrabajo, String dCodigoPuesto, String dClavePago, String dContrato, String dDescripcion, String dFechaInicial, String dFechaFinal, String dMovimiento, String dPercepciones, String dDeducciones, String dClue, String dSindicalizado, String dConceptos, String dID, String dTipoR, String dControlSar, String dTipoTrabajador, String dNivel, String dRango, String dPorcentaje, String dEstado, String dMunicipio, String dActividad, String dProyecto, String dPartida, String dGfSf, String dNoPuesto, String dIndicadorMando, String dSecuencia, String dUnidadResponsable, String dInstrumentoPago, String dHoras, String dFonac, String dPagaduria, String dDigito,String dNumEmp,String dRFC) {
+        this.dClave = dClave;
+        this.dBanco = dBanco;
+        this.dCuentaBancaria = dCuentaBancaria;
+        this.dCentroTrabajo = dCentroTrabajo;
+        this.dCodigoPuesto = dCodigoPuesto;
+        this.dClavePago = dClavePago;
+        this.dContrato = dContrato;
+        this.dDescripcion = dDescripcion;
+        this.dFechaInicial = dFechaInicial;
+        this.dFechaFinal = dFechaFinal;
+        this.dMovimiento = dMovimiento;
+        this.dPercepciones = dPercepciones;
+        this.dDeducciones = dDeducciones;
+        this.dClue = dClue;
+        this.dSindicalizado = dSindicalizado;
+        this.dConceptos = dConceptos;
+        this.dID = dID;
+        this.dTipoR = dTipoR;
+        this.dControlSar = dControlSar;
+        this.dTipoTrabajador = dTipoTrabajador;
+        this.dNivel = dNivel;
+        this.dRango = dRango;
+        this.dPorcentaje = dPorcentaje;
+        this.dEstado = dEstado;
+        this.dMunicipio = dMunicipio;
+        this.dActividad = dActividad;
+        this.dProyecto = dProyecto;
+        this.dPartida = dPartida;
+        this.dGfSf = dGfSf;
+        this.dNoPuesto = dNoPuesto;
+        this.dIndicadorMando = dIndicadorMando;
+        this.dSecuencia = dSecuencia;
+        this.dUnidadResponsable = dUnidadResponsable;
+        this.dInstrumentoPago = dInstrumentoPago;
+        this.dHoras = dHoras;
+        this.dFonac = dFonac;
+        this.dPagaduria = dPagaduria;
+        this.dDigito = dDigito;
+        this.dNumEmp = dNumEmp;
+        this.dRFC = dRFC;
+    }
+
     public String getdNoPuesto() {
         return dNoPuesto;
     }

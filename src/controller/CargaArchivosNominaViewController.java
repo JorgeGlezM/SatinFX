@@ -133,7 +133,7 @@ public class CargaArchivosNominaViewController implements Initializable {
         switch(tipo){
             case "txt":extraerEmpleadoTXT();extraerProductoTXT();insertsTXT();break;
             case "dbf":extraerDatosDBF();extraerConceptosDBF();insertsDBF();break;
-            case "dat/tra":extraerDatosTRA();break;
+            case "dat/tra":extraerDatosTRA();extraerDatosDAT();insertsDAT();break;
         }       
         fillClues();
         validaciones();
@@ -527,7 +527,6 @@ public class CargaArchivosNominaViewController implements Initializable {
             try{
                 PreparedStatement pstmtCentros = mysql.conn.prepareStatement(insertCentros);
                 for (CentrosTrabajo centro : centros) {
-                    System.out.println("ID: "+centro.getId());
                     pstmtCentros.setString(1, centro.getId()); 
                     pstmtCentros.addBatch();
             }
@@ -687,10 +686,218 @@ public class CargaArchivosNominaViewController implements Initializable {
                 System.out.println(e);
             }
             
+                        //Inserción de adicionales
+            String insertAdicionales="insert into satin.adicional (id_detalle_nomina,texto) VALUES (?,?)";
+            try{
+                PreparedStatement pstmtAdicionales = mysql.conn.prepareStatement(insertAdicionales);
+                for (Adicional adicional : adicionales) {
+                    pstmtAdicionales.setString(1, adicional.getdID()); 
+                    pstmtAdicionales.setString(2, adicional.getAdicional());
+                    pstmtAdicionales.addBatch();
+            }
+            pstmtAdicionales.executeBatch();
+            adicionales=new ArrayList<Adicional>();
+                System.out.println("Adicionales insertados");
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de Adicionales", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+            
+            
+                        //Inserción de centros inexistentes 
+            String insertCentros="INSERT ignore INTO `satin`.`centrotrabajo` (`id_centrotrabajo`,`nombre`) VALUES (?,?)";
+            try{
+                PreparedStatement pstmtCentros = mysql.conn.prepareStatement(insertCentros);
+                for (CentrosTrabajo centro : centros) {
+                    pstmtCentros.setString(1, centro.getId()); 
+                    pstmtCentros.setString(2, centro.getDescripcion()); 
+
+                    pstmtCentros.addBatch();
+            }
+            pstmtCentros.executeBatch();
+            centros=new ArrayList<CentrosTrabajo>();
+                            System.out.println("Centros faltantes insertadas");
+
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de Centros", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+            
             
 
                     
     }
+        
+            // - - - - - - -- - - - - - - - - - - - - - - - - - - - - - INSERCION DE DAT Y TRA - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    private void insertsDAT() {
+        
+        classes.MySQL mysql= new classes.MySQL();
+            mysql.conectar();
+            
+            //Inserción empleados
+            String insertEmpleado="INSERT INTO satin.empleados (clave,nombre,apaterno,amaterno,rfc,curp,nss,fecha_ingreso) "+
+            "VALUES(?,?,?,?,?,?,?,?) on duplicate key UPDATE nombre=?,apaterno=?,amaterno=?,rfc=?,curp=?,nss=?,fecha_ingreso=?";
+            try{
+                PreparedStatement pstmtEmpleado = mysql.conn.prepareStatement(insertEmpleado);
+                for (Empleados empleado : empleados) {
+                    pstmtEmpleado.setString(1, empleado.getClave()); 
+                    pstmtEmpleado.setString(2, empleado.getNombres());
+                    pstmtEmpleado.setString(3, empleado.getaPaterno());
+                    pstmtEmpleado.setString(4, empleado.getaMaterno());
+                    pstmtEmpleado.setString(5, empleado.getRFC());
+                    pstmtEmpleado.setString(6, empleado.getCURP());
+                    pstmtEmpleado.setString(7, empleado.getNSS());
+                    pstmtEmpleado.setString(8, empleado.getFecha());
+                    pstmtEmpleado.setString(9, empleado.getNombres());
+                    pstmtEmpleado.setString(10, empleado.getaPaterno());
+                    pstmtEmpleado.setString(11, empleado.getaMaterno());
+                    pstmtEmpleado.setString(12, empleado.getRFC());
+                    pstmtEmpleado.setString(13, empleado.getCURP());
+                    pstmtEmpleado.setString(14, empleado.getNSS());
+                    pstmtEmpleado.setString(15, empleado.getFecha());
+                    
+
+
+                    pstmtEmpleado.addBatch();
+            }
+            pstmtEmpleado.executeBatch();
+            empleados=new ArrayList<Empleados>();
+                System.out.println("Empleados insertados");
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de Empleados", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+                        
+                            
+            //Insercion Producto
+                            //productos.add(new Productos(pClave,pAnio,pMes,pFechaPago,pTotal));
+            String insertProducto="INSERT INTO satin.producto_nomina (clave,anio,mes,fechapago,total)"+
+               "VALUES(?,?,?,?,?)";
+            try{
+                
+                PreparedStatement pstmtProductos = mysql.conn.prepareStatement(insertProducto);
+                for (Productos producto : productos) {
+                    pstmtProductos.setString(1, producto.getpClave()); 
+                    pstmtProductos.setString(2, producto.getpAnio());
+                    pstmtProductos.setString(3, producto.getpMes());
+                    pstmtProductos.setString(4, producto.getpFechaPago());
+                    pstmtProductos.setString(5, producto.getpTotal());
+                    
+                    pstmtProductos.addBatch();
+            }
+            pstmtProductos.executeBatch();
+            productos=new ArrayList<Productos>();
+            System.out.println("Productos insertados");
+
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de productos de nómina", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+            
+            //Insercion detalle_nomina
+            String insertDetalleNomina="insert into detalle_nomina (id,producto,clave,tipor,clavep,centro_trabajo,puesto,contrato,"+
+            " clavepago,no_puesto,indicador_mando,fechai,fechaf,movimiento,total1,total2,conceptos,"+
+            " sindicato,rfc,seq,unidad,instrumento_pago,horas,fonac,digito_ver,pagaduria,control_sar,"+
+            " tipo_trabajador,nivel,rango,porcentaje,edo,mun,actividad,proyecto,partida,gf_sf,sellosat,banco,cuenta_bancaria,clue) " +
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            try{
+                
+                PreparedStatement pstmtDetalle = mysql.conn.prepareStatement(insertDetalleNomina);
+                for (DetalleNomina detalleNomina : detallesNomina) {
+                    pstmtDetalle.setString(1, detalleNomina.getdID()); 
+                    pstmtDetalle.setString(2, detalleNomina.getdClave());
+                    pstmtDetalle.setString(3, detalleNomina.getdNumEmp());
+                    pstmtDetalle.setString(4, detalleNomina.getdTipoR());
+                    pstmtDetalle.setString(5, detalleNomina.getdClaveP());
+                    pstmtDetalle.setString(6, detalleNomina.getdCentroTrabajo());
+                    pstmtDetalle.setString(7, detalleNomina.getdCodigoPuesto());
+                    pstmtDetalle.setString(8, detalleNomina.getdContrato());
+                    pstmtDetalle.setString(9, detalleNomina.getdClavePago());
+                    pstmtDetalle.setString(10, detalleNomina.getdNoPuesto());
+                    pstmtDetalle.setString(11, detalleNomina.getdIndicadorMando());
+                    pstmtDetalle.setString(12, detalleNomina.getdFechaInicial());
+                    pstmtDetalle.setString(13, detalleNomina.getdFechaFinal());
+                    pstmtDetalle.setString(14, detalleNomina.getdMovimiento());
+                    pstmtDetalle.setString(15, detalleNomina.getdPercepciones());
+                    pstmtDetalle.setString(16, detalleNomina.getdDeducciones());
+                    pstmtDetalle.setString(17, detalleNomina.getdConceptos());
+                    pstmtDetalle.setString(18, detalleNomina.getdSindicalizado());
+                    pstmtDetalle.setString(19, detalleNomina.getdRFC());
+                    pstmtDetalle.setString(20, detalleNomina.getdSecuencia());
+                    pstmtDetalle.setString(21, detalleNomina.getdUnidadResponsable());
+                    pstmtDetalle.setString(22, detalleNomina.getdInstrumentoPago());
+                    pstmtDetalle.setString(23, detalleNomina.getdHoras());
+                    pstmtDetalle.setString(24, detalleNomina.getdFonac());
+                    pstmtDetalle.setString(25, detalleNomina.getdDigito());
+                    pstmtDetalle.setString(26, detalleNomina.getdPagaduria());
+                    pstmtDetalle.setString(27, detalleNomina.getdControlSar());
+                    pstmtDetalle.setString(28, detalleNomina.getdTipoTrabajador());
+                    pstmtDetalle.setString(29, detalleNomina.getdNivel());
+                    pstmtDetalle.setString(30, detalleNomina.getdRango());
+                    pstmtDetalle.setString(31, detalleNomina.getdPorcentaje());
+                    pstmtDetalle.setString(32, detalleNomina.getdEstado());
+                    pstmtDetalle.setString(33, detalleNomina.getdMunicipio());
+                    pstmtDetalle.setString(34, detalleNomina.getdActividad());
+                    pstmtDetalle.setString(35, detalleNomina.getdProyecto());
+                    pstmtDetalle.setString(36, detalleNomina.getdPartida());
+                    pstmtDetalle.setString(37, detalleNomina.getdGfSf());
+                    pstmtDetalle.setString(38, detalleNomina.getdNombre2());
+                    pstmtDetalle.setString(39, detalleNomina.getdBanco());
+                    pstmtDetalle.setString(40, detalleNomina.getdCuentaBancaria());
+                    pstmtDetalle.setString(41, detalleNomina.getdClue());
+
+                    
+                    pstmtDetalle.addBatch();
+            }
+            pstmtDetalle.executeBatch();
+            detallesNomina=new ArrayList<DetalleNomina>();
+            System.out.println("Detalles insertados");
+
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de detalles de nómina", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+            
+            //Inserción de conceptos
+            String insertConceptos="insert into satin.detalle_conceptos (id_detalle_nomina,id_concepto,importe,importe_ng) VALUES(?,?,?,?)";
+            try{
+                PreparedStatement pstmtConceptos = mysql.conn.prepareStatement(insertConceptos);
+                for (Conceptos concepto : conceptos) {
+                    pstmtConceptos.setString(1, concepto.getdID()); 
+                    pstmtConceptos.setString(2, concepto.getcConcepto());
+                    pstmtConceptos.setString(3, concepto.getcGrabado());
+                    pstmtConceptos.setString(4, concepto.getcNoGrabado());
+                    pstmtConceptos.addBatch();
+            }
+            pstmtConceptos.executeBatch();
+            conceptos=new ArrayList<Conceptos>();
+                System.out.println("Conceptos insertados");
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de detalle de conceptos", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+            
+                        //Inserción de centros inexistentes 
+            String insertCentros="INSERT ignore INTO `satin`.`centrotrabajo` (`id_centrotrabajo`,`nombre`) VALUES (?,?)";
+            try{
+                PreparedStatement pstmtCentros = mysql.conn.prepareStatement(insertCentros);
+                for (CentrosTrabajo centro : centros) {
+                    pstmtCentros.setString(1, centro.getId()); 
+                    pstmtCentros.setString(2, centro.getDescripcion()); 
+
+                    pstmtCentros.addBatch();
+            }
+            pstmtCentros.executeBatch();
+            centros=new ArrayList<CentrosTrabajo>();
+                            System.out.println("Centros faltantes insertadas");
+
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Hubo un error en la inserción de Centros", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                System.out.println(e);
+            }
+            
+    }
+    
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - -   EXTRAER DATOS DE DBF (TODO MENOS CONCEPTOS) - - - - - - - - - - - - - - - - - - - - - - - - - - 
         
@@ -831,7 +1038,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                             dPercepciones=rowObjects[53].toString();
                             dDeducciones=rowObjects[54].toString();
                             dConceptos=rowObjects[56].toString();
-                            dSalarioDiario=dDeducciones;
+                            dSalarioDiario=dDeducciones;//Pendiente calcular 
                             dSindicalizado="NO";
                             dRFC=rowObjects[1].toString();
                             dSecuencia=rowObjects[59].toString();
@@ -874,7 +1081,7 @@ public class CargaArchivosNominaViewController implements Initializable {
         }
 
     }
-    
+
    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - -  EXTRACCIÓN DE CONCEPTOS DBF - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
     private void extraerConceptosDBF() {
         try {
@@ -942,9 +1149,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                 a2=StringUtils.leftPad(a2, 4, '0');
             }
             adicional=a1+a2;
-            //Falta ver que hacer con estas variables (a1,a2)
             preClave=lineScanner.next();
-            System.out.println(preClave);
             //Verifica si es de Coahuila, Oaxaca o Nuevo Leon ya que la clave de producto es distinta
             if(RFCEmisor.equals("SSC961129CH3")||RFCEmisor.equals("SSO960923M2A")||RFCEmisor.equals("SSN970115QI9")){
                 pClave=preClave+pAnio.substring(2,4);
@@ -952,7 +1157,6 @@ public class CargaArchivosNominaViewController implements Initializable {
                 pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
             }
             dSecuencia=lineScanner.next();
-            //Falta importe1 e importe2
             try{
                 cGrabado=lineScanner.next();
                 cNoGrabado=lineScanner.next();
@@ -960,6 +1164,9 @@ public class CargaArchivosNominaViewController implements Initializable {
                 cGrabado=importe;
                 cNoGrabado="0";
             }
+            dID=pClave+dSecuencia;
+            conceptos.add(new Conceptos(dID,cConcepto,cGrabado,cNoGrabado));
+            adicionales.add(new Adicional(dID,adicional));
             }
         } catch (Exception e) {
             Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, e);
@@ -982,6 +1189,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             dRFC=eRFC;
             eCURP=lineScanner.next();
             String nombre=lineScanner.next();
+            String nombre2=nombre;
             String temp=nombre.substring(0,nombre.indexOf(" "));
                 nombre=nombre.substring(nombre.indexOf(" ")+1,nombre.length());
                 eAPaterno=temp;
@@ -1109,8 +1317,10 @@ public class CargaArchivosNominaViewController implements Initializable {
                 //Verifica si es de Coahuila, Oaxaca o Nuevo Leon ya que la clave de producto es distinta
                 if(RFCEmisor.equals("SSC961129CH3")||RFCEmisor.equals("SSO960923M2A")||RFCEmisor.equals("SSN970115QI9")){
                     pClave=preClave+pAnio.substring(2,4);
+                    dClave=pClave;
                 }else{
                     pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
+                    dClave=pClave;
                 }
                 totales=new BigDecimal(dPercepciones);
 
@@ -1137,9 +1347,11 @@ public class CargaArchivosNominaViewController implements Initializable {
                 preClave=producto;
                 if(RFCEmisor.equals("SSC961129CH3")||RFCEmisor.equals("SSO960923M2A")||RFCEmisor.equals("SSN970115QI9")){
                     pClave=preClave+pAnio.substring(2,4);
+                    dClave=pClave;
                 }else{
                     pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
-                }                                System.out.println(pClave);
+                    dClave=pClave;
+                }                                
                 totales=new BigDecimal(dPercepciones);
                 deducciones=new BigDecimal(dDeducciones);
             }
@@ -1171,9 +1383,15 @@ public class CargaArchivosNominaViewController implements Initializable {
             lineScanner.next();
             dDescripcionCentro=lineScanner.next();
             dID=dClave+dSecuencia;
+            
+             char cuarto=preClave.charAt(3);
+                            if(dTipoTrabajador.equals("20")||RFCEmisor.equals("SSO960923M2A")&&cuarto=='P'){
+                                dNombre2=nombre2;//Cargamos nombre del pensionado
+                            }else{dNombre2="";}             
             centros.add(new CentrosTrabajo(dCentroTrabajo,dDescripcionCentro));
+            empleados.add(new Empleados(eClave,eAPaterno,eAMaterno,eNombres,eRFC,eCURP,eNSS,eFecha));
+            detallesNomina.add(new DetalleNomina(dClave, dBanco, dCuentaBancaria, dCentroTrabajo, dCodigoPuesto, dClavePago, dContrato, dDescripcion, dFechaInicial, dFechaFinal, dMovimiento, dPercepciones, dDeducciones, dClue, dSindicalizado, dConceptos, dID, dTipoR, dControlSar, dTipoTrabajador, dNivel, dRango, dPorcentaje, dEstado, dMunicipio, dActividad, dProyecto, dPartida, dGfSf, dNoPuesto, dIndicadorMando, dSecuencia, dUnidadResponsable, dInstrumentoPago, dHoras, dFonac, dPagaduria, dDigito,dNumEmp,dRFC));
 
-          
             }
             //Ultimo registro de nomina al salir del ciclo
                             System.out.println("percepcion:" + totales.toString());
@@ -1328,6 +1546,8 @@ public class CargaArchivosNominaViewController implements Initializable {
         }
         
     }
+
+
     
 
 
