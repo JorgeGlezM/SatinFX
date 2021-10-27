@@ -48,5 +48,6 @@
             </GridPane>
          </children>
       </VBox>
+      <Button fx:id="btnRegresar" layoutX="24.0" layoutY="39.0" mnemonicParsing="false" onAction="#btnRegresar" text="Regresar" />
    </children>
 </AnchorPane>

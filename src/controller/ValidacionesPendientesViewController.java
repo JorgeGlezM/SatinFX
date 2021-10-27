@@ -61,11 +61,11 @@ public class ValidacionesPendientesViewController implements Initializable {
                 
                 //Obtenemos el valor del campo "id" para pasarlo a la ventana de edición como parametro.
                 ConceptosPendientes p = tblConceptos.getSelectionModel().getSelectedItem();
-                BancosViewController.idEdicion=p.getId();
-                BancosViewController.edicion=true;
+                ConceptosViewController.idEdicion=p.getConcepto();
+                ConceptosViewController.edicion=false;
 
                 //Cambiamos la escena
-                root = FXMLLoader.load(getClass().getResource("/view/BancosView.fxml"));
+                root = FXMLLoader.load(getClass().getResource("/view/ConceptosView.fxml"));
                 stage = (Stage)((Node)event.getSource()).getScene().getWindow();
                 scene = new Scene(root);
                 stage.setScene(scene);
@@ -99,10 +99,8 @@ public class ValidacionesPendientesViewController implements Initializable {
             for(int i=0 ; i<rs.getMetaData().getColumnCount(); i++){
                 final int j = i;                
                 TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i+1));
-                System.out.println(rs.getMetaData().getColumnName(i+1));
                 col.setCellValueFactory(new PropertyValueFactory<ConceptosPendientes,String>(rs.getMetaData().getColumnName(i+1)));
                 tblConceptos.getColumns().addAll(col); 
-                System.out.println("Column ["+i+"] ");
             }
             //Cargamos los registros a una lista. Se rompe con datos nulos, checar.
             while(rs.next()){

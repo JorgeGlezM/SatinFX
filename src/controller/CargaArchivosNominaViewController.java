@@ -1489,6 +1489,7 @@ public class CargaArchivosNominaViewController implements Initializable {
         } catch (SQLException ex) {
             Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
+        //Pasamos a pendientes los que no se validaron
         rs= mysql.select("select id,rfc,movimiento,fechaf from satin.detalle_nomina where vconceptos=\"N\"");
         try {
             noValidados=noValidados+"--------------------------------CONCEPTOS FALTANTES:----------------------------------\n";
