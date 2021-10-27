@@ -33,7 +33,7 @@
                                     <Insets left="135.0" />
                                  </HBox.margin>
                               </Label>
-                              <TextField fx:id="txtBusqueda" prefHeight="31.0" prefWidth="360.0">
+                              <TextField fx:id="txtBusquedaPuestos" prefHeight="31.0" prefWidth="360.0">
                                  <HBox.margin>
                                     <Insets top="5.0" />
                                  </HBox.margin>
@@ -84,7 +84,7 @@
                                     <Insets left="135.0" />
                                  </HBox.margin>
                               </Label>
-                              <TextField fx:id="txtBusqueda1" prefHeight="31.0" prefWidth="360.0">
+                              <TextField fx:id="txtBusquedaConceptos" prefHeight="31.0" prefWidth="360.0">
                                  <HBox.margin>
                                     <Insets top="5.0" />
                                  </HBox.margin>

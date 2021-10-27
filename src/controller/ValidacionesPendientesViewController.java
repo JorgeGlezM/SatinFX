@@ -5,14 +5,13 @@
  */
 package controller;
 
-import classes.Bancos;
+import classes.ConceptosPendientes;
+import classes.PuestosPendientes;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -25,15 +24,12 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import javax.swing.JOptionPane;
 
 /**
@@ -49,32 +45,23 @@ public class ValidacionesPendientesViewController implements Initializable {
     private Stage stage;
     private Scene scene;
     private Parent root;
-    @FXML private TableView<Bancos> tblRegistros;
-    @FXML private TextField txtBusqueda;
+    @FXML private TableView<PuestosPendientes> tblPuestos;
+    @FXML private TableView<ConceptosPendientes> tblConceptos;
+    @FXML private TextField txtBusquedaConceptos;
+    @FXML private TextField txtBusquedaPuestos;
 
-    private final ObservableList<Bancos> data=FXCollections.observableArrayList();;
 
-    @FXML Button btnAdd;
-    @FXML Button bdnEdit;
-    @FXML private void btnAdd (ActionEvent event) throws IOException{
-                
-    //Cambiamos la escena
-                BancosViewController.edicion=false;
-                root = FXMLLoader.load(getClass().getResource("/view/BancosView.fxml"));
-                stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-                scene = new Scene(root);
-                stage.setScene(scene);
-                //Creamos un rectángulo del tamaño de la pantalla para obtener medidas y centrar la ventana antes de mostrarla
-                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
-                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
-                stage.show();
-    }
-        @FXML private void btnEdit (ActionEvent event) throws IOException{
+    private final ObservableList<ConceptosPendientes> dataConceptos=FXCollections.observableArrayList();
+    private final ObservableList<PuestosPendientes> dataPuestos=FXCollections.observableArrayList();
+    
+
+
+    
+        @FXML private void btnAdd (ActionEvent event) throws IOException{
                 
                 //Obtenemos el valor del campo "id" para pasarlo a la ventana de edición como parametro.
-                Bancos b = tblRegistros.getSelectionModel().getSelectedItem();
-                BancosViewController.idEdicion=b.getId();
+                ConceptosPendientes p = tblConceptos.getSelectionModel().getSelectedItem();
+                BancosViewController.idEdicion=p.getId();
                 BancosViewController.edicion=true;
 
                 //Cambiamos la escena
@@ -102,34 +89,60 @@ public class ValidacionesPendientesViewController implements Initializable {
         stage.show();
     }
     public void load(){
+        //Abrimos conexión
         classes.MySQL mysql= new classes.MySQL();
         mysql.conectar();
-        ResultSet rs = mysql.select("Select * from bancos");
+        //Cargamos pendientes de conceptos
+        ResultSet rs = mysql.select("SELECT * FROM satin.conceptos_pendientes");
         try {
             // Cargamos las columnas de manera dinámica. Lanza advertencia por no checar tipos de variables pero para nuestro uso no nos afecta.
             for(int i=0 ; i<rs.getMetaData().getColumnCount(); i++){
                 final int j = i;                
                 TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i+1));
                 System.out.println(rs.getMetaData().getColumnName(i+1));
-                col.setCellValueFactory(new PropertyValueFactory<Bancos,String>(rs.getMetaData().getColumnName(i+1)));
-                tblRegistros.getColumns().addAll(col); 
+                col.setCellValueFactory(new PropertyValueFactory<ConceptosPendientes,String>(rs.getMetaData().getColumnName(i+1)));
+                tblConceptos.getColumns().addAll(col); 
                 System.out.println("Column ["+i+"] ");
             }
             //Cargamos los registros a una lista. Se rompe con datos nulos, checar.
             while(rs.next()){
                 //Iterate Row
-                Bancos row = new Bancos(rs.getString(1),rs.getString(2),rs.getString(3));
-                System.out.println("Row [1] added "+row );
-                data.add(row);
-                System.out.println("Si lo agrega");
+                ConceptosPendientes row = new ConceptosPendientes(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6));
+                dataConceptos.add(row);
             }
             //Cargamos los resultados a la tabla
-            tblRegistros.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY); 
+            tblConceptos.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY); 
 
-            tblRegistros.setItems(data);
+            tblConceptos.setItems(dataConceptos);
             
-            
+        } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(null, "Error de conexión.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+        }
+        
+        
+        //Carga de puestos pendientes
+        rs = mysql.select("SELECT * FROM satin.puestos_pendientes");
+        try {
+            // Cargamos las columnas de manera dinámica. Lanza advertencia por no checar tipos de variables pero para nuestro uso no nos afecta.
+            for(int i=0 ; i<rs.getMetaData().getColumnCount(); i++){
+                final int j = i;                
+                TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i+1));
+                System.out.println(rs.getMetaData().getColumnName(i+1));
+                col.setCellValueFactory(new PropertyValueFactory<PuestosPendientes,String>(rs.getMetaData().getColumnName(i+1)));
+                tblPuestos.getColumns().addAll(col); 
+                System.out.println("Column ["+i+"] ");
+            }
+            //Cargamos los registros a una lista. Se rompe con datos nulos, checar.
+            while(rs.next()){
+                //Iterate Row
+                PuestosPendientes row = new PuestosPendientes(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6));
+                dataPuestos.add(row);
+            }
+            //Cargamos los resultados a la tabla
+            tblPuestos.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY); 
 
+            tblPuestos.setItems(dataPuestos);
+            
         } catch (SQLException ex) {
                     JOptionPane.showMessageDialog(null, "Error de conexión.", "Advertencia", JOptionPane.WARNING_MESSAGE);
         }
@@ -137,12 +150,13 @@ public class ValidacionesPendientesViewController implements Initializable {
         
         mysql.desconectar();
         
-                // Wrap the ObservableList in a FilteredList (initially display all data).
-        FilteredList<Bancos> filteredData = new FilteredList<>(data, b -> true);
+        
+        //Busqueda Pestaña Conceptos
+        FilteredList<ConceptosPendientes> fiteredDataConceptos = new FilteredList<>(dataConceptos, p -> true);
 		
 		// 2. Set the filter Predicate whenever the filter changes.
-		txtBusqueda.textProperty().addListener((observable, oldValue, newValue) -> {
-			filteredData.setPredicate(banco -> {
+		txtBusquedaConceptos.textProperty().addListener((observable, oldValue, newValue) -> {
+			fiteredDataConceptos.setPredicate(pendiente -> {
 				// If filter text is empty, display all persons.
 								
 				if (newValue == null || newValue.isEmpty()) {
@@ -152,12 +166,21 @@ public class ValidacionesPendientesViewController implements Initializable {
 				// Compare first name and last name of every person with filter text.
 				String lowerCaseFilter = newValue.toLowerCase();
 				
-				if (banco.getId().toLowerCase().indexOf(lowerCaseFilter) != -1 ) {
+				if (pendiente.getId().toLowerCase().indexOf(lowerCaseFilter) != -1 ) {
 					return true; // Un if por cada campo con su getter para compararlo
-				} else if (banco.getNombre().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+				} else if (pendiente.getProducto().toLowerCase().indexOf(lowerCaseFilter) != -1) {
 					return true; // Filter matches last name.
 				}
-				else if (banco.getDescripcion().toLowerCase().indexOf(lowerCaseFilter) != -1)
+                                else if (pendiente.getRfc().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				}
+                                else if (pendiente.getMovimiento().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				}
+                                else if (pendiente.getFecha().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				}
+				else if (pendiente.getConcepto().toLowerCase().indexOf(lowerCaseFilter) != -1)
 				     return true;
 				     else  
 				    	 return false; // Does not match.
@@ -165,14 +188,63 @@ public class ValidacionesPendientesViewController implements Initializable {
 		});
 		
 		// 3. Wrap the FilteredList in a SortedList. 
-		SortedList<Bancos> sortedData = new SortedList<>(filteredData);
+		SortedList<ConceptosPendientes> sortedDataConceptos = new SortedList<>(fiteredDataConceptos);
 		
 		// 4. Bind the SortedList comparator to the TableView comparator.
 		// 	  Otherwise, sorting the TableView would have no effect.
-		sortedData.comparatorProperty().bind(tblRegistros.comparatorProperty());
+		sortedDataConceptos.comparatorProperty().bind(tblConceptos.comparatorProperty());
 		
-		// 5. Add sorted (and filtered) data to the table.
-                tblRegistros.setItems(sortedData);
+		// 5. Add sorted (and filtered) dataConceptos to the table.
+                tblConceptos.setItems(sortedDataConceptos);
+        
+                
+        
+        //Busqueda Pestaña Puestos
+        FilteredList<PuestosPendientes> fiteredDataPuestos = new FilteredList<>(dataPuestos, p -> true);
+		
+		// 2. Set the filter Predicate whenever the filter changes.
+		txtBusquedaPuestos.textProperty().addListener((observable, oldValue, newValue) -> {
+			fiteredDataPuestos.setPredicate(pendiente -> {
+				// If filter text is empty, display all persons.
+								
+				if (newValue == null || newValue.isEmpty()) {
+					return true;
+				}
+				
+				// Compare first name and last name of every person with filter text.
+				String lowerCaseFilter = newValue.toLowerCase();
+				
+				if (pendiente.getId().toLowerCase().indexOf(lowerCaseFilter) != -1 ) {
+					return true; // Un if por cada campo con su getter para compararlo
+				} else if (pendiente.getProducto().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				}
+                                else if (pendiente.getRfc().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				}
+                                else if (pendiente.getMovimiento().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				}
+                                else if (pendiente.getFecha().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				}
+				else if (pendiente.getPuesto().toLowerCase().indexOf(lowerCaseFilter) != -1)
+				     return true;
+				     else  
+				    	 return false; // Does not match.
+			});
+		});
+		
+		// 3. Wrap the FilteredList in a SortedList. 
+		SortedList<PuestosPendientes> sortedDataPuestos = new SortedList<>(fiteredDataPuestos);
+		
+		// 4. Bind the SortedList comparator to the TableView comparator.
+		// 	  Otherwise, sorting the TableView would have no effect.
+		sortedDataPuestos.comparatorProperty().bind(tblPuestos.comparatorProperty());
+		
+                tblPuestos.setItems(sortedDataPuestos);
+                
+        
     }
     @Override
     public void initialize(URL url, ResourceBundle rb) {

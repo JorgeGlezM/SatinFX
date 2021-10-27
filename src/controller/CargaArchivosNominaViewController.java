@@ -983,10 +983,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                                 //Concluimos el registro anterior y lo agregamos a la lista
                                 //System.out.println("percepcion:" +totales);
                                 //System.out.println("Deduccion:" +deducciones);
-                                System.out.println("percepcion:" + totales.toString());
-                                System.out.println("deducción:" + deducciones.toString());
                                 pTotal=totales.subtract(deducciones).toString();
-                                System.out.println(pTotal);
                                 if(pFechaPago.equals("")){
                                     pFechaPago=rowObjects[45].toString();
                                 }
@@ -999,7 +996,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                                     pClave=preClave+pAnio.substring(2,4);
                                 }else{
                                     pClave=preClave.substring(0, 4)+pAnio.substring(2,4)+preClave.substring(4,preClave.length());
-                                }                                System.out.println(pClave);
+                                }                              
                                 pMes=rowObjects[48].toString();
                                 pFechaPago=rowObjects[43].toString();
                                 if(!pFechaPago.equals("")){
@@ -1071,7 +1068,6 @@ public class CargaArchivosNominaViewController implements Initializable {
                         //Agregamos el registro final de producto al salir del diclo ya que nunca entraría a la condición de ser clave distinta porque no hay más registros.
 
                             pTotal=totales.subtract(deducciones).toString();
-                            System.out.println(pTotal);
                             if(pFechaPago.equals("")){
                                     pFechaPago=dFechaFinal;
                             }
@@ -1185,7 +1181,6 @@ public class CargaArchivosNominaViewController implements Initializable {
             dNumEmp=lineScanner.next();
             eClave=dNumEmp;
             eRFC=lineScanner.next();
-            System.out.println(eRFC);
             dRFC=eRFC;
             eCURP=lineScanner.next();
             String nombre=lineScanner.next();
@@ -1307,12 +1302,10 @@ public class CargaArchivosNominaViewController implements Initializable {
             dConceptos=lineScanner.next();
             lineScanner.next();
             String producto=lineScanner.next();
-            System.out.println(producto);
 
             
             if(preClave.equals("")){
                 preClave=producto;
-                System.out.println(preClave);
                 //Iniciamos el primer producto
                 //Verifica si es de Coahuila, Oaxaca o Nuevo Leon ya que la clave de producto es distinta
                 if(RFCEmisor.equals("SSC961129CH3")||RFCEmisor.equals("SSO960923M2A")||RFCEmisor.equals("SSN970115QI9")){
@@ -1332,12 +1325,8 @@ public class CargaArchivosNominaViewController implements Initializable {
                 deducciones=deducciones.add(new BigDecimal(dDeducciones));
             }else{
                 //Concluimos el registro anterior y lo agregamos a la lista
-                System.out.println("Entra nuevo producto");
                 preClave=producto;
-                System.out.println("percepcion:" + totales.toString());
-                System.out.println("deducción:" + deducciones.toString());
                 pTotal=totales.subtract(deducciones).toString();
-                System.out.println("total: "+pTotal);
                 if(pFechaPago.equals("")){
                     pFechaPago=dFechaFinal;
                 }
@@ -1394,10 +1383,7 @@ public class CargaArchivosNominaViewController implements Initializable {
 
             }
             //Ultimo registro de nomina al salir del ciclo
-                            System.out.println("percepcion:" + totales.toString());
-                            System.out.println("deducción:" + deducciones.toString());
                             pTotal=totales.subtract(deducciones).toString();
-                            System.out.println(pTotal);
                             if(pFechaPago.equals("")){
                                     pFechaPago=dFechaFinal;
                             }
