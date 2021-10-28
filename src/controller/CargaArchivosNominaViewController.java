@@ -272,6 +272,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             dClaveP2=lineScanner.next();
             dCentroTrabajo=lineScanner.next();
             dCodigoPuesto=lineScanner.next();
+            dCodigoPuesto=dCodigoPuesto.replaceAll("\\s", "");
             dClavePago=lineScanner.next();
             dContrato=lineScanner.next();
             dClaveContrato=lineScanner.next();
@@ -1024,6 +1025,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                             dClaveP=rowObjects[7].toString();
                             dCentroTrabajo=rowObjects[26].toString();
                             dCodigoPuesto=rowObjects[22].toString();
+                            dCodigoPuesto=dCodigoPuesto.replaceAll("\\s", "");
                             dContrato="0";
                             dClavePago=rowObjects[14].toString()+rowObjects[18].toString()+rowObjects[19].toString()+rowObjects[22].toString()+rowObjects[23].toString()+rowObjects[16].toString()+rowObjects[17].toString()+rowObjects[18].toString();
                             dNoPuesto=rowObjects[23].toString();
@@ -1236,6 +1238,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             dProyecto=lineScanner.next();
             dPartida=lineScanner.next();
             dCodigoPuesto=lineScanner.next();
+            dCodigoPuesto=dCodigoPuesto.replaceAll("\\s", "");
             dNoPuesto=lineScanner.next();
             dEstado=lineScanner.next();
             dMunicipio=lineScanner.next();

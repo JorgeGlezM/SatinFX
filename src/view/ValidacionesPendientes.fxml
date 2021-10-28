@@ -52,7 +52,7 @@
                                     <Insets right="30.0" />
                                  </HBox.margin>
                               </Button>
-                              <Button fx:id="btnAdd" mnemonicParsing="false" onAction="#btnAdd" prefHeight="56.0" prefWidth="149.0" text="Registrar Puesto">
+                              <Button fx:id="btnAdd" mnemonicParsing="false" onAction="#btnAddPuesto" prefHeight="56.0" prefWidth="149.0" text="Registrar Puesto">
                                  <HBox.margin>
                                     <Insets right="30.0" />
                                  </HBox.margin>
@@ -103,7 +103,7 @@
                                     <Insets right="30.0" />
                                  </HBox.margin>
                               </Button>
-                              <Button fx:id="btnAdd1" mnemonicParsing="false" onAction="#btnAdd" prefHeight="56.0" prefWidth="149.0" text="Registrar Concepto">
+                              <Button fx:id="btnAdd1" mnemonicParsing="false" onAction="#btnAddConcepto" prefHeight="56.0" prefWidth="149.0" text="Registrar Concepto">
                                  <HBox.margin>
                                     <Insets right="30.0" />
                                  </HBox.margin>

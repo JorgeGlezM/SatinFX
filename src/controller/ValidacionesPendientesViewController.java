@@ -57,7 +57,7 @@ public class ValidacionesPendientesViewController implements Initializable {
 
 
     
-        @FXML private void btnAdd (ActionEvent event) throws IOException{
+        @FXML private void btnAddConcepto (ActionEvent event) throws IOException{
                 
                 //Obtenemos el valor del campo "id" para pasarlo a la ventana de edición como parametro.
                 ConceptosPendientes p = tblConceptos.getSelectionModel().getSelectedItem();
@@ -66,6 +66,26 @@ public class ValidacionesPendientesViewController implements Initializable {
 
                 //Cambiamos la escena
                 root = FXMLLoader.load(getClass().getResource("/view/ConceptosView.fxml"));
+                stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                scene = new Scene(root);
+                stage.setScene(scene);
+                //Creamos un rectángulo del tamaño de la pantalla para obtener medidas y centrar la ventana antes de mostrarla
+                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+                stage.show();
+    }
+        
+            
+        @FXML private void btnAddPuesto (ActionEvent event) throws IOException{
+                
+                //Obtenemos el valor del campo "id" para pasarlo a la ventana de edición como parametro.
+                PuestosPendientes p = tblPuestos.getSelectionModel().getSelectedItem();
+                PuestosViewController.idEdicion=p.getPuesto();
+                PuestosViewController.edicion=false;
+
+                //Cambiamos la escena
+                root = FXMLLoader.load(getClass().getResource("/view/PuestosView.fxml"));
                 stage = (Stage)((Node)event.getSource()).getScene().getWindow();
                 scene = new Scene(root);
                 stage.setScene(scene);
@@ -125,10 +145,8 @@ public class ValidacionesPendientesViewController implements Initializable {
             for(int i=0 ; i<rs.getMetaData().getColumnCount(); i++){
                 final int j = i;                
                 TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i+1));
-                System.out.println(rs.getMetaData().getColumnName(i+1));
                 col.setCellValueFactory(new PropertyValueFactory<PuestosPendientes,String>(rs.getMetaData().getColumnName(i+1)));
                 tblPuestos.getColumns().addAll(col); 
-                System.out.println("Column ["+i+"] ");
             }
             //Cargamos los registros a una lista. Se rompe con datos nulos, checar.
             while(rs.next()){

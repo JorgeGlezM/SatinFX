@@ -8,6 +8,7 @@ package controller;
 import classes.MySQL;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -77,6 +78,10 @@ public class PuestosViewController implements Initializable {
             } catch (SQLException ex) {
                 Logger.getLogger(PuestosViewController.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }else if(edicion==false&&!idEdicion.equals("")){
+            txtID.setText(idEdicion);
+            txtID.setEditable(false);
+
         }
     }    
         @FXML private void btnRegresar (ActionEvent event) throws IOException{
@@ -121,6 +126,45 @@ public class PuestosViewController implements Initializable {
                 mysql.desconectar();
                 JOptionPane.showMessageDialog(null, "Error en la actualizacion, intente denuevo más tarde..", "Error", JOptionPane.WARNING_MESSAGE);
             }
+            }else if(!edicion&&!idEdicion.equals("")){
+                
+               String sql= "INSERT INTO satin.puestos (id_puestos,descripcion,categoria,rama) VALUES('"+id+"','"+descripcion+"','"+categoria+"','"+rama+"')";
+            if(mysql.stmt(sql)){
+                //Si se inserta correctamente pasmos a validados todos los que tenían ese puesto pendiente 
+                                  try {
+                                    ResultSet rs= mysql.select("select id,rfc from satin.detalle_nomina where puesto='"+idEdicion+"'");
+                                    PreparedStatement pstmtVConceptos=mysql.conn.prepareStatement("UPDATE `satin`.`detalle_nomina` SET `vpuesto` = 'V' WHERE (`id` = ?) and (`rfc` = ?)");
+                                    while(rs.next()){
+                                            pstmtVConceptos.setString(1, rs.getString(1));
+                                            pstmtVConceptos.setString(2, rs.getString(2));
+                                            pstmtVConceptos.addBatch();
+                                    }
+                                    pstmtVConceptos.executeBatch();
+       
+                                  } catch (SQLException ex) {
+                                      Logger.getLogger(ConceptosViewController.class.getName()).log(Level.SEVERE, null, ex);
+                                  }
+                JOptionPane.showMessageDialog(null, "El registro se ha realizado exitosamente.", "Aviso", JOptionPane.PLAIN_MESSAGE);
+                sql="";
+                root = FXMLLoader.load(getClass().getResource("/view/ValidacionesPendientes.fxml"));
+                stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                scene = new Scene(root);
+                stage.setScene(scene);
+                //Creamos un rectángulo del tamaño de la pantalla para obtener medidas y centrar la ventana antes de mostrarla
+                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+                stage.show();
+                edicion=false;
+                idEdicion="";
+                mysql.desconectar();
+            }else{
+                    mysql.desconectar();
+                    JOptionPane.showMessageDialog(null, "Error en el registro, intente denuevo más tarde..", "Error", JOptionPane.WARNING_MESSAGE);
+                }
+                
+                
+                
             }else{
                String sql= "INSERT INTO satin.puestos (id_puestos,descripcion,categoria,rama) VALUES('"+id+"','"+descripcion+"','"+categoria+"','"+rama+"')";
             if(mysql.stmt(sql)){

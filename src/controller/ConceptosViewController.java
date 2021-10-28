@@ -110,6 +110,8 @@ public class ConceptosViewController implements Initializable {
                 stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
                 stage.show();
                 mysql.desconectar();
+                edicion=false;
+                idEdicion="";
 
             }else{
                     JOptionPane.showMessageDialog(null, "Error en la actualizacion, intente denuevo más tarde..", "Error", JOptionPane.WARNING_MESSAGE);
