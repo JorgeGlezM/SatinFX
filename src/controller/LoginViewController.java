@@ -51,14 +51,14 @@ public class LoginViewController implements Initializable {
                 if(!txtUser.getText().isEmpty() && !txtPassword.getText().isEmpty()){
         String user = txtUser.getText();
         String pass =txtPassword.getText();
-        String query="SELECT password FROM usuarios WHERE usuario = \""+user+"\"";
             MySQL mysql = new MySQL();
             try {
             //Abrimos la conexión con la BD y creamos un statement donde busquemos al usuario ingresado para obtener su contraseña.
             mysql.conectar();
             ResultSet rs;
             rs = mysql.select("SELECT password FROM usuarios WHERE usuario = \""+user+"\"");
-            //Verificamos que haya resultados y si los hay comparamos la cadena con la ingresada, en caso de ser igual se cierra la ventana de login y se abre el menú principal.va 
+            //Verificamos que haya resultados y si los hay comparamos la cadena con la ingresada, en caso de ser igual
+            //se cierra la ventana de login y se abre el menú principal.va 
             if(rs.next()){
             String contra = rs.getString("password");
             if(contra.equals(pass)){

@@ -137,25 +137,25 @@ public class LBancosViewController implements Initializable {
         
         mysql.desconectar();
         
-                // Wrap the ObservableList in a FilteredList (initially display all data).
+                // Envolvemos la lista observable en una lista filtrada
         FilteredList<Bancos> filteredData = new FilteredList<>(data, b -> true);
 		
-		// 2. Set the filter Predicate whenever the filter changes.
+		// Agregamos un listener al campo de texto de búsqueda
 		txtBusqueda.textProperty().addListener((observable, oldValue, newValue) -> {
 			filteredData.setPredicate(banco -> {
-				// If filter text is empty, display all persons.
+				// Si está vacío muestra todo
 								
 				if (newValue == null || newValue.isEmpty()) {
 					return true;
 				}
 				
-				// Compare first name and last name of every person with filter text.
+				//Convierte a minúsculas todo para hacer la comparación
 				String lowerCaseFilter = newValue.toLowerCase();
 				
 				if (banco.getId().toLowerCase().indexOf(lowerCaseFilter) != -1 ) {
 					return true; // Un if por cada campo con su getter para compararlo
 				} else if (banco.getNombre().toLowerCase().indexOf(lowerCaseFilter) != -1) {
-					return true; // Filter matches last name.
+					return true; 
 				}
 				else if (banco.getDescripcion().toLowerCase().indexOf(lowerCaseFilter) != -1)
 				     return true;
@@ -164,14 +164,13 @@ public class LBancosViewController implements Initializable {
 			});
 		});
 		
-		// 3. Wrap the FilteredList in a SortedList. 
+		// Ordenamos la lista
 		SortedList<Bancos> sortedData = new SortedList<>(filteredData);
 		
-		// 4. Bind the SortedList comparator to the TableView comparator.
-		// 	  Otherwise, sorting the TableView would have no effect.
+		//Ligamos la lista ordenada a la tabla 
 		sortedData.comparatorProperty().bind(tblRegistros.comparatorProperty());
 		
-		// 5. Add sorted (and filtered) data to the table.
+		// 5. Agregamos los datos filtrados a la tabla
                 tblRegistros.setItems(sortedData);
     }
     @Override
