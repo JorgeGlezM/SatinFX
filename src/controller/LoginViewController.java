@@ -119,10 +119,63 @@ public class LoginViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        //Código basura para testear convertir números a letras. 
-        Numero_Letras test= new Numero_Letras();
-        test.Convertir("1995.32",true);
-        System.out.println(test.Convertir("3233321.32",true));
+    //Cargamos los datos patronales (estáticos)
+    loadDatos();
      }    
+    public void loadDatos(){
+        MySQL mysql = new MySQL();
+        mysql.conectar();
+        ResultSet rs= mysql.select("SELECT nombre,rfc,registro_patronal,calle,numero_ext,numero_int,poblacion,estado,cp,pais,riesgo_puesto,periodo_pago,email,'host',puerto,'ssl',usuario,'password',regimen, serie, entidad_sncf,codigo_esp FROM satin.datospatronales;");
+        try {
+            rs.next();
+            classes.DatosPatronales.setNombre(rs.getString(1));
+            classes.DatosPatronales.setRfc(rs.getString(2));
+            classes.DatosPatronales.setRegistro_patronal(rs.getString(3));
+            classes.DatosPatronales.setCalle(rs.getString(4));
+            classes.DatosPatronales.setNumero_ext(rs.getString(5));
+            classes.DatosPatronales.setNumero_int(rs.getString(6));
+            classes.DatosPatronales.setPoblacion(rs.getString(7));
+            classes.DatosPatronales.setEstado(rs.getString(8));
+            classes.DatosPatronales.setCp(rs.getString(9));
+            classes.DatosPatronales.setPais(rs.getString(10));
+            classes.DatosPatronales.setRiesgo_puesto(rs.getString(11));
+            classes.DatosPatronales.setPeriodo_pago(rs.getString(12));
+            classes.DatosPatronales.setEmail(rs.getString(13));
+            classes.DatosPatronales.setHost(rs.getString(14));
+            classes.DatosPatronales.setPuerto(rs.getString(15));
+            classes.DatosPatronales.setSsl(rs.getString(16));
+            classes.DatosPatronales.setUsuario(rs.getString(17));
+            classes.DatosPatronales.setPassword(rs.getString(18));
+            classes.DatosPatronales.setRegimen(rs.getString(19));
+            classes.DatosPatronales.setSerie(rs.getString(20));
+            classes.DatosPatronales.setEntidad_sncf(rs.getString(21));
+            classes.DatosPatronales.setCodigo_esp(rs.getString(22));    
+            
+            rs=mysql.select("SELECT fecha_vig_inicial,fecha_vig_final,version_cfdi,version_nomina,xml_xsi,xml_cfdi,xml_nomina,xml_esquema,password_key,num_cert,archivo_cert,archivo_key,timbres FROM satin.datostimbrado");
+            rs.next();
+            System.out.println(rs.getString(6));
+            classes.DatosTimbrado.setFecha_vig_inicial(rs.getString(1));
+            classes.DatosTimbrado.setFecha_vig_final(rs.getString(2));
+            classes.DatosTimbrado.setVersion_cfdi(rs.getString(3));
+            classes.DatosTimbrado.setVersion_nomina(rs.getString(4));
+            classes.DatosTimbrado.setXml_xsi(rs.getString(5));
+            classes.DatosTimbrado.setXml_cfdi(rs.getString(6));
+            classes.DatosTimbrado.getXml_cfdi();
+            classes.DatosTimbrado.setXml_nomina(rs.getString(7));
+            classes.DatosTimbrado.setXml_esquema(rs.getString(8));
+            classes.DatosTimbrado.setPassword_key(rs.getString(9));
+            classes.DatosTimbrado.setNum_cert(rs.getString(10));
+            classes.DatosTimbrado.setArchivo_cert(rs.getString(11));
+            classes.DatosTimbrado.setArchivo_key(rs.getString(12));
+            classes.DatosTimbrado.setTimbres(rs.getString(13));
+
+            mysql.desconectar();
+        } catch (SQLException ex) {
+            Logger.getLogger(LoginViewController.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Los datos patronales no han sido cargados. Favor de revisar su conexión y reiniciar el sistema.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            btnLogin.setVisible(false);
+            btnBypass.setVisible(false);
+        }
+    }
     
 }
