@@ -36,9 +36,9 @@ public class GenerarXML {
         try {
             MySQL mysql=new MySQL();
             mysql.conectar();
-            ResultSet rs= mysql.select("SELECT dn.total1,dn.total2,e.rfc,CONCAT(e.nombre,\" \",e.apaterno,\" \",e.amaterno) as nombre, dn.fechai,dn.fechaf,pn.fechapago,dn.sindicato,dn.puesto,e.fecha_ingreso,e.nss,e.clave,e.curp,e.jornada,dn.contrato from detalle_nomina dn, empleados e, puestos p,producto_nomina pn where dn.clave=e.clave and dn.puesto=p.id_puestos AND pn.clave=dn.producto;");
+            ResultSet rs= mysql.select("SELECT dn.total1,dn.total2,e.rfc,CONCAT(e.apaterno,\" \",e.amaterno,\" \",e.nombre) as nombre, dn.fechai,dn.fechaf,pn.fechapago,dn.sindicato,dn.puesto,e.fecha_ingreso,e.nss,e.clave,e.curp,e.jornada,dn.contrato,dn.producto,dn.id,dn.movimiento,p.descripcion,dn.unidad,dn.clavep,dn.banco,dn.cuenta_bancaria,dn.actividad,dn.proyecto,dn.partida,dn.clavepago,dn.clue from detalle_nomina dn, empleados e, puestos p,producto_nomina pn where dn.clave=e.clave and dn.puesto=p.id_puestos AND pn.clave=dn.producto;");
             rs.next();
-            Timbrado t=new Timbrado(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15));
+            Timbrado t=new Timbrado(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28));
             loadDatos();
             xml(t);
         } catch (SQLException ex) {
@@ -61,9 +61,9 @@ public class GenerarXML {
     Document doc = docBuilder.newDocument();
     Element rootElement = doc.createElement("cfdi:Comprobante");
     
-    rootElement.setAttribute("Sello", "despues");//pendiente?
-    rootElement.setAttribute("Certificado", DatosTimbrado.getNum_cert());//?
-    rootElement.setAttribute("LugarExpedicion", "de una tabla");//datos patronales?
+    rootElement.setAttribute("Sello", "despues");//No se genera
+    rootElement.setAttribute("Certificado", DatosTimbrado.getNum_cert());//No se genera
+    rootElement.setAttribute("LugarExpedicion", "de una tabla");//Codigo especial
     rootElement.setAttribute("Moneda", "MXN");
     double total=Double.parseDouble(t.getPercepciones())-Double.parseDouble(t.getDeducciones());
     rootElement.setAttribute("Total", String.valueOf(total));//percepciones- deducciones?
@@ -73,42 +73,40 @@ public class GenerarXML {
     rootElement.setAttribute("MetodoPago", "PUE");//Fijo?
     rootElement.setAttribute("FormaPago", "99");//Fijo?
     rootElement.setAttribute("Fecha", timestamp);
-    rootElement.setAttribute("Folio", "despues");//Fijo?
+    rootElement.setAttribute("Folio", t.getMovimiento());//serie de detalle nomina
     rootElement.setAttribute("Serie", DatosPatronales.getSerie());
-    rootElement.setAttribute("Version", DatosTimbrado.getVersion_cfdi());//??
-    rootElement.setAttribute("TipoDeComprobante", "N");//Fijo?
+    rootElement.setAttribute("Version", DatosTimbrado.getVersion_cfdi());
+    rootElement.setAttribute("TipoDeComprobante", "N");
     rootElement.setAttribute("xsi:schemaLocation", "http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd http://www.sat.gob.mx/nomina12 http://www.sat.gob.mx/sitio_internet/cfd/nomina/nomina12.xsd");
     rootElement.setAttribute("xmlns:nomina12", "http://www.sat.gob.mx/nomina12");
-    rootElement.setAttribute("xmlns:xsi", DatosTimbrado.getXml_xsi());
-    rootElement.setAttribute("xmlns:cfdi", DatosTimbrado.getXml_cfdi());
+    rootElement.setAttribute("xmlns:xsi", DatosTimbrado.getXml_xsi());//En BD crear el registro
+    rootElement.setAttribute("xmlns:cfdi", DatosTimbrado.getXml_cfdi()); //En BD crear el registro
     
     Element emisorElement = doc.createElement("cfdi:Emisor");
-    emisorElement.setAttribute("RegimenFiscal", DatosPatronales.getRegimen()); //Fijo?
+    emisorElement.setAttribute("RegimenFiscal", DatosPatronales.getRegimen()); 
     emisorElement.setAttribute("Rfc", DatosPatronales.getRfc()); 
     emisorElement.setAttribute("Nombre", DatosPatronales.getNombre()); 
     rootElement.appendChild(emisorElement);
     
     Element receptorElement = doc.createElement("cfdi:Receptor");
     receptorElement.setAttribute("Rfc", t.getRfc()); 
-    receptorElement.setAttribute("Nombre", t.getNombre()); //Tabla empleados
-    receptorElement.setAttribute("UsoCFDI", "P01"); //Fijo?
+    receptorElement.setAttribute("Nombre", t.getNombre());
+    receptorElement.setAttribute("UsoCFDI", "P01"); //Fijo
     rootElement.appendChild(receptorElement);
     
     Element conceptosElement = doc.createElement("cfdi:Conceptos");
     rootElement.appendChild(conceptosElement);
     int i=0;//Cambiar por un while rs.next();
-    while(i<2){
-        Element conceptoElement=doc.createElement("cfdi:Concepto");
-        conceptoElement.setAttribute("Descuento", t.getDeducciones()); //deducciones
-        conceptoElement.setAttribute("Importe", t.getPercepciones()); //percepciones
-        conceptoElement.setAttribute("ValorUnitario", t.getPercepciones());//percepciones
-        conceptoElement.setAttribute("ClaveUnidad", "cc"); // Unidad de trabajo empleado?
-        conceptoElement.setAttribute("Descripcion", "Pago de nómina");//Fijo?
-        conceptoElement.setAttribute("Cantidad", "1");//Fijo
-        conceptoElement.setAttribute("ClaveProdServ", "cc");//id de tabla producto?
-        conceptosElement.appendChild(conceptoElement);
-        i++;
-    }
+    Element conceptoElement=doc.createElement("cfdi:Concepto");
+    conceptoElement.setAttribute("Descuento", t.getDeducciones()); //se calcoula en subsidios
+    conceptoElement.setAttribute("Importe", t.getPercepciones()); //se calcula en subsidios
+    conceptoElement.setAttribute("ValorUnitario", t.getPercepciones());//se calcula en subsidios
+    conceptoElement.setAttribute("ClaveUnidad", "ACT"); //Fijo
+    conceptoElement.setAttribute("Descripcion", "Pago de nómina");//Fijo
+    conceptoElement.setAttribute("Cantidad", "1");//Fijo
+    conceptoElement.setAttribute("ClaveProdServ", "cc");//Fijo
+    conceptosElement.appendChild(conceptoElement);
+    i++;
     Element complementoElement=doc.createElement("cfdi:Complemento");
     rootElement.appendChild(complementoElement);
     Element nominaElement=doc.createElement("nomina12:Nomina");

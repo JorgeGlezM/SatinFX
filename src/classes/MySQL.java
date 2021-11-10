@@ -58,6 +58,7 @@ public  class MySQL {
 
         } catch (SQLException ex) {
                     JOptionPane.showMessageDialog(null, "Error de conexión.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                    System.out.println(ex);
         }
         System.out.println("Consulta exitosa");
         return rs;

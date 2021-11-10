@@ -11,7 +11,8 @@
  * @author Jorge
  */
 public class Bean {
-    private static String user;
+    public static String user;
+    public static String emisor;
 
     public static String getUser() {
         return user;
