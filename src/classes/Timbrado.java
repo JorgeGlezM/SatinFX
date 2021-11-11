@@ -19,8 +19,160 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Timbrado {
     String percepciones,deducciones,rfc,nombre,fechai,fechaf,fechapago,sindicato,puesto,fecha_ingreso,nss,clave,curp,jornada,contrato,producto,id,movimiento,descripcionPuesto,unidad,actividad,banco,cuentaBancaria,actividad2,proyecto,partida,clavePago,clue;
-    double totalImpuestos,totalDeducciones,totalOtros,subsidio,subsidio2,totalImpuestos2,impuestosSF,totalOtro1,totalOtro2,totalOtro1NO,totalRetenciones,totalTraslados;
-    String txtSubsidio,devolucion,claveOtro,UUIDRelacionado;
+    double totalImpuestos,totalDeducciones,totalOtros,subsidio,subsidio2,totalImpuestos2,impuestosSF,totalOtro1,totalOtro2,totalOtro1NO,totalRetenciones,totalTraslados,totalGravado,totalExento,importeMixto,importePropio,totalP,subtotalFactura,descuentoFactura,totalFactura;
+    int EST;
+    public String getDescripcionPuesto() {
+        return descripcionPuesto;
+    }
+
+    public void setDescripcionPuesto(String descripcionPuesto) {
+        this.descripcionPuesto = descripcionPuesto;
+    }
+
+    public String getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(String unidad) {
+        this.unidad = unidad;
+    }
+
+    public String getActividad() {
+        return actividad;
+    }
+
+    public void setActividad(String actividad) {
+        this.actividad = actividad;
+    }
+
+    public String getBanco() {
+        return banco;
+    }
+
+    public void setBanco(String banco) {
+        this.banco = banco;
+    }
+
+    public String getCuentaBancaria() {
+        return cuentaBancaria;
+    }
+
+    public void setCuentaBancaria(String cuentaBancaria) {
+        this.cuentaBancaria = cuentaBancaria;
+    }
+
+    public String getActividad2() {
+        return actividad2;
+    }
+
+    public void setActividad2(String actividad2) {
+        this.actividad2 = actividad2;
+    }
+
+    public String getProyecto() {
+        return proyecto;
+    }
+
+    public void setProyecto(String proyecto) {
+        this.proyecto = proyecto;
+    }
+
+    public String getPartida() {
+        return partida;
+    }
+
+    public void setPartida(String partida) {
+        this.partida = partida;
+    }
+
+    public String getClavePago() {
+        return clavePago;
+    }
+
+    public void setClavePago(String clavePago) {
+        this.clavePago = clavePago;
+    }
+
+    public String getClue() {
+        return clue;
+    }
+
+    public void setClue(String clue) {
+        this.clue = clue;
+    }
+
+    public double getTotalRetenciones() {
+        return totalRetenciones;
+    }
+
+    public void setTotalRetenciones(double totalRetenciones) {
+        this.totalRetenciones = totalRetenciones;
+    }
+
+    public double getTotalTraslados() {
+        return totalTraslados;
+    }
+
+    public void setTotalTraslados(double totalTraslados) {
+        this.totalTraslados = totalTraslados;
+    }
+
+    public double getTotalGravado() {
+        return totalGravado;
+    }
+
+    public void setTotalGravado(double totalGravado) {
+        this.totalGravado = totalGravado;
+    }
+
+    public double getTotalExento() {
+        return totalExento;
+    }
+
+    public void setTotalExento(double totalExento) {
+        this.totalExento = totalExento;
+    }
+
+    public double getImporteMixto() {
+        return importeMixto;
+    }
+
+    public void setImporteMixto(double importeMixto) {
+        this.importeMixto = importeMixto;
+    }
+
+    public double getImportePropio() {
+        return importePropio;
+    }
+
+    public void setImportePropio(double importePropio) {
+        this.importePropio = importePropio;
+    }
+
+    public double getTotalP() {
+        return totalP;
+    }
+
+    public void setTotalP(double totalP) {
+        this.totalP = totalP;
+    }
+
+    public double getSubtotalFactura() {
+        return subtotalFactura;
+    }
+
+    public void setSubtotalFactura(double subtotalFactura) {
+        this.subtotalFactura = subtotalFactura;
+    }
+
+    public String getTipoRegimen() {
+        return tipoRegimen;
+    }
+
+    public void setTipoRegimen(String tipoRegimen) {
+        this.tipoRegimen = tipoRegimen;
+    }
+    String txtSubsidio,devolucion,claveOtro,UUIDRelacionado,tipoRegimen;
     List<Conceptos> conceptos=new ArrayList<Conceptos>();
 
     public Timbrado(String percepciones, String deducciones, String rfc, String nombre, String fechai, String fechaf, String fechapago, String sindicato, String puesto, String fecha_ingreso, String nss, String clave, String curp, String jornada, String contrato,String producto,String id,String movimiento,String descripcionPuesto,String unidad,String actividad,String banco,String cuentaBancaria,String actividad2,String proyecto,String partida,String clavePago,String clue) {
@@ -139,8 +291,6 @@ public class Timbrado {
            
         }
         //Metodo Cargar datos recibo (la mayoría lo hace la consulta principal y el constructor)
-        
-        //Método CrearCFDI
         UUIDRelacionado="";
         if(sindicato.equals("Sí")||sindicato.equals("SI")||sindicato.equals("SÍ")||sindicato.equals("Si")){
             this.sindicato="Sí";
@@ -160,13 +310,60 @@ public class Timbrado {
         " where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and cs.clave_sat=c.clave_sat and ((c.activo=1 and dc.importe+dc.importe_ng>0) OR (c.activo=0 and dc.importe+dc.importe_ng<0))"+
         " and dn.producto='" +producto+"' and dn.rfc='" +rfc+"' and dn.id='"+id+"'";
         rs=mysql.select(select);
+        totalGravado=0;
+        totalExento=0;
+        importeMixto=0;
+        importePropio=0;
+        totalP=0;
         try {
             while(rs.next()){
+                if(Integer.parseInt(rs.getString(7))==0){//Percepciones
+                    totalGravado=totalGravado+Float.parseFloat(rs.getString(1));
+                    totalExento=totalExento+Float.parseFloat(rs.getString(2));
+                    totalP=totalP+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
+                }else{//Deducciones negativas
+                    totalExento=totalExento+((-1)*(Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2))));
+                }
                 
+                if(StringUtils.leftPad(rs.getString(3),3,"0").equals("046")){
+                    tipoRegimen="09";//Si tiene concepto con clave 46 son honorarios.
+                }
             }
         } catch (SQLException ex) {
             Logger.getLogger(Timbrado.class.getName()).log(Level.SEVERE, null, ex);
         }
+        //Honorarios solo tiene condiciones por RFC. No se programa?
+        subtotalFactura=totalGravado+totalExento;
+        if(importeMixto>0&&importePropio>0){
+            EST=50;
+        }
+        select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion,c.activo from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs"+
+        " where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and cs.clave_sat=c.clave_sat and ((c.activo=1 and dc.importe+dc.importe_ng>0) OR (c.activo=0 and dc.importe+dc.importe_ng<0))"+
+        " and dn.producto='" +producto+"' and dn.rfc='" +rfc+"' and dn.id='"+id+"'";
+        rs=mysql.select(select);
+        totalImpuestos=0;
+        totalDeducciones=0;
+        
+        try {
+            while(rs.next()){
+                if(Integer.parseInt(rs.getString(7))==1){//Deducciones
+                    String pad=StringUtils.leftPad(rs.getString(3), 3, '0');
+                    if(pad.equals("002")){
+                         totalImpuestos=totalImpuestos+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
+                    }else{
+                        totalDeducciones=totalDeducciones+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
+                    }
+                }else{
+                    totalDeducciones=totalDeducciones+((-1)*(Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2))));
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Timbrado.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        descuentoFactura=totalImpuestos+totalDeducciones;
+        totalFactura=subtotalFactura-descuentoFactura;
+        
+
     }
 
     public String getProducto() {
