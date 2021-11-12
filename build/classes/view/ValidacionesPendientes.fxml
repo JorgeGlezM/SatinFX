@@ -47,7 +47,7 @@
                         </StackPane>
                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
                            <children>
-                              <Button mnemonicParsing="false" prefHeight="56.0" prefWidth="136.0" text="Cancelar Nómina">
+                              <Button mnemonicParsing="false" onAction="#btnCancelarPuesto" prefHeight="56.0" prefWidth="136.0" text="Cancelar Nómina">
                                  <HBox.margin>
                                     <Insets right="30.0" />
                                  </HBox.margin>
@@ -98,7 +98,7 @@
                         </StackPane>
                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
                            <children>
-                              <Button mnemonicParsing="false" prefHeight="56.0" prefWidth="136.0" text="Cancelar Nómina">
+                              <Button mnemonicParsing="false" onAction="#btnCancelarConcepto" prefHeight="56.0" prefWidth="136.0" text="Cancelar Nómina">
                                  <HBox.margin>
                                     <Insets right="30.0" />
                                  </HBox.margin>

@@ -5,13 +5,13 @@
         <group>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/DatosPatronales.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/Bean.java</file>
-            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/ConceptosViewController.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/GenerarXML.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/LoginViewController.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/LBancosViewController.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/ValidacionesPendientesViewController.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/DatosTimbrado.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/CargaArchivosNominaViewController.java</file>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/MySQL.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/BancosViewController.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/Timbrado.java</file>
         </group>

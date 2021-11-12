@@ -61,9 +61,9 @@ public class GenerarXML {
     Document doc = docBuilder.newDocument();
     Element rootElement = doc.createElement("cfdi:Comprobante");
     
-    rootElement.setAttribute("Sello", "despues");//No se genera
-    rootElement.setAttribute("Certificado", DatosTimbrado.getNum_cert());//No se genera
-    rootElement.setAttribute("LugarExpedicion", "de una tabla");//Codigo especial
+    rootElement.setAttribute("Sello", "");//No se genera
+    rootElement.setAttribute("Certificado", "");//No se genera
+    rootElement.setAttribute("LugarExpedicion", DatosPatronales.getCodigo_esp());//Codigo especial
     rootElement.setAttribute("Moneda", "MXN");
     double total=Double.parseDouble(t.getPercepciones())-Double.parseDouble(t.getDeducciones());
     rootElement.setAttribute("Total", String.valueOf(total));//percepciones- deducciones?

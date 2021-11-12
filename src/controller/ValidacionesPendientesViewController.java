@@ -51,10 +51,42 @@ public class ValidacionesPendientesViewController implements Initializable {
     @FXML private TextField txtBusquedaPuestos;
 
 
-    private final ObservableList<ConceptosPendientes> dataConceptos=FXCollections.observableArrayList();
-    private final ObservableList<PuestosPendientes> dataPuestos=FXCollections.observableArrayList();
+    ObservableList<ConceptosPendientes> dataConceptos=FXCollections.observableArrayList();
+    ObservableList<PuestosPendientes> dataPuestos=FXCollections.observableArrayList();
     
+        @FXML private void btnCancelarConcepto (ActionEvent event) throws IOException{
+                
+                //Obtenemos el valor del campo "id" para pasarlo a la ventana de edición como parametro.
+                ConceptosPendientes p = tblConceptos.getSelectionModel().getSelectedItem();
+                String delete=p.getProducto();
 
+                classes.MySQL mysql= new classes.MySQL();
+                mysql.conectar();
+                String sql="CALL deleteProducto('"+delete+"');";
+                int input = JOptionPane.showConfirmDialog(null, "¿Seguro que deseas eliminar el producto "+delete+" y todos los registros relacionados a éste?", "Confirmar acción",
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+		if(input==0){
+                    mysql.stmt(sql);
+                    load(); 
+                }
+
+    }
+        
+                @FXML private void btnCancelarPuesto (ActionEvent event) throws IOException{
+                
+                //Obtenemos el valor del campo "id" para pasarlo a la ventana de edición como parametro.
+                PuestosPendientes p = tblPuestos.getSelectionModel().getSelectedItem();
+                String delete=p.getProducto();
+                classes.MySQL mysql= new classes.MySQL();
+                mysql.conectar();
+                String sql="CALL deleteProducto('"+delete+"');";
+                int input = JOptionPane.showConfirmDialog(null, "¿Seguro que deseas eliminar el producto "+delete+" y todos los registros relacionados a éste?", "Confirmar acción",
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
+		if(input==0){
+                    mysql.stmt(sql);
+                    load(); 
+                }
+    }
 
     
         @FXML private void btnAddConcepto (ActionEvent event) throws IOException{
@@ -109,6 +141,8 @@ public class ValidacionesPendientesViewController implements Initializable {
         stage.show();
     }
     public void load(){
+        dataConceptos.clear();
+        dataPuestos.clear();
         //Abrimos conexión
         classes.MySQL mysql= new classes.MySQL();
         mysql.conectar();

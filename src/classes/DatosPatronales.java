@@ -26,6 +26,7 @@ public class DatosPatronales {
 
     public static void setRfc(String rfc) {
         DatosPatronales.rfc = rfc;
+        DatosPatronales.rfc="SSN960901HJ7";//Fijo para pruebas de nayarit, borrar linea después.
     }
 
     public static String getRegistro_patronal() {

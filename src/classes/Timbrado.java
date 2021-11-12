@@ -20,7 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 public class Timbrado {
     String percepciones,deducciones,rfc,nombre,fechai,fechaf,fechapago,sindicato,puesto,fecha_ingreso,nss,clave,curp,jornada,contrato,producto,id,movimiento,descripcionPuesto,unidad,actividad,banco,cuentaBancaria,actividad2,proyecto,partida,clavePago,clue;
     double totalImpuestos,totalDeducciones,totalOtros,subsidio,subsidio2,totalImpuestos2,impuestosSF,totalOtro1,totalOtro2,totalOtro1NO,totalRetenciones,totalTraslados,totalGravado,totalExento,importeMixto,importePropio,totalP,subtotalFactura,descuentoFactura,totalFactura;
-    int EST;
+    int EST,leyenda;
+    boolean poneHonorarios=false;
     public String getDescripcionPuesto() {
         return descripcionPuesto;
     }
@@ -208,9 +209,9 @@ public class Timbrado {
         
         //método calcular_subsidios
         //Se modificó para tomar la descripcion_sat de la tabla conceptos_sat ya que ese campo se borró de conceptos
-        String select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion,c.activo " +
+        String select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion,c.tipo " +
         "from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and" +
-        " ((c.activo=0 and dc.importe+dc.importe_ng<0) or (c.activo=1 and dc.importe+dc.importe_ng>0)) and cs.clave_sat=c.clave_sat and" +
+        " ((c.tipo='P' and dc.importe+dc.importe_ng<0) or (c.tipo='D' and dc.importe+dc.importe_ng>0)) and cs.clave_sat=c.clave_sat and" +
         " dn.producto='" + producto + "' and dn.rfc='" + rfc + "' and dn.id='" + id+"'";
         System.out.println(select);
         MySQL mysql= new MySQL();
@@ -221,14 +222,14 @@ public class Timbrado {
         try {
             while(rs.next()){
                 //Calculamos impuestos y deducciones
-                if(Integer.parseInt(rs.getString(7))==1){ //deducciones
+                if(rs.getString(7).equals("D")){ //deducciones
                     String pad=StringUtils.leftPad(rs.getString(3), 3, '0');
                     if(pad.equals("002") && !rs.getString(5).equals("201SF") && !rs.getString(5).equals("201CA")){
                          totalImpuestos=totalImpuestos+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
                     }else{
                         totalDeducciones=totalDeducciones+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
                     }
-                }else{
+                }else{//Percepciones negativas
                     totalDeducciones=totalDeducciones+((-1)*(Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2))));
                 }
             }
@@ -239,11 +240,11 @@ public class Timbrado {
         subsidio2=0;
         totalImpuestos2=99999;
         txtSubsidio="";
-        devolucion=" OR (c.activo=1 and dc.importe+dc.importe_ng<0 and (dc.id_concepto='P00' or mid(dc.id_concepto,1,3)='201'))";
+        devolucion=" OR (c.tipo='D' and dc.importe+dc.importe_ng<0 and (dc.id_concepto='P00' or mid(dc.id_concepto,1,3)='201'))";//Deducción negativa es devolución?
         claveOtro="001";
         select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion "+
         "from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and cs.clave_sat=c.clave_sat and "+
-        " ((c.activo=0 and (c.clave_sat=17 or c.clave_sat=99)  and (dc.importe+dc.importe_ng>0)) "+devolucion+
+        " ((c.tipo='P' and (c.clave_sat=17 or c.clave_sat=99)  and (dc.importe+dc.importe_ng>0)) "+devolucion+
         ") and dn.producto='" +producto+ "' and dn.rfc='" + rfc + "' and dn.id=" +"'"+id+"'";
         System.out.println(select);
         
@@ -307,7 +308,7 @@ public class Timbrado {
 
         }
         select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion,c.activo from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs"+
-        " where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and cs.clave_sat=c.clave_sat and ((c.activo=1 and dc.importe+dc.importe_ng>0) OR (c.activo=0 and dc.importe+dc.importe_ng<0))"+
+        " where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and cs.clave_sat=c.clave_sat and ((c.tipo='D' and dc.importe+dc.importe_ng>0) OR (c.tipo='P' and dc.importe+dc.importe_ng<0))"+
         " and dn.producto='" +producto+"' and dn.rfc='" +rfc+"' and dn.id='"+id+"'";
         rs=mysql.select(select);
         totalGravado=0;
@@ -317,7 +318,7 @@ public class Timbrado {
         totalP=0;
         try {
             while(rs.next()){
-                if(Integer.parseInt(rs.getString(7))==0){//Percepciones
+                if(rs.getString(7).equals("P")){//Percepciones
                     totalGravado=totalGravado+Float.parseFloat(rs.getString(1));
                     totalExento=totalExento+Float.parseFloat(rs.getString(2));
                     totalP=totalP+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
@@ -332,33 +333,23 @@ public class Timbrado {
         } catch (SQLException ex) {
             Logger.getLogger(Timbrado.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //Honorarios solo tiene condiciones por RFC. No se programa?
+        //Calcular honorarios Nayarit
+        if(DatosPatronales.getRfc().equals("SSN960901HJ7")&&(unidad.equals("972")||unidad.equals("907")||producto.substring((producto.length()-1), producto.length()).equals("A")||producto.substring((producto.length()-1), producto.length()).equals("U")||producto.substring((producto.length()-1), producto.length()).equals("5"))){
+            poneHonorarios=true;
+            this.banco="072";
+            this.cuentaBancaria=cuentaBancaria.substring(2,22);
+            if(producto.endsWith("5")||producto.endsWith("A")){
+                leyenda=2;
+            }else if(unidad.equals("907")){
+                leyenda=2;
+            }else if(producto.endsWith("U")){
+                leyenda=1;
+            }
+            
+        }
         subtotalFactura=totalGravado+totalExento;
         if(importeMixto>0&&importePropio>0){
             EST=50;
-        }
-        select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion,c.activo from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs"+
-        " where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and cs.clave_sat=c.clave_sat and ((c.activo=1 and dc.importe+dc.importe_ng>0) OR (c.activo=0 and dc.importe+dc.importe_ng<0))"+
-        " and dn.producto='" +producto+"' and dn.rfc='" +rfc+"' and dn.id='"+id+"'";
-        rs=mysql.select(select);
-        totalImpuestos=0;
-        totalDeducciones=0;
-        
-        try {
-            while(rs.next()){
-                if(Integer.parseInt(rs.getString(7))==1){//Deducciones
-                    String pad=StringUtils.leftPad(rs.getString(3), 3, '0');
-                    if(pad.equals("002")){
-                         totalImpuestos=totalImpuestos+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
-                    }else{
-                        totalDeducciones=totalDeducciones+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
-                    }
-                }else{
-                    totalDeducciones=totalDeducciones+((-1)*(Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2))));
-                }
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(Timbrado.class.getName()).log(Level.SEVERE, null, ex);
         }
         descuentoFactura=totalImpuestos+totalDeducciones;
         totalFactura=subtotalFactura-descuentoFactura;
