@@ -10,6 +10,7 @@ import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
@@ -23,6 +24,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -32,14 +34,16 @@ import org.w3c.dom.Element;
  * @author Jorge
  */
 public class GenerarXML {
+    static NumberFormat fmt = NumberFormat.getCurrencyInstance();
     public static void main(String args[]){
         try {
             MySQL mysql=new MySQL();
             mysql.conectar();
             ResultSet rs= mysql.select("SELECT dn.total1,dn.total2,e.rfc,CONCAT(e.apaterno,\" \",e.amaterno,\" \",e.nombre) as nombre, dn.fechai,dn.fechaf,pn.fechapago,dn.sindicato,dn.puesto,e.fecha_ingreso,e.nss,e.clave,e.curp,e.jornada,dn.contrato,dn.producto,dn.id,dn.movimiento,p.descripcion,dn.unidad,dn.clavep,dn.banco,dn.cuenta_bancaria,dn.actividad,dn.proyecto,dn.partida,dn.clavepago,dn.clue from detalle_nomina dn, empleados e, puestos p,producto_nomina pn where dn.clave=e.clave and dn.puesto=p.id_puestos AND pn.clave=dn.producto;");
             rs.next();
-            Timbrado t=new Timbrado(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28));
             loadDatos();
+            Timbrado t=new Timbrado(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28));
+            System.out.println("RFC: "+DatosPatronales.getRfc());
             xml(t);
         } catch (SQLException ex) {
             Logger.getLogger(GenerarXML.class.getName()).log(Level.SEVERE, null, ex);
@@ -65,13 +69,16 @@ public class GenerarXML {
     rootElement.setAttribute("Certificado", "");//No se genera
     rootElement.setAttribute("LugarExpedicion", DatosPatronales.getCodigo_esp());//Codigo especial
     rootElement.setAttribute("Moneda", "MXN");
-    double total=Double.parseDouble(t.getPercepciones())-Double.parseDouble(t.getDeducciones());
-    rootElement.setAttribute("Total", String.valueOf(total));//percepciones- deducciones?
-    rootElement.setAttribute("SubTotal", t.getPercepciones());//percepciones?
+    String total=fmt.format(t.getTotalFactura());
+    rootElement.setAttribute("Total", total);//percepciones- deducciones?
+    String subtotal=fmt.format(t.getSubtotal());
+    rootElement.setAttribute("SubTotal", subtotal);//percepciones?
     rootElement.setAttribute("NoCertificado", DatosTimbrado.getNum_cert());//??
-    rootElement.setAttribute("TipoCambio", "1");//Fijo?
-    rootElement.setAttribute("MetodoPago", "PUE");//Fijo?
-    rootElement.setAttribute("FormaPago", "99");//Fijo?
+    if(!t.isPoneHonorarios()){
+        rootElement.setAttribute("TipoCambio", "1");//Fijo
+    }
+    rootElement.setAttribute("MetodoPago", "PUE");//Fijo
+    rootElement.setAttribute("FormaPago", "99");//Fijo
     rootElement.setAttribute("Fecha", timestamp);
     rootElement.setAttribute("Folio", t.getMovimiento());//serie de detalle nomina
     rootElement.setAttribute("Serie", DatosPatronales.getSerie());
@@ -98,7 +105,7 @@ public class GenerarXML {
     rootElement.appendChild(conceptosElement);
     int i=0;//Cambiar por un while rs.next();
     Element conceptoElement=doc.createElement("cfdi:Concepto");
-    conceptoElement.setAttribute("Descuento", t.getDeducciones()); //se calcoula en subsidios
+    conceptoElement.setAttribute("Descuento", String.valueOf(t.getDescuentoFactura())); //se calcoula en subsidios
     conceptoElement.setAttribute("Importe", t.getPercepciones()); //se calcula en subsidios
     conceptoElement.setAttribute("ValorUnitario", t.getPercepciones());//se calcula en subsidios
     conceptoElement.setAttribute("ClaveUnidad", "ACT"); //Fijo
@@ -110,38 +117,58 @@ public class GenerarXML {
     Element complementoElement=doc.createElement("cfdi:Complemento");
     rootElement.appendChild(complementoElement);
     Element nominaElement=doc.createElement("nomina12:Nomina");
-    nominaElement.setAttribute("Version", DatosTimbrado.getVersion_nomina());
+    nominaElement.setAttribute("Version", DatosTimbrado.getVersion_nomina());//Estaba fijo, ingresar correctamente a BD
     nominaElement.setAttribute("TotalOtrosPagos", "cc");//Suma
     nominaElement.setAttribute("TotalDeducciones", t.getDeducciones());//Suma
     nominaElement.setAttribute("TotalPercepciones", "cc");//Suma
-    nominaElement.setAttribute("NumDiasPagados", "cc");//Resta de fecha inicial y final
+    nominaElement.setAttribute("NumDiasPagados", String.valueOf(t.getDiasPagados()));//Resta de fecha inicial y final
     nominaElement.setAttribute("FechaFinalPago", t.getFechaf());//Tabla detalle
     nominaElement.setAttribute("FechaInicialPago", t.getFechai());//tabla detalle
     nominaElement.setAttribute("FechaPago", t.getFechapago());
     nominaElement.setAttribute("TipoNomina", "O");//Fijo?
     complementoElement.appendChild(nominaElement);
     Element nominaEElement=doc.createElement("nomina12:Emisor");
-    nominaEElement.setAttribute("RegistroPatronal", DatosPatronales.getRegistro_patronal());//??
+    if(t.isPonerRegistroPatronal()){
+            nominaEElement.setAttribute("RegistroPatronal", DatosPatronales.getRegistro_patronal());//??
+    }
     nominaElement.appendChild(nominaEElement);
-    Element EntidadSNCFElement=doc.createElement("nomina12:EntidadSNCF");
-    EntidadSNCFElement.setAttribute("OrigenRecurso", DatosPatronales.getEntidad_sncf());//entidad sncf?
-    nominaEElement.appendChild(EntidadSNCFElement);
+    if(t.isPonerEntidadSNCF()){
+        Element EntidadSNCFElement=doc.createElement("nomina12:EntidadSNCF");
+        EntidadSNCFElement.setAttribute("OrigenRecurso", t.getCFDOrigen());
+        if(t.getCFDOrigen().equals("IM")){
+            EntidadSNCFElement.setAttribute("MontoRecursoPropio", fmt.format(t.getImportePropio()));
+        }
+        nominaEElement.appendChild(EntidadSNCFElement);
+    }
+
     Element nominaRElement=doc.createElement("nomina12:Receptor");
-    nominaRElement.setAttribute("SalarioDiarioIntegrado", "cc");//Calculo Pendiente
-    nominaRElement.setAttribute("SalarioBaseCotApor", "cc");//Calculo Pendiente
-    nominaRElement.setAttribute("Antigüedad", "cc");//?
     nominaRElement.setAttribute("Sindicalizado", t.getSindicato());//Tabla empleados
-    nominaRElement.setAttribute("Puesto", t.getPuesto());//Empleados -> puestos
-    nominaRElement.setAttribute("ClaveEntFed", "entidad");//Datos patronales?
-    nominaRElement.setAttribute("RiesgoPuesto", DatosPatronales.getRiesgo_puesto());//Pendiente? O dejar fijo? Está en datos patronales
-    nominaRElement.setAttribute("FechaInicioRelLaboral", t.getFecha_ingreso());//Tabla empleados
-    nominaRElement.setAttribute("NumSeguridadSocial", t.getNss());//Tabla empleados
-    nominaRElement.setAttribute("PeriodicidadPago", "");//??
+    nominaRElement.setAttribute("ClaveEntFed", DatosPatronales.getEstado());//Datos patronales?
+    if(!t.isPoneHonorarios()){
+        nominaRElement.setAttribute("RiesgoPuesto", t.getTipoRiesgo());//También está en datos patronales
+        nominaRElement.setAttribute("FechaInicioRelLaboral", t.getFecha_ingreso());//Tabla empleados
+        nominaRElement.setAttribute("NumSeguridadSocial", t.getNss());//Tabla empleados
+        nominaRElement.setAttribute("Antigüedad", "cc");// Pendiente. Se calcula por un método
+        nominaRElement.setAttribute("SalarioDiarioIntegrado", fmt.format(t.getSalarioDiario()));
+        nominaRElement.setAttribute("SalarioBaseCotApor", fmt.format(t.getSalarioDiario()));//Calculo Pendiente
+    }
+    if(!t.getDescripcionPuesto().equals("0")&&!t.getDescripcionPuesto().equals("")){
+        nominaRElement.setAttribute("Puesto", t.getDescripcionPuesto());//Empleados -> puestos
+    }
+    if(t.isPoneHonorarios()){
+        nominaRElement.setAttribute("Banco", StringUtils.leftPad(t.getBanco(), 3, '0'));//Empleados -> puestos
+        if(t.getCuentaBancaria().equals("")||t.getCuentaBancaria().equals("0")){
+            t.setCuentaBancaria("0000000000");
+        }
+        nominaRElement.setAttribute("CuentaBancaria", t.getCuentaBancaria().replaceAll("'", ""));//Empleados -> puestos
+        nominaRElement.setAttribute("Departamento", t.getClue());//Empleados -> puestos
+    }
+    nominaRElement.setAttribute("PeriodicidadPago", t.getPeriodoPago());//??
     nominaRElement.setAttribute("NumEmpleado", t.getClave());//Tabla empleados
     nominaRElement.setAttribute("Curp", t.getCurp());//Tabla empleados
-    nominaRElement.setAttribute("TipoRegimen", "02");//Fijo?
-    nominaRElement.setAttribute("TipoJornada", t.getJornada());//Tabla empleados
-    nominaRElement.setAttribute("TipoContrato", t.getContrato());//Campo contrato en detalle_nomina?
+    nominaRElement.setAttribute("TipoRegimen", StringUtils.leftPad(t.getTipoRegimen(), 2, '0'));//Fijo?
+    nominaRElement.setAttribute("TipoJornada", StringUtils.leftPad(t.getJornada(), 2, '0'));//03 mixta, 01 diurno
+    nominaRElement.setAttribute("TipoContrato", t.getTipoContrato());//Verificada
     nominaElement.appendChild(nominaRElement);
     Element percepcionesElement=doc.createElement("nomina12:Percepciones");
     percepcionesElement.setAttribute("TotalSueldos", "cc");//Percepciones?

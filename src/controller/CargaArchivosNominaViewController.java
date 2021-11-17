@@ -128,7 +128,15 @@ public class CargaArchivosNominaViewController implements Initializable {
         stage.show();
     }
     @FXML private void btnCargar (ActionEvent event) throws IOException{
-
+        empleados=new ArrayList<Empleados>();
+        detallesNomina=new ArrayList<DetalleNomina>();
+        adicionales=new ArrayList<Adicional>();
+        conceptos=new ArrayList<Conceptos>();
+        horas=new ArrayList<Horas>();
+        productos=new ArrayList<Productos>();
+        faltas=new ArrayList<Faltas>();
+        clues=new ArrayList<Clues>();
+        centros=new ArrayList<CentrosTrabajo>();
         String tipo=(String) cmbTipo.getValue();
         switch(tipo){
             case "txt":extraerEmpleadoTXT();extraerProductoTXT();insertsTXT();break;

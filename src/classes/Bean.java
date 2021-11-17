@@ -12,7 +12,6 @@
  */
 public class Bean {
     public static String user;
-    public static String emisor;
 
     public static String getUser() {
         return user;

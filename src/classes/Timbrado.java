@@ -7,8 +7,11 @@ package classes;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import static java.util.concurrent.TimeUnit.DAYS;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
@@ -19,9 +22,87 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Timbrado {
     String percepciones,deducciones,rfc,nombre,fechai,fechaf,fechapago,sindicato,puesto,fecha_ingreso,nss,clave,curp,jornada,contrato,producto,id,movimiento,descripcionPuesto,unidad,actividad,banco,cuentaBancaria,actividad2,proyecto,partida,clavePago,clue;
-    double totalImpuestos,totalDeducciones,totalOtros,subsidio,subsidio2,totalImpuestos2,impuestosSF,totalOtro1,totalOtro2,totalOtro1NO,totalRetenciones,totalTraslados,totalGravado,totalExento,importeMixto,importePropio,totalP,subtotalFactura,descuentoFactura,totalFactura;
-    int EST,leyenda;
-    boolean poneHonorarios=false;
+    double totalImpuestos,totalDeducciones,totalOtros,subsidio,subsidio2,totalImpuestos2,impuestosSF,totalOtro1,totalOtro2,totalOtro1NO,totalRetenciones,totalTraslados,totalGravado,totalExento,importeMixto,importePropio,totalP,subtotalFactura,descuentoFactura,totalFactura,subtotal,salarioDiario;
+    int EST,leyenda,diasPagados;
+    boolean poneHonorarios=false;//Pone o no atributo
+    boolean ponerRegistroPatronal=false;//Pone o no atributo
+    boolean ponerEntidadSNCF=false;//Pone o no atributo 
+    public static boolean check1=false,check2=false,check3=false,check4=false,check5=false,check6=false;//Checks del formulario
+
+    public boolean isPonerRegistroPatronal() {
+        return ponerRegistroPatronal;
+    }
+
+    public void setPonerRegistroPatronal(boolean ponerRegistroPatronal) {
+        this.ponerRegistroPatronal = ponerRegistroPatronal;
+    }
+    String txtSubsidio,devolucion,claveOtro,UUIDRelacionado,tipoRegimen,periodoPago,claveTipo,tipoCambio,tipoContrato,tipoRiesgo,CFDOrigen="";
+    List<Conceptos> conceptos=new ArrayList<Conceptos>();
+    public static int periodoFormulario=1;//Se obtiene del formulario, puse valor 1 par pruebas. Borrar asignación después.
+    
+    public int getDiasPagados() {
+        return diasPagados;
+    }
+
+    public void setDiasPagados(int diasPagados) {
+        this.diasPagados = diasPagados;
+    }
+    public double getDescuentoFactura() {
+        return descuentoFactura;
+    }
+
+    public void setDescuentoFactura(double descuentoFactura) {
+        this.descuentoFactura = descuentoFactura;
+    }
+
+    public double getTotalFactura() {
+        return totalFactura;
+    }
+
+    public void setTotalFactura(double totalFactura) {
+        this.totalFactura = totalFactura;
+    }
+
+    public int getEST() {
+        return EST;
+    }
+
+    public void setEST(int EST) {
+        this.EST = EST;
+    }
+
+    public int getLeyenda() {
+        return leyenda;
+    }
+
+    public void setLeyenda(int leyenda) {
+        this.leyenda = leyenda;
+    }
+
+    public String getPeriodoPago() {
+        return periodoPago;
+    }
+
+    public void setPeriodoPago(String periodoPago) {
+        this.periodoPago = periodoPago;
+    }
+
+    public boolean isPoneHonorarios() {
+        return poneHonorarios;
+    }
+
+    public void setPoneHonorarios(boolean poneHonorarios) {
+        this.poneHonorarios = poneHonorarios;
+    }
+
+    public static int getPeriodoFormulario() {
+        return periodoFormulario;
+    }
+
+    public static void setPeriodoFormulario(int periodoFormulario) {
+        Timbrado.periodoFormulario = periodoFormulario;
+    }
+
     public String getDescripcionPuesto() {
         return descripcionPuesto;
     }
@@ -173,8 +254,7 @@ public class Timbrado {
     public void setTipoRegimen(String tipoRegimen) {
         this.tipoRegimen = tipoRegimen;
     }
-    String txtSubsidio,devolucion,claveOtro,UUIDRelacionado,tipoRegimen;
-    List<Conceptos> conceptos=new ArrayList<Conceptos>();
+
 
     public Timbrado(String percepciones, String deducciones, String rfc, String nombre, String fechai, String fechaf, String fechapago, String sindicato, String puesto, String fecha_ingreso, String nss, String clave, String curp, String jornada, String contrato,String producto,String id,String movimiento,String descripcionPuesto,String unidad,String actividad,String banco,String cuentaBancaria,String actividad2,String proyecto,String partida,String clavePago,String clue) {
         this.percepciones = percepciones;
@@ -205,8 +285,7 @@ public class Timbrado {
         this.partida=partida;
         this.clavePago=clavePago;
         this.clue=clue;
-        System.out.println(clue);
-        
+        salarioDiario=Double.parseDouble(this.percepciones);//Así estaba en el código, se tiene que recalcular, ahora solo se divide entre los días 
         //método calcular_subsidios
         //Se modificó para tomar la descripcion_sat de la tabla conceptos_sat ya que ese campo se borró de conceptos
         String select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion,c.tipo " +
@@ -337,7 +416,9 @@ public class Timbrado {
         if(DatosPatronales.getRfc().equals("SSN960901HJ7")&&(unidad.equals("972")||unidad.equals("907")||producto.substring((producto.length()-1), producto.length()).equals("A")||producto.substring((producto.length()-1), producto.length()).equals("U")||producto.substring((producto.length()-1), producto.length()).equals("5"))){
             poneHonorarios=true;
             this.banco="072";
-            this.cuentaBancaria=cuentaBancaria.substring(2,22);
+            if(!cuentaBancaria.equals("")||!cuentaBancaria.equals("0")){
+                this.cuentaBancaria=cuentaBancaria.substring(2,cuentaBancaria.length());
+            }
             if(producto.endsWith("5")||producto.endsWith("A")){
                 leyenda=2;
             }else if(unidad.equals("907")){
@@ -351,10 +432,215 @@ public class Timbrado {
         if(importeMixto>0&&importePropio>0){
             EST=50;
         }
-        descuentoFactura=totalImpuestos+totalDeducciones;
-        totalFactura=subtotalFactura-descuentoFactura;
-        
+        //Calculamos los días pagados (método crear nodo complemento)
+        LocalDate fechaInicial=LocalDate.parse(fechai);
+        LocalDate fechaFinal=LocalDate.parse(fechaf);
+        tipoRiesgo="01";
+        diasPagados = (int) ChronoUnit.DAYS.between(fechaInicial, fechaFinal);
+        diasPagados=diasPagados+1;//Se suma un día para que cuente también el primero y no únicamente los días transcurridos posterior a éste.
+        if(periodoFormulario==1){
+            if(diasPagados==15){
+                periodoPago="04";
+            }else if(diasPagados==16&&fechaf.substring((fechaf.length()-2),(fechaf.length())).equals("31")){
+                periodoPago="04";
+                diasPagados=15;
+            }else if((diasPagados==14||diasPagados==13)&&fechaf.substring((fechaf.length()-2),(fechaf.length())).equals("28")||fechaf.substring((fechaf.length()-2),(fechaf.length())).equals("29")){
+                periodoPago="04";
+                diasPagados=15;
+            }else{periodoPago="99";}
+        }else if(periodoFormulario==2){
+            if(diasPagados==16){
+                periodoPago="04";
+                diasPagados=15;
+            }else{
+                periodoPago="99";
+            }
+        }else if(periodoFormulario==3){
+            periodoPago="04";
+            diasPagados=15;
+        }else{
+            periodoPago="99";
+        }
+        claveTipo="E";
+        String temp=producto.substring(0,3);
+        if(temp.equals("PRD")){
+            if(producto.substring(3,4).equals("O")){
+                claveTipo="O";
+            }
+        }else if(producto.substring(1,2).equals("O")){
+            claveTipo="O";
+        }
+        double tempDescuentos=0;//variable DescuentosFactura del método crear atributos comprobante.
+        if(totalImpuestos2!=99999){
+            descuentoFactura=totalDeducciones+totalImpuestos;
+            subtotal=subtotalFactura+totalOtros-subsidio-totalOtro1NO;
+            totalFactura=subtotal-tempDescuentos-totalOtro1NO;
+        }else{
+            tempDescuentos=descuentoFactura-totalOtro1NO;
+            subtotal=subtotalFactura+subsidio2-totalOtro1NO;
+            totalFactura=subtotal-tempDescuentos;
+        }
+        descuentoFactura=descuentoFactura-totalOtro1NO;
+        tipoContrato="01";
+        if(!DatosPatronales.getRfc().equals("SSN970115QI9")&&!DatosPatronales.getRfc().equals("REP150914KD0")&&!DatosPatronales.getRfc().equals("SSC961129CH3")){
+            tipoRegimen="02";
+        }
+        if(DatosPatronales.getRfc().equals("SSN970115QI9")&&unidad.equals("CON")){
+            tipoRegimen="09";
+        }
+        if((DatosPatronales.getRfc().equals("SSS960912HW9")||DatosPatronales.getRfc().equals("ISD9609109M3")||DatosPatronales.getRfc().equals("SSN960901HJ7"))&&contrato.equals("HONORARIOS")){//SLP, NAY y Campeche
+            tipoRegimen="09";
+        }
+        if(isPoneHonorarios()){
+            tipoContrato="09";
+            tipoRegimen="09";
+            tipoRiesgo="99";
+        }
+        if(tipoRegimen.equals("09")){
+            tipoContrato="09";
+            tipoRiesgo="99";
+        }else{
+            ponerRegistroPatronal=true;
+        }
+        if(!DatosPatronales.getEntidad_sncf().equals("0")){
+            if(check6){
+                EST=0;
+                select="select importe_propio FROM detalle_nomina where id= '"+id+"'";
+                rs = mysql.select(select);
+                try{
+                    rs.next();
+                    EST=Integer.parseInt(rs.getString(1));
+                }catch(Exception e){
+                    
+                }
+            }
+            ponerEntidadSNCF=true;
+            if(EST==100){
+                CFDOrigen="IP";
+            }else if(EST==0){
+                CFDOrigen="IF";
+            }else{
+                CFDOrigen="IM";
+            }
+        }
+        if(salarioDiario<0){
+            salarioDiario=salarioDiario*(-1);
+        }
+        salarioDiario=salarioDiario/diasPagados;
 
+        
+    }
+
+    public double getSalarioDiario() {
+        return salarioDiario;
+    }
+
+    public void setSalarioDiario(double salarioDiario) {
+        this.salarioDiario = salarioDiario;
+    }
+
+    public String getCFDOrigen() {
+        return CFDOrigen;
+    }
+
+    public void setCFDOrigen(String CFDOrigen) {
+        this.CFDOrigen = CFDOrigen;
+    }
+
+    public boolean isPonerEntidadSNCF() {
+        return ponerEntidadSNCF;
+    }
+
+    public void setPonerEntidadSNCF(boolean ponerEntidadSNCF) {
+        this.ponerEntidadSNCF = ponerEntidadSNCF;
+    }
+
+    public static boolean isCheck1() {
+        return check1;
+    }
+
+    public static void setCheck1(boolean check1) {
+        Timbrado.check1 = check1;
+    }
+
+    public static boolean isCheck2() {
+        return check2;
+    }
+
+    public static void setCheck2(boolean check2) {
+        Timbrado.check2 = check2;
+    }
+
+    public static boolean isCheck3() {
+        return check3;
+    }
+
+    public static void setCheck3(boolean check3) {
+        Timbrado.check3 = check3;
+    }
+
+    public static boolean isCheck4() {
+        return check4;
+    }
+
+    public static void setCheck4(boolean check4) {
+        Timbrado.check4 = check4;
+    }
+
+    public static boolean isCheck5() {
+        return check5;
+    }
+
+    public static void setCheck5(boolean check5) {
+        Timbrado.check5 = check5;
+    }
+
+    public static boolean isCheck6() {
+        return check6;
+    }
+
+    public static void setCheck6(boolean check6) {
+        Timbrado.check6 = check6;
+    }
+
+    public String getTipoContrato() {
+        return tipoContrato;
+    }
+
+    public void setTipoContrato(String tipoContrato) {
+        this.tipoContrato = tipoContrato;
+    }
+
+    public String getTipoRiesgo() {
+        return tipoRiesgo;
+    }
+
+    public void setTipoRiesgo(String tipoRiesgo) {
+        this.tipoRiesgo = tipoRiesgo;
+    }
+
+    public double getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(double subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public String getTipoCambio() {
+        return tipoCambio;
+    }
+
+    public void setTipoCambio(String tipoCambio) {
+        this.tipoCambio = tipoCambio;
+    }
+
+    public String getClaveTipo() {
+        return claveTipo;
+    }
+
+    public void setClaveTipo(String claveTipo) {
+        this.claveTipo = claveTipo;
     }
 
     public String getProducto() {
