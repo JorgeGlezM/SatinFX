@@ -17,7 +17,48 @@ public class Horas {
     String dImporteHorasDobles;
     String dDiasHorasTriples;
     String dHorasTriples;
+    //Anteriores a esto son para extracción de archivos
+    //A partir de aquí, son del contructor utilizado para el xml (lista de horas extra en xml).
+    String dias,tipoHoras,horasExtra,importePagado;
 
+    public String getDias() {
+        return dias;
+    }
+
+    public void setDias(String dias) {
+        this.dias = dias;
+    }
+
+    public String getTipoHoras() {
+        return tipoHoras;
+    }
+
+    public void setTipoHoras(String tipoHoras) {
+        this.tipoHoras = tipoHoras;
+    }
+
+    public String getHorasExtra() {
+        return horasExtra;
+    }
+
+    public void setHorasExtra(String horasExtra) {
+        this.horasExtra = horasExtra;
+    }
+
+    public String getImportePagado() {
+        return importePagado;
+    }
+
+    public void setImportePagado(String importePagado) {
+        this.importePagado = importePagado;
+    }
+
+    public Horas(String dias, String tipoHoras, String horasExtra, String importePagado) {
+        this.dias = dias;
+        this.tipoHoras = tipoHoras;
+        this.horasExtra = horasExtra;
+        this.importePagado = importePagado;
+    }
     public String getdID() {
         return dID;
     }

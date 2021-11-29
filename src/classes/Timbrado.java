@@ -5,12 +5,15 @@
  */
 package classes;
 
+import static classes.GenerarXML.fmt;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import static java.util.concurrent.TimeUnit.DAYS;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,8 +24,14 @@ import org.apache.commons.lang3.StringUtils;
  * @author Jorge
  */
 public class Timbrado {
-    String percepciones,deducciones,rfc,nombre,fechai,fechaf,fechapago,sindicato,puesto,fecha_ingreso,nss,clave,curp,jornada,contrato,producto,id,movimiento,descripcionPuesto,unidad,actividad,banco,cuentaBancaria,actividad2,proyecto,partida,clavePago,clue;
-    double totalImpuestos,totalDeducciones,totalOtros,subsidio,subsidio2,totalImpuestos2,impuestosSF,totalOtro1,totalOtro2,totalOtro1NO,totalRetenciones,totalTraslados,totalGravado,totalExento,importeMixto,importePropio,totalP,subtotalFactura,descuentoFactura,totalFactura,subtotal,salarioDiario;
+    static NumberFormat fmt = NumberFormat.getInstance(Locale.US);
+    String percepciones,deducciones,rfc,nombre,fechai,fechaf,fechapago,sindicato,puesto,fecha_ingreso,nss,clave,curp,jornada,contrato,producto,id,movimiento,descripcionPuesto,unidad,actividad,banco,cuentaBancaria,actividad2,proyecto,partida,clavePago,clue,ingresoAcumulable,ingresoNoAcumulable,ultimoSueldo;
+
+
+    public void setIndemnizacionesList(List<Indemnizaciones> indemnizacionesList) {
+        this.indemnizacionesList = indemnizacionesList;
+    }
+    double totalImpuestos,totalDeducciones,totalOtros,subsidio,subsidio2,totalImpuestos2,impuestosSF,totalOtro1,totalOtro2,totalOtro1NO,totalRetenciones,totalTraslados,totalGravado,totalExento,importeMixto,importePropio,totalP,subtotalFactura,descuentoFactura,totalFactura,subtotal,salarioDiario,totalSueldos,totalJubilacionPensionRetiro,totalSeparacion;
     int EST,leyenda,diasPagados;
     boolean poneHonorarios=false;//Pone o no atributo
     boolean ponerRegistroPatronal=false;//Pone o no atributo
@@ -36,227 +45,23 @@ public class Timbrado {
     public void setPonerRegistroPatronal(boolean ponerRegistroPatronal) {
         this.ponerRegistroPatronal = ponerRegistroPatronal;
     }
-    String txtSubsidio,devolucion,claveOtro,UUIDRelacionado,tipoRegimen,periodoPago,claveTipo,tipoCambio,tipoContrato,tipoRiesgo,CFDOrigen="";
-    List<Conceptos> conceptos=new ArrayList<Conceptos>();
+    String txtSubsidio,devolucion,claveOtro,UUIDRelacionado,tipoRegimen,periodoPago,claveTipo,tipoCambio,tipoContrato,tipoRiesgo,antiguedad,CFDOrigen="";
+    List<Percepciones> percepcionesList=new ArrayList<Percepciones>();
+    List<Jubilaciones> jubilacionesList=new ArrayList<Jubilaciones>();
+    List<Indemnizaciones> indemnizacionesList=new ArrayList<Indemnizaciones>();
+    List<Horas> horasList=new ArrayList<Horas>();
+    List<Deducciones> deduccionesList=new ArrayList<Deducciones>();
+    List<OtrosPagos> otrosPagosList=new ArrayList<OtrosPagos>();
+
+
+
+
+
     public static int periodoFormulario=1;//Se obtiene del formulario, puse valor 1 par pruebas. Borrar asignación después.
     
-    public int getDiasPagados() {
-        return diasPagados;
-    }
-
-    public void setDiasPagados(int diasPagados) {
-        this.diasPagados = diasPagados;
-    }
-    public double getDescuentoFactura() {
-        return descuentoFactura;
-    }
-
-    public void setDescuentoFactura(double descuentoFactura) {
-        this.descuentoFactura = descuentoFactura;
-    }
-
-    public double getTotalFactura() {
-        return totalFactura;
-    }
-
-    public void setTotalFactura(double totalFactura) {
-        this.totalFactura = totalFactura;
-    }
-
-    public int getEST() {
-        return EST;
-    }
-
-    public void setEST(int EST) {
-        this.EST = EST;
-    }
-
-    public int getLeyenda() {
-        return leyenda;
-    }
-
-    public void setLeyenda(int leyenda) {
-        this.leyenda = leyenda;
-    }
-
-    public String getPeriodoPago() {
-        return periodoPago;
-    }
-
-    public void setPeriodoPago(String periodoPago) {
-        this.periodoPago = periodoPago;
-    }
-
-    public boolean isPoneHonorarios() {
-        return poneHonorarios;
-    }
-
-    public void setPoneHonorarios(boolean poneHonorarios) {
-        this.poneHonorarios = poneHonorarios;
-    }
-
-    public static int getPeriodoFormulario() {
-        return periodoFormulario;
-    }
-
-    public static void setPeriodoFormulario(int periodoFormulario) {
-        Timbrado.periodoFormulario = periodoFormulario;
-    }
-
-    public String getDescripcionPuesto() {
-        return descripcionPuesto;
-    }
-
-    public void setDescripcionPuesto(String descripcionPuesto) {
-        this.descripcionPuesto = descripcionPuesto;
-    }
-
-    public String getUnidad() {
-        return unidad;
-    }
-
-    public void setUnidad(String unidad) {
-        this.unidad = unidad;
-    }
-
-    public String getActividad() {
-        return actividad;
-    }
-
-    public void setActividad(String actividad) {
-        this.actividad = actividad;
-    }
-
-    public String getBanco() {
-        return banco;
-    }
-
-    public void setBanco(String banco) {
-        this.banco = banco;
-    }
-
-    public String getCuentaBancaria() {
-        return cuentaBancaria;
-    }
-
-    public void setCuentaBancaria(String cuentaBancaria) {
-        this.cuentaBancaria = cuentaBancaria;
-    }
-
-    public String getActividad2() {
-        return actividad2;
-    }
-
-    public void setActividad2(String actividad2) {
-        this.actividad2 = actividad2;
-    }
-
-    public String getProyecto() {
-        return proyecto;
-    }
-
-    public void setProyecto(String proyecto) {
-        this.proyecto = proyecto;
-    }
-
-    public String getPartida() {
-        return partida;
-    }
-
-    public void setPartida(String partida) {
-        this.partida = partida;
-    }
-
-    public String getClavePago() {
-        return clavePago;
-    }
-
-    public void setClavePago(String clavePago) {
-        this.clavePago = clavePago;
-    }
-
-    public String getClue() {
-        return clue;
-    }
-
-    public void setClue(String clue) {
-        this.clue = clue;
-    }
-
-    public double getTotalRetenciones() {
-        return totalRetenciones;
-    }
-
-    public void setTotalRetenciones(double totalRetenciones) {
-        this.totalRetenciones = totalRetenciones;
-    }
-
-    public double getTotalTraslados() {
-        return totalTraslados;
-    }
-
-    public void setTotalTraslados(double totalTraslados) {
-        this.totalTraslados = totalTraslados;
-    }
-
-    public double getTotalGravado() {
-        return totalGravado;
-    }
-
-    public void setTotalGravado(double totalGravado) {
-        this.totalGravado = totalGravado;
-    }
-
-    public double getTotalExento() {
-        return totalExento;
-    }
-
-    public void setTotalExento(double totalExento) {
-        this.totalExento = totalExento;
-    }
-
-    public double getImporteMixto() {
-        return importeMixto;
-    }
-
-    public void setImporteMixto(double importeMixto) {
-        this.importeMixto = importeMixto;
-    }
-
-    public double getImportePropio() {
-        return importePropio;
-    }
-
-    public void setImportePropio(double importePropio) {
-        this.importePropio = importePropio;
-    }
-
-    public double getTotalP() {
-        return totalP;
-    }
-
-    public void setTotalP(double totalP) {
-        this.totalP = totalP;
-    }
-
-    public double getSubtotalFactura() {
-        return subtotalFactura;
-    }
-
-    public void setSubtotalFactura(double subtotalFactura) {
-        this.subtotalFactura = subtotalFactura;
-    }
-
-    public String getTipoRegimen() {
-        return tipoRegimen;
-    }
-
-    public void setTipoRegimen(String tipoRegimen) {
-        this.tipoRegimen = tipoRegimen;
-    }
 
 
-    public Timbrado(String percepciones, String deducciones, String rfc, String nombre, String fechai, String fechaf, String fechapago, String sindicato, String puesto, String fecha_ingreso, String nss, String clave, String curp, String jornada, String contrato,String producto,String id,String movimiento,String descripcionPuesto,String unidad,String actividad,String banco,String cuentaBancaria,String actividad2,String proyecto,String partida,String clavePago,String clue) {
+    public Timbrado(String percepciones, String deducciones, String rfc, String nombre, String fechai, String fechaf, String fechapago, String sindicato, String puesto, String fecha_ingreso, String nss, String clave, String curp, String jornada, String contrato,String producto,String id,String movimiento,String descripcionPuesto,String unidad,String actividad,String banco,String cuentaBancaria,String actividad2,String proyecto,String partida,String clavePago,String clue,String ingresoAcumulable,String ingresoNoAcumulable,String ultimoSueldo) {
         this.percepciones = percepciones;
         this.deducciones = deducciones;
         this.rfc = rfc;
@@ -285,6 +90,11 @@ public class Timbrado {
         this.partida=partida;
         this.clavePago=clavePago;
         this.clue=clue;
+        this.ingresoAcumulable=ingresoAcumulable;
+        this.ingresoNoAcumulable=ingresoNoAcumulable;
+        this.ultimoSueldo=ultimoSueldo;
+        fmt.setMaximumFractionDigits(2);
+        fmt.setMinimumFractionDigits(2);
         salarioDiario=Double.parseDouble(this.percepciones);//Así estaba en el código, se tiene que recalcular, ahora solo se divide entre los días 
         //método calcular_subsidios
         //Se modificó para tomar la descripcion_sat de la tabla conceptos_sat ya que ese campo se borró de conceptos
@@ -319,7 +129,7 @@ public class Timbrado {
         subsidio2=0;
         totalImpuestos2=99999;
         txtSubsidio="";
-        devolucion=" OR (c.tipo='D' and dc.importe+dc.importe_ng<0 and (dc.id_concepto='P00' or mid(dc.id_concepto,1,3)='201'))";//Deducción negativa es devolución?
+        devolucion=" OR (c.tipo='D' and dc.importe+dc.importe_ng<0 and (dc.id_concepto='P00' or mid(dc.id_concepto,1,3)='201'))";
         claveOtro="001";
         select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion "+
         "from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and cs.clave_sat=c.clave_sat and "+
@@ -342,7 +152,7 @@ public class Timbrado {
                         impuestosSF=impuestosSF+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
                     }
                     else{
-                        claveOtro="001";
+                        claveOtro="001";    
                     }
                 }else if(temp.equals("1SE")){
                     claveOtro="002";
@@ -527,8 +337,184 @@ public class Timbrado {
             salarioDiario=salarioDiario*(-1);
         }
         salarioDiario=salarioDiario/diasPagados;
-
+        //Método antiguedad
+        LocalDate fechaIngreso=LocalDate.parse(fecha_ingreso);
+        String anios=String.valueOf(ChronoUnit.YEARS.between(fechaIngreso, fechaFinal));
+        String meses=String.valueOf(ChronoUnit.MONTHS.between(fechaIngreso, fechaFinal)%12);
+        LocalDate fechaTemp=LocalDate.parse(fecha_ingreso);
+        fechaTemp=fechaTemp.plusYears(Long.parseLong(anios));
+        fechaTemp=fechaTemp.plusMonths(Long.parseLong(meses));
+        String dias=String.valueOf(ChronoUnit.DAYS.between(fechaTemp, fechaFinal));
+        antiguedad="P";
+        if(!anios.equals("0")){
+            antiguedad=antiguedad+anios+"Y";
+        }if(!meses.equals("0")){
+            antiguedad=antiguedad+meses+"M";
+        }
+        antiguedad=antiguedad+dias+"D";
+        String sub=" and (dc.id_concepto<>'1SE00')";
+        String dev=" and ((mid(dc.id_concepto,1,3)<>'201') and c.clave_sat<>2)";
         
+        select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion,c.tipo "+
+        "from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and" +
+        " ((c.tipo='P' and (c.clave_sat<>17 and c.clave_sat<>99)  and (dc.importe+dc.importe_ng)>0 " + sub + ") " +
+        " OR (c.tipo='D' and (dc.importe+dc.importe_ng)<0 " +dev + " ))" +
+        " and dn.producto='" +producto+ "' and dn.rfc='" +rfc+ "' and dn.id='"+id+ "' order by dc.id";
+        System.out.println(select);
+        totalGravado=0;
+        totalExento=0;
+        totalSueldos=0;
+        totalJubilacionPensionRetiro=0;
+        totalSeparacion=0;
+        try{
+            while(rs.next()){
+                Float imp_gra=Float.parseFloat(rs.getString(1));
+                if(rs.getString(1).equals("0.01")||rs.getString(1).equals("0.02")){
+                    imp_gra=Float.parseFloat("0");
+                }
+                Float imp_exe=Float.parseFloat(rs.getString(2));
+                if(rs.getString(2).equals("-0.01")||rs.getString(2).equals("-0.02")){
+                    imp_exe=Float.parseFloat("0");
+                }
+                String tipo_per=StringUtils.leftPad(rs.getString(3), 3, '0');
+                if(rs.getString(7).equals("P")){
+                    totalGravado=totalGravado+Float.parseFloat(rs.getString(1));
+                    totalExento=totalExento+Float.parseFloat(rs.getString(2));
+                    if(!tipo_per.equals("022")&&!tipo_per.equals("023")&&!tipo_per.equals("025")&&!tipo_per.equals("039")&&!tipo_per.equals("044")&&!tipo_per.equals("019")){//Percepciones
+                        totalSueldos=totalSueldos+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
+                        String clv=rs.getString(5).replaceAll("\\s+","");
+                        String conc=rs.getString(6).replaceAll("\\s+","");
+                        percepcionesList.add(new Percepciones(tipo_per,clv,conc,fmt.format(imp_gra),fmt.format(imp_exe)));
+                    }else if(tipo_per.equals("025")||tipo_per.equals("022")||tipo_per.equals("023")){//Separaciones
+                        indemnizacionesList.add(new Indemnizaciones(fmt.format(Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2))),anios,ultimoSueldo,ingresoAcumulable,ingresoNoAcumulable));
+                        totalSeparacion=totalSeparacion+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
+                    }else if(tipo_per.equals("039")){//Jubilaciones
+                        totalJubilacionPensionRetiro=totalJubilacionPensionRetiro+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
+                        jubilacionesList.add(new Jubilaciones(fmt.format(totalJubilacionPensionRetiro),ingresoAcumulable,ingresoNoAcumulable));
+                    }else if(tipo_per.equals("019")){//Jubilaciones
+                        totalSueldos=totalSueldos+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
+                        select="select h.* from horas_extras h, detalle_nomina dn "+
+                        " where dn.id=h.id_detalle_nomina and dn.id='"+id+"'";
+                        rs=mysql.select(select);
+                        try{
+                            String diaHorasDobles=rs.getString(4);
+                            String horasDobles=rs.getString(5);
+                            String importeHorasDobles=fmt.format(rs.getString(6));
+                            String diaHorasTriples=rs.getString(7);
+                            String horasTriples=rs.getString(8);
+                            String importeHorasTriples=fmt.format(rs.getString(9));
+                            if(!diaHorasDobles.equals("0")){
+                                horasList.add(new Horas(diaHorasDobles,"01",horasDobles,importeHorasDobles));
+                            }
+                            if(!diaHorasTriples.equals("0")){
+                                horasList.add(new Horas(diaHorasTriples,"02",horasTriples,importeHorasTriples));
+                            }
+                        }catch(Exception e){
+                            
+                        }
+                    }
+                }else{//deducciones negativas
+                    tipo_per="038";
+                    imp_exe=(imp_exe+imp_gra)*-1;
+                    imp_gra=Float.parseFloat("0");
+                    totalExento=totalExento+((-1)*(Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2))));
+                    totalSueldos=totalSueldos+((-1)*(Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2))));
+                    String clv=rs.getString(5).replaceAll("\\s+","");
+                    String conc=rs.getString(6).replaceAll("\\s+","");
+                    percepcionesList.add(new Percepciones(tipo_per,clv,conc,fmt.format(imp_gra),fmt.format(imp_exe)));
+
+                }
+            }
+            String dev2="";
+            sub="";
+            dev=" OR (c.activo=1 and dc.importe+dc.importe_ng<0 and (dc.id_concepto='P00' or mid(dc.id_concepto,1,3)='201')) ";
+            dev2=" OR (c.activo=1 and dc.importe+dc.importe_ng<0 and (dc.id_concepto<>'P00' and mid(dc.id_concepto,1,3)<>'201')) ";
+            claveOtro="001";
+            
+            select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion,c.tipo "+
+            " from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs"+
+            " where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and "+
+            " ((c.tipo='P' and dc.importe+dc.importe_ng<0) or (c.tipo='D' and dc.importe+dc.importe_ng>0)) "+
+            "and dn.id='"+id+"'";
+            rs=mysql.select(select);
+            totalImpuestos=0;
+            totalDeducciones=0;
+            int BAND=0;
+            while(rs.next()){
+                String tipo_per=StringUtils.leftPad(rs.getString(3), 3, '0');
+                Float imp_gra=Float.parseFloat(rs.getString(1));
+                Float imp_exe=Float.parseFloat(rs.getString(2));
+                if(rs.getString(7).equals("D")){//Deducciones
+                    if(tipo_per.equals("002")){
+                        totalImpuestos=totalImpuestos+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
+                    }else{
+                        totalDeducciones=totalDeducciones+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
+                    }
+                }else{//Percepciones negativas
+                    totalDeducciones=totalDeducciones+((-1)*(Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2))));
+                    tipo_per="004";
+                    imp_exe=(Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2)))*(-1);
+                    imp_gra=Float.parseFloat("0");
+                }
+                if(totalImpuestos2>0||!tipo_per.equals("002")){
+                    if((totalImpuestos2==totalImpuestos||totalOtro1NO>0)&&tipo_per.equals("002")&&BAND==0){
+                        String clv=rs.getString(5).replaceAll("\\s+","");
+                        String conc=rs.getString(6).replaceAll("\\s+","");
+                        deduccionesList.add(new Deducciones(tipo_per,clv,conc,fmt.format(totalImpuestos)));
+                        BAND=1;
+                    }
+                }else if((totalImpuestos2==totalImpuestos||totalOtro1NO>0)&&tipo_per.equals("002")&&BAND==1){
+                        String clv=rs.getString(5).replaceAll("\\s+","");
+                        String conc=rs.getString(6).replaceAll("\\s+","");
+                        deduccionesList.add(new Deducciones(tipo_per,clv,conc,fmt.format(imp_exe+imp_gra)));
+                }
+            }
+            totalImpuestos=totalImpuestos-totalOtro1NO;
+            if(totalImpuestos2==0){
+                totalImpuestos=0;
+            }else if(totalImpuestos!=99999){
+                totalImpuestos=totalImpuestos2;
+            }
+            
+            
+        }catch(Exception e){
+            
+        }
+        
+
+
+    }
+
+    public double getTotalSueldos() {
+        return totalSueldos;
+    }
+
+    public void setTotalSueldos(double totalSueldos) {
+        this.totalSueldos = totalSueldos;
+    }
+
+    public double getTotalJubilacionPensionRetiro() {
+        return totalJubilacionPensionRetiro;
+    }
+
+    public void setTotalJubilacionPensionRetiro(double totalJubilacionPensionRetiro) {
+        this.totalJubilacionPensionRetiro = totalJubilacionPensionRetiro;
+    }
+
+    public double getTotalSeparacion() {
+        return totalSeparacion;
+    }
+
+    public void setTotalSeparacion(double totalSeparacion) {
+        this.totalSeparacion = totalSeparacion;
+    }
+
+    public String getAntiguedad() {
+        return antiguedad;
+    }
+
+    public void setAntiguedad(String antiguedad) {
+        this.antiguedad = antiguedad;
     }
 
     public double getSalarioDiario() {
@@ -779,14 +765,6 @@ public class Timbrado {
         this.UUIDRelacionado = UUIDRelacionado;
     }
 
-    public List<Conceptos> getConceptos() {
-        return conceptos;
-    }
-
-    public void setConceptos(List<Conceptos> conceptos) {
-        this.conceptos = conceptos;
-    }
-
     public String getPercepciones() {
         return percepciones;
     }
@@ -906,4 +884,270 @@ public class Timbrado {
     public void setContrato(String contrato) {
         this.contrato = contrato;
     }
+        public int getDiasPagados() {
+        return diasPagados;
+    }
+
+    public void setDiasPagados(int diasPagados) {
+        this.diasPagados = diasPagados;
+    }
+    public double getDescuentoFactura() {
+        return descuentoFactura;
+    }
+
+    public void setDescuentoFactura(double descuentoFactura) {
+        this.descuentoFactura = descuentoFactura;
+    }
+
+    public double getTotalFactura() {
+        return totalFactura;
+    }
+
+    public void setTotalFactura(double totalFactura) {
+        this.totalFactura = totalFactura;
+    }
+
+    public int getEST() {
+        return EST;
+    }
+
+    public void setEST(int EST) {
+        this.EST = EST;
+    }
+
+    public int getLeyenda() {
+        return leyenda;
+    }
+
+    public void setLeyenda(int leyenda) {
+        this.leyenda = leyenda;
+    }
+
+    public String getPeriodoPago() {
+        return periodoPago;
+    }
+
+    public void setPeriodoPago(String periodoPago) {
+        this.periodoPago = periodoPago;
+    }
+
+    public boolean isPoneHonorarios() {
+        return poneHonorarios;
+    }
+
+    public void setPoneHonorarios(boolean poneHonorarios) {
+        this.poneHonorarios = poneHonorarios;
+    }
+
+    public static int getPeriodoFormulario() {
+        return periodoFormulario;
+    }
+
+    public static void setPeriodoFormulario(int periodoFormulario) {
+        Timbrado.periodoFormulario = periodoFormulario;
+    }
+
+    public String getDescripcionPuesto() {
+        return descripcionPuesto;
+    }
+
+    public void setDescripcionPuesto(String descripcionPuesto) {
+        this.descripcionPuesto = descripcionPuesto;
+    }
+
+    public String getUnidad() {
+        return unidad;
+    }
+
+    public void setUnidad(String unidad) {
+        this.unidad = unidad;
+    }
+
+    public String getActividad() {
+        return actividad;
+    }
+
+    public void setActividad(String actividad) {
+        this.actividad = actividad;
+    }
+
+    public String getBanco() {
+        return banco;
+    }
+
+    public void setBanco(String banco) {
+        this.banco = banco;
+    }
+
+    public String getCuentaBancaria() {
+        return cuentaBancaria;
+    }
+
+    public void setCuentaBancaria(String cuentaBancaria) {
+        this.cuentaBancaria = cuentaBancaria;
+    }
+
+    public String getActividad2() {
+        return actividad2;
+    }
+
+    public void setActividad2(String actividad2) {
+        this.actividad2 = actividad2;
+    }
+
+    public String getProyecto() {
+        return proyecto;
+    }
+
+    public void setProyecto(String proyecto) {
+        this.proyecto = proyecto;
+    }
+
+    public String getPartida() {
+        return partida;
+    }
+
+    public void setPartida(String partida) {
+        this.partida = partida;
+    }
+
+    public String getClavePago() {
+        return clavePago;
+    }
+
+    public void setClavePago(String clavePago) {
+        this.clavePago = clavePago;
+    }
+
+    public String getClue() {
+        return clue;
+    }
+
+    public void setClue(String clue) {
+        this.clue = clue;
+    }
+
+    public double getTotalRetenciones() {
+        return totalRetenciones;
+    }
+
+    public void setTotalRetenciones(double totalRetenciones) {
+        this.totalRetenciones = totalRetenciones;
+    }
+
+    public double getTotalTraslados() {
+        return totalTraslados;
+    }
+
+    public void setTotalTraslados(double totalTraslados) {
+        this.totalTraslados = totalTraslados;
+    }
+
+    public double getTotalGravado() {
+        return totalGravado;
+    }
+
+    public void setTotalGravado(double totalGravado) {
+        this.totalGravado = totalGravado;
+    }
+
+    public double getTotalExento() {
+        return totalExento;
+    }
+
+    public void setTotalExento(double totalExento) {
+        this.totalExento = totalExento;
+    }
+
+    public double getImporteMixto() {
+        return importeMixto;
+    }
+
+    public void setImporteMixto(double importeMixto) {
+        this.importeMixto = importeMixto;
+    }
+
+    public double getImportePropio() {
+        return importePropio;
+    }
+
+    public void setImportePropio(double importePropio) {
+        this.importePropio = importePropio;
+    }
+
+    public double getTotalP() {
+        return totalP;
+    }
+
+    public void setTotalP(double totalP) {
+        this.totalP = totalP;
+    }
+
+    public double getSubtotalFactura() {
+        return subtotalFactura;
+    }
+
+    public void setSubtotalFactura(double subtotalFactura) {
+        this.subtotalFactura = subtotalFactura;
+    }
+
+    public String getTipoRegimen() {
+        return tipoRegimen;
+    }
+
+    public void setTipoRegimen(String tipoRegimen) {
+        this.tipoRegimen = tipoRegimen;
+    }
+    public static NumberFormat getFmt() {
+        return fmt;
+    }
+
+    public static void setFmt(NumberFormat fmt) {
+        Timbrado.fmt = fmt;
+    }
+
+    public String getIngresoAcumulable() {
+        return ingresoAcumulable;
+    }
+
+    public void setIngresoAcumulable(String ingresoAcumulable) {
+        this.ingresoAcumulable = ingresoAcumulable;
+    }
+
+    public String getIngresoNoAcumulable() {
+        return ingresoNoAcumulable;
+    }
+
+    public void setIngresoNoAcumulable(String ingresoNoAcumulable) {
+        this.ingresoNoAcumulable = ingresoNoAcumulable;
+    }
+
+    public String getUltimoSueldo() {
+        return ultimoSueldo;
+    }
+
+    public void setUltimoSueldo(String ultimoSueldo) {
+        this.ultimoSueldo = ultimoSueldo;
+    }
+
+    public List<Percepciones> getPercepcionesList() {
+        return percepcionesList;
+    }
+
+    public void setPercepcionesList(List<Percepciones> percepcionesList) {
+        this.percepcionesList = percepcionesList;
+    }
+
+    public List<Jubilaciones> getJubilacionesList() {
+        return jubilacionesList;
+    }
+
+    public void setJubilacionesList(List<Jubilaciones> jubilacionesList) {
+        this.jubilacionesList = jubilacionesList;
+    }
+
+    public List<Indemnizaciones> getIndemnizacionesList() {
+        return indemnizacionesList;
+    }
+
 }

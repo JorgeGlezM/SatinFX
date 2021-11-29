@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -34,15 +35,17 @@ import org.w3c.dom.Element;
  * @author Jorge
  */
 public class GenerarXML {
-    static NumberFormat fmt = NumberFormat.getCurrencyInstance();
+    static NumberFormat fmt = NumberFormat.getInstance(Locale.US);
+    
+    
     public static void main(String args[]){
         try {
             MySQL mysql=new MySQL();
             mysql.conectar();
-            ResultSet rs= mysql.select("SELECT dn.total1,dn.total2,e.rfc,CONCAT(e.apaterno,\" \",e.amaterno,\" \",e.nombre) as nombre, dn.fechai,dn.fechaf,pn.fechapago,dn.sindicato,dn.puesto,e.fecha_ingreso,e.nss,e.clave,e.curp,e.jornada,dn.contrato,dn.producto,dn.id,dn.movimiento,p.descripcion,dn.unidad,dn.clavep,dn.banco,dn.cuenta_bancaria,dn.actividad,dn.proyecto,dn.partida,dn.clavepago,dn.clue from detalle_nomina dn, empleados e, puestos p,producto_nomina pn where dn.clave=e.clave and dn.puesto=p.id_puestos AND pn.clave=dn.producto;");
+            ResultSet rs= mysql.select("SELECT dn.total1,dn.total2,e.rfc,CONCAT(e.apaterno,\" \",e.amaterno,\" \",e.nombre) as nombre, dn.fechai,dn.fechaf,pn.fechapago,dn.sindicato,dn.puesto,e.fecha_ingreso,e.nss,e.clave,e.curp,e.jornada,dn.contrato,dn.producto,dn.id,dn.movimiento,p.descripcion,dn.unidad,dn.clavep,dn.banco,dn.cuenta_bancaria,dn.actividad,dn.proyecto,dn.partida,dn.clavepago,dn.clue,e.ingreso_acumulable,e.ingreso_no_acumulable, e.ultimo_sueldo from detalle_nomina dn, empleados e, puestos p,producto_nomina pn where dn.clave=e.clave and dn.puesto=p.id_puestos AND pn.clave=dn.producto;");
             rs.next();
             loadDatos();
-            Timbrado t=new Timbrado(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28));
+            Timbrado t=new Timbrado(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),rs.getString(29),rs.getString(30),rs.getString(31));
             System.out.println("RFC: "+DatosPatronales.getRfc());
             xml(t);
         } catch (SQLException ex) {
@@ -51,6 +54,9 @@ public class GenerarXML {
     }
     
     public static void xml(Timbrado t){
+    fmt.setMaximumFractionDigits(2);
+    fmt.setMinimumFractionDigits(2);
+
                   try {
     DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
     DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -103,9 +109,8 @@ public class GenerarXML {
     
     Element conceptosElement = doc.createElement("cfdi:Conceptos");
     rootElement.appendChild(conceptosElement);
-    int i=0;//Cambiar por un while rs.next();
     Element conceptoElement=doc.createElement("cfdi:Concepto");
-    conceptoElement.setAttribute("Descuento", String.valueOf(t.getDescuentoFactura())); //se calcoula en subsidios
+    conceptoElement.setAttribute("Descuento", fmt.format(t.getDescuentoFactura())); //se calcoula en subsidios
     conceptoElement.setAttribute("Importe", t.getPercepciones()); //se calcula en subsidios
     conceptoElement.setAttribute("ValorUnitario", t.getPercepciones());//se calcula en subsidios
     conceptoElement.setAttribute("ClaveUnidad", "ACT"); //Fijo
@@ -113,13 +118,11 @@ public class GenerarXML {
     conceptoElement.setAttribute("Cantidad", "1");//Fijo
     conceptoElement.setAttribute("ClaveProdServ", "cc");//Fijo
     conceptosElement.appendChild(conceptoElement);
-    i++;
     Element complementoElement=doc.createElement("cfdi:Complemento");
     rootElement.appendChild(complementoElement);
     Element nominaElement=doc.createElement("nomina12:Nomina");
     nominaElement.setAttribute("Version", DatosTimbrado.getVersion_nomina());//Estaba fijo, ingresar correctamente a BD
     nominaElement.setAttribute("TotalOtrosPagos", "cc");//Suma
-    nominaElement.setAttribute("TotalDeducciones", t.getDeducciones());//Suma
     nominaElement.setAttribute("TotalPercepciones", "cc");//Suma
     nominaElement.setAttribute("NumDiasPagados", String.valueOf(t.getDiasPagados()));//Resta de fecha inicial y final
     nominaElement.setAttribute("FechaFinalPago", t.getFechaf());//Tabla detalle
@@ -148,9 +151,9 @@ public class GenerarXML {
         nominaRElement.setAttribute("RiesgoPuesto", t.getTipoRiesgo());//También está en datos patronales
         nominaRElement.setAttribute("FechaInicioRelLaboral", t.getFecha_ingreso());//Tabla empleados
         nominaRElement.setAttribute("NumSeguridadSocial", t.getNss());//Tabla empleados
-        nominaRElement.setAttribute("Antigüedad", "cc");// Pendiente. Se calcula por un método
+        nominaRElement.setAttribute("Antigüedad", t.getAntiguedad());// Pendiente. Se calcula por un método
         nominaRElement.setAttribute("SalarioDiarioIntegrado", fmt.format(t.getSalarioDiario()));
-        nominaRElement.setAttribute("SalarioBaseCotApor", fmt.format(t.getSalarioDiario()));//Calculo Pendiente
+        nominaRElement.setAttribute("SalarioBaseCotApor", fmt.format(t.getSalarioDiario()));
     }
     if(!t.getDescripcionPuesto().equals("0")&&!t.getDescripcionPuesto().equals("")){
         nominaRElement.setAttribute("Puesto", t.getDescripcionPuesto());//Empleados -> puestos
@@ -171,41 +174,78 @@ public class GenerarXML {
     nominaRElement.setAttribute("TipoContrato", t.getTipoContrato());//Verificada
     nominaElement.appendChild(nominaRElement);
     Element percepcionesElement=doc.createElement("nomina12:Percepciones");
-    percepcionesElement.setAttribute("TotalSueldos", "cc");//Percepciones?
-    percepcionesElement.setAttribute("TotalExento", "cc");//Algunos casos hay parte excenta?
-    percepcionesElement.setAttribute("TotalGravado", "cc");//Percepciones?
-    nominaElement.appendChild(percepcionesElement);
-    i=0;//Cambiar por while rs.next()
-    while(i<5){
-        Element percepcionElement=doc.createElement("nomina12:Percepcion");
-        percepcionElement.setAttribute("ImporteExento", "cc");//No gravado
-        percepcionElement.setAttribute("ImporteGravado", "cc");//Gravado
-        percepcionElement.setAttribute("Concepto", "cc");//Descripcion tabla conceptos?
-        percepcionElement.setAttribute("Clave", "cc");//id_concepto?
-        percepcionElement.setAttribute("TipoPercepcion", "cc");//Tipo de tabla conceptos? Como se obtenía antes de ese campo?
-        percepcionesElement.appendChild(percepcionElement);
-        i++;
+    percepcionesElement.setAttribute("TotalSueldos", fmt.format(t.getTotalSueldos()));//Percepciones?
+    percepcionesElement.setAttribute("TotalExento", fmt.format(t.getTotalExento()));//Algunos casos hay parte excenta?
+    percepcionesElement.setAttribute("TotalGravado", fmt.format(t.getTotalGravado()));//Percepciones?
+    if(t.getTotalJubilacionPensionRetiro()>0){
+        percepcionesElement.setAttribute("TotalJubilacionPensionRetiro",fmt.format(t.getTotalJubilacionPensionRetiro()));
     }
-    if(true){//Cambiar por condición para ver si hay deducciones o no
+    if(t.getTotalSeparacion()>0){
+        percepcionesElement.setAttribute("TotalSeparacionIndemnizacion",fmt.format(t.getTotalSeparacion()));
+    }
+    nominaElement.appendChild(percepcionesElement);
+    for(Percepciones p : t.percepcionesList){
+        Element percepcionElement=doc.createElement("nomina12:Percepcion");
+        percepcionElement.setAttribute("ImporteExento", p.getImp_exe());//No gravado
+        percepcionElement.setAttribute("ImporteGravado", p.getImp_gra());//Gravado
+        percepcionElement.setAttribute("Concepto", p.getConcepto());//Descripcion tabla conceptos?
+        percepcionElement.setAttribute("Clave", p.getClave());//id_concepto?
+        percepcionElement.setAttribute("TipoPercepcion", p.getTipo_per());//Tipo de tabla conceptos? Como se obtenía antes de ese campo?
+        percepcionesElement.appendChild(percepcionElement);
+        
+    }
+    for(Jubilaciones j : t.jubilacionesList){
+        Element jubilacioncionElement=doc.createElement("nomina12:JubilacionPensionRetiro");
+        jubilacioncionElement.setAttribute("IngresoAcumulable", j.ingresoAcumulable);//No gravado
+        jubilacioncionElement.setAttribute("IngresoNoAcumulable", j.ingresoNoAcumulable);//Gravado
+        jubilacioncionElement.setAttribute("TotalUnaExhibicion", j.totalJubilacionPensionRetiro);//Descripcion tabla conceptos?
+        percepcionesElement.appendChild(jubilacioncionElement);
+        
+    }
+    for(Indemnizaciones in : t.indemnizacionesList){
+        Element separacionElement=doc.createElement("nomina12:SeparacionIndemnizacion");
+        separacionElement.setAttribute("TotalPagado", in.totalPagado);
+        separacionElement.setAttribute("NumAñosServicio", in.aniosServicio);
+        separacionElement.setAttribute("UltimoSueldoMensOrd", in.ultimoSueldoMensOrd);
+        separacionElement.setAttribute("IngresoAcumulable", in.ingresoAcumulable);
+        separacionElement.setAttribute("IngresoNoAcumulable", in.ingresoNoAcumulable);
+        percepcionesElement.appendChild(separacionElement);
+    }
+    for(Horas h : t.horasList){
+        Element horasElement=doc.createElement("nomina12:HorasExtra");
+        horasElement.setAttribute("Dias", h.getDias());
+        horasElement.setAttribute("TipoHoras", h.getTipoHoras());
+        horasElement.setAttribute("HorasExtra", h.getHorasExtra());
+        horasElement.setAttribute("ImportePagado", h.getImportePagado());
+        percepcionesElement.appendChild(horasElement);
+    }
+    
+
+
+    
+    if(t.descuentoFactura!=0){
+        nominaElement.setAttribute("TotalDeducciones", fmt.format(t.totalImpuestos+t.totalDeducciones));
         Element deduccionesElement=doc.createElement("nomina12:Deducciones");
-        deduccionesElement.setAttribute("TotalOtrasDeducciones", "cc");//Suma algunos conceptos
-        deduccionesElement.setAttribute("TotalImpuestosRetenidos", "cc");//Suma otros conceptos
+        if(t.getTotalImpuestos()>0){
+            deduccionesElement.setAttribute("TotalImpuestosRetenidos", "cc");//Suma otros conceptos
+        }
+        if(t.getTotalDeducciones()>0){
+            deduccionesElement.setAttribute("TotalOtrasDeducciones", "cc");//Suma algunos conceptos
+        }
         nominaElement.appendChild(deduccionesElement);
-        i=0;
-        while(i<5){
+        for(Deducciones d : t.deduccionesList){//Cambiar por ciclo de objetos listados
             Element deduccionElement=doc.createElement("nomina12:Deduccion");
-            deduccionElement.setAttribute("Importe", "cc");//Cantidad
-            deduccionElement.setAttribute("Concepto", "cc");//Descripcion de tabla concepto?
-            deduccionElement.setAttribute("Clave", "cc");//id concepto?
-            deduccionElement.setAttribute("TipoDeduccion", "cc");//tipo de tabla conceptos? como se obtenía antes?
+            deduccionElement.setAttribute("Importe", d.getImporte());//Cantidad
+            deduccionElement.setAttribute("Concepto", d.getConcepto());//Descripcion de tabla concepto?
+            deduccionElement.setAttribute("Clave", d.getClave());//id concepto?
+            deduccionElement.setAttribute("TipoDeduccion", d.getTipoDeduccion());//tipo de tabla conceptos? como se obtenía antes?
             deduccionesElement.appendChild(deduccionElement);
-            i++;
         }
     }
     Element otrosPagosElement=doc.createElement("nomina12:OtrosPagos");
     nominaElement.appendChild(otrosPagosElement);
-    i=0;
-    while(i<1){//Cambiar por while rs.next()
+    boolean b=false;
+    while(b){//Cambiar por while rs.next()
         Element otroPagoElement=doc.createElement("nomina12:OtroPago");
         otroPagoElement.setAttribute("Importe", "cc");
         otroPagoElement.setAttribute("Concepto", "cc");
@@ -217,7 +257,7 @@ public class GenerarXML {
         subsidioElement.setAttribute("SubsidioCausado", "cc");
         otroPagoElement.appendChild(subsidioElement);
     
-        i++;
+        
     }
 
     
