@@ -24,7 +24,6 @@ public  class MySQL {
     try {
 
     conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/satin?useSSL=true", "root", "root") ;
-    System.out.println("Conexion exitosa");
 
 
 
@@ -60,7 +59,7 @@ public  class MySQL {
                     JOptionPane.showMessageDialog(null, "Error de conexión.", "Advertencia", JOptionPane.WARNING_MESSAGE);
                     System.out.println(ex);
         }
-        System.out.println("Consulta exitosa");
+        //System.out.println("Consulta exitosa");
         return rs;
     }
         

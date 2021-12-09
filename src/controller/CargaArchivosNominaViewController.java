@@ -90,6 +90,8 @@ public class CargaArchivosNominaViewController implements Initializable {
     List<Faltas> faltas=new ArrayList<Faltas>();
     List<Clues> clues=new ArrayList<Clues>();
     List<CentrosTrabajo> centros=new ArrayList<CentrosTrabajo>();
+    ArrayList<String> rfcs = new ArrayList<String>();
+    int countRFC;
 
 
 
@@ -221,10 +223,12 @@ public class CargaArchivosNominaViewController implements Initializable {
             eAPaterno=lineScanner.next();
             eAMaterno=lineScanner.next();
             eNombres=lineScanner.next();
+            System.out.println(eNombres);
             eRFC=lineScanner.next();
             eCURP=lineScanner.next();
             eNSS=lineScanner.next();
             eFecha=lineScanner.next();  
+            rfcs.add(eRFC);
             empleados.add(new Empleados(eClave,eAPaterno,eAMaterno,eNombres,eRFC,eCURP,eNSS,eFecha));
             }
 
@@ -238,7 +242,7 @@ public class CargaArchivosNominaViewController implements Initializable {
     public void extraerProductoTXT(){
                     try {
       sc = new Scanner(selectedFile);
-
+        countRFC=0;
         String str = sc.nextLine();
         //Scanner con delimitador, producto_nomina
         lineScanner = new Scanner(str);
@@ -273,10 +277,14 @@ public class CargaArchivosNominaViewController implements Initializable {
 
             dClave=lineScanner.next();
             dNumEmp=lineScanner.next();
-            dRFC=lineScanner.next();
+            //dRFC=lineScanner.next(); Esta es la forma correcta, el listado es temporal en lo que corrigen los archivos
+            dRFC=rfcs.get(countRFC);
+            countRFC++;
             lineScanner.next();
             dBanco=lineScanner.next();
-            dCuentaBancaria=lineScanner.next();
+            String tempCuenta=lineScanner.next();
+            tempCuenta=tempCuenta.replaceFirst("^0+(?!$)", "");
+            dCuentaBancaria=tempCuenta;
             dClaveP2=lineScanner.next();
             dCentroTrabajo=lineScanner.next();
             dCodigoPuesto=lineScanner.next();
@@ -418,7 +426,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                     pstmtDetalle.setString(4, detalleNomina.getdCentroTrabajo());
                     pstmtDetalle.setString(5, detalleNomina.getdCodigoPuesto());
                     pstmtDetalle.setString(6, detalleNomina.getdClavePago());
-                    pstmtDetalle.setString(7, detalleNomina.getdClaveContrato());
+                    pstmtDetalle.setString(7, detalleNomina.getdContrato());
                     pstmtDetalle.setString(8, detalleNomina.getdFechaInicial());
                     pstmtDetalle.setString(9, detalleNomina.getdFechaFinal());
                     pstmtDetalle.setString(10, detalleNomina.getdMovimiento());
@@ -1426,6 +1434,7 @@ public class CargaArchivosNominaViewController implements Initializable {
     }
     
     public void validaciones(){
+        boolean pendientes=false;
         String noValidados="Algunos registros no pudieron ser validados. Para timbrarlos, es necesario completar la información en el módulo VALIDACIONES PENDIENTES: \n --------------------------------NO EXISTE EL PUESTO:---------------------------------- \n";
         //Pasamos todos aquellos que no se encuentran en catalogo a estatus pendiente (P)
         classes.MySQL mysql=new classes.MySQL();
@@ -1433,6 +1442,7 @@ public class CargaArchivosNominaViewController implements Initializable {
         try {
             PreparedStatement pstmtPuestosP=mysql.conn.prepareStatement("UPDATE `satin`.`detalle_nomina` SET `vpuesto` = 'P' WHERE (`id` = ?) and (`rfc` = ?)");
             while(rs.next()){
+                pendientes=true;
                 noValidados=noValidados+"RFC: "+rs.getString(2)+" Movimiento: "+rs.getString(3)+" Fecha Final: "+rs.getString(4)+"\n";
                     pstmtPuestosP.setString(1, rs.getString(1));
                     pstmtPuestosP.setString(2, rs.getString(2));
@@ -1464,6 +1474,7 @@ public class CargaArchivosNominaViewController implements Initializable {
         try {
             PreparedStatement pstmtConceptosP=mysql.conn.prepareStatement("UPDATE `satin`.`detalle_conceptos` SET `validacion` = 'P' WHERE (`id` = ?);");
             while(rs.next()){
+                    pendientes=true;
                     pstmtConceptosP.setString(1, rs.getString(1));
                     pstmtConceptosP.addBatch();
 
@@ -1515,8 +1526,7 @@ public class CargaArchivosNominaViewController implements Initializable {
         } catch (SQLException ex) {
             Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        rs=mysql.select("SELECT rfc, movimiento,fechaf,vpuesto,vconceptos from satin.detalle_nomina where vpuesto=\"P\" or vconceptos=\"P\"");
-        
+if(pendientes){        
         JOptionPane.showMessageDialog(null, "Algunos registros no fueron validados. Se generará un archivo con los registros pendientes.", "Advertencia", JOptionPane.WARNING_MESSAGE);
         FileChooser fileChooser = new FileChooser();
 
@@ -1543,7 +1553,10 @@ public class CargaArchivosNominaViewController implements Initializable {
             Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+    }else{
+    JOptionPane.showMessageDialog(null,"El producto se ha insertado correctamente y está listo para su timbrado.");
     }
+}
 
 
     

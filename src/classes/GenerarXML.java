@@ -36,18 +36,20 @@ import org.w3c.dom.Element;
  */
 public class GenerarXML {
     static NumberFormat fmt = NumberFormat.getInstance(Locale.US);
-    
+    static int i=0;
+
     
     public static void main(String args[]){
         try {
             MySQL mysql=new MySQL();
             mysql.conectar();
             ResultSet rs= mysql.select("SELECT dn.total1,dn.total2,e.rfc,CONCAT(e.apaterno,\" \",e.amaterno,\" \",e.nombre) as nombre, dn.fechai,dn.fechaf,pn.fechapago,dn.sindicato,dn.puesto,e.fecha_ingreso,e.nss,e.clave,e.curp,e.jornada,dn.contrato,dn.producto,dn.id,dn.movimiento,p.descripcion,dn.unidad,dn.clavep,dn.banco,dn.cuenta_bancaria,dn.actividad,dn.proyecto,dn.partida,dn.clavepago,dn.clue,e.ingreso_acumulable,e.ingreso_no_acumulable, e.ultimo_sueldo from detalle_nomina dn, empleados e, puestos p,producto_nomina pn where dn.clave=e.clave and dn.puesto=p.id_puestos AND pn.clave=dn.producto;");
-            rs.next();
             loadDatos();
-            Timbrado t=new Timbrado(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),rs.getString(29),rs.getString(30),rs.getString(31));
-            System.out.println("RFC: "+DatosPatronales.getRfc());
-            xml(t);
+            while(rs.next()){
+               Timbrado t=new Timbrado(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),rs.getString(29),rs.getString(30),rs.getString(31));
+                xml(t); 
+            }
+            
         } catch (SQLException ex) {
             Logger.getLogger(GenerarXML.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -75,7 +77,7 @@ public class GenerarXML {
     rootElement.setAttribute("Certificado", "");//No se genera
     rootElement.setAttribute("LugarExpedicion", DatosPatronales.getCodigo_esp());//Codigo especial
     rootElement.setAttribute("Moneda", "MXN");
-    String total=fmt.format(t.getTotalFactura());
+    String total=fmt.format(t.getSubtotal()-t.getDescuentoFactura());
     rootElement.setAttribute("Total", total);//percepciones- deducciones?
     String subtotal=fmt.format(t.getSubtotal());
     rootElement.setAttribute("SubTotal", subtotal);//percepciones?
@@ -96,7 +98,7 @@ public class GenerarXML {
     rootElement.setAttribute("xmlns:cfdi", DatosTimbrado.getXml_cfdi()); //En BD crear el registro
     
     Element emisorElement = doc.createElement("cfdi:Emisor");
-    emisorElement.setAttribute("RegimenFiscal", DatosPatronales.getRegimen()); 
+    emisorElement.setAttribute("RegimenFiscal", "603");//fijo 
     emisorElement.setAttribute("Rfc", DatosPatronales.getRfc()); 
     emisorElement.setAttribute("Nombre", DatosPatronales.getNombre()); 
     rootElement.appendChild(emisorElement);
@@ -111,24 +113,35 @@ public class GenerarXML {
     rootElement.appendChild(conceptosElement);
     Element conceptoElement=doc.createElement("cfdi:Concepto");
     conceptoElement.setAttribute("Descuento", fmt.format(t.getDescuentoFactura())); //se calcoula en subsidios
-    conceptoElement.setAttribute("Importe", t.getPercepciones()); //se calcula en subsidios
-    conceptoElement.setAttribute("ValorUnitario", t.getPercepciones());//se calcula en subsidios
+    if(t.getTotalImpuestos2()!=99999){
+        conceptoElement.setAttribute("Importe", fmt.format(t.getSubtotalFactura()+t.getTotalOtros()-t.getSubsidio())); //se calcula en subsidios
+        conceptoElement.setAttribute("ValorUnitario", fmt.format(t.getSubtotalFactura()+t.getTotalOtros()-t.getSubsidio()));
+    }else{
+        conceptoElement.setAttribute("Importe", fmt.format(t.getSubtotalFactura()+t.getSubsidio2())); //se calcula en subsidios
+        conceptoElement.setAttribute("ValorUnitario", fmt.format(t.getSubtotalFactura()+t.getSubsidio2()));
+    }
     conceptoElement.setAttribute("ClaveUnidad", "ACT"); //Fijo
     conceptoElement.setAttribute("Descripcion", "Pago de nómina");//Fijo
     conceptoElement.setAttribute("Cantidad", "1");//Fijo
-    conceptoElement.setAttribute("ClaveProdServ", "cc");//Fijo
+    conceptoElement.setAttribute("ClaveProdServ", "84111505");//Fijo
     conceptosElement.appendChild(conceptoElement);
+    
+    
     Element complementoElement=doc.createElement("cfdi:Complemento");
     rootElement.appendChild(complementoElement);
     Element nominaElement=doc.createElement("nomina12:Nomina");
     nominaElement.setAttribute("Version", DatosTimbrado.getVersion_nomina());//Estaba fijo, ingresar correctamente a BD
-    nominaElement.setAttribute("TotalOtrosPagos", "cc");//Suma
-    nominaElement.setAttribute("TotalPercepciones", "cc");//Suma
+    if((t.getTotalOtros()+t.getTotalOtro1())>=0){
+        nominaElement.setAttribute("TotalOtrosPagos",fmt.format(t.getTotalOtros()+t.getTotalOtro1()));
+    }else{
+        nominaElement.setAttribute("TotalOtrosPagos",fmt.format((t.getTotalOtros()+t.getTotalOtro1())*(-1)));
+    }
+    nominaElement.setAttribute("TotalPercepciones", fmt.format(t.getTotalGravado()+t.getTotalExento()));//Suma
     nominaElement.setAttribute("NumDiasPagados", String.valueOf(t.getDiasPagados()));//Resta de fecha inicial y final
     nominaElement.setAttribute("FechaFinalPago", t.getFechaf());//Tabla detalle
     nominaElement.setAttribute("FechaInicialPago", t.getFechai());//tabla detalle
     nominaElement.setAttribute("FechaPago", t.getFechapago());
-    nominaElement.setAttribute("TipoNomina", "O");//Fijo?
+    nominaElement.setAttribute("TipoNomina", "O");//Pendiente determinar si es ordinaria o extraoridnaria
     complementoElement.appendChild(nominaElement);
     Element nominaEElement=doc.createElement("nomina12:Emisor");
     if(t.isPonerRegistroPatronal()){
@@ -150,7 +163,11 @@ public class GenerarXML {
     if(!t.isPoneHonorarios()){
         nominaRElement.setAttribute("RiesgoPuesto", t.getTipoRiesgo());//También está en datos patronales
         nominaRElement.setAttribute("FechaInicioRelLaboral", t.getFecha_ingreso());//Tabla empleados
-        nominaRElement.setAttribute("NumSeguridadSocial", t.getNss());//Tabla empleados
+        String nss=t.getNss();
+        if(nss.equals(null)||nss.equals("")){
+            nss="000000000";
+        }
+        nominaRElement.setAttribute("NumSeguridadSocial", nss);//Tabla empleados
         nominaRElement.setAttribute("Antigüedad", t.getAntiguedad());// Pendiente. Se calcula por un método
         nominaRElement.setAttribute("SalarioDiarioIntegrado", fmt.format(t.getSalarioDiario()));
         nominaRElement.setAttribute("SalarioBaseCotApor", fmt.format(t.getSalarioDiario()));
@@ -166,10 +183,10 @@ public class GenerarXML {
         nominaRElement.setAttribute("CuentaBancaria", t.getCuentaBancaria().replaceAll("'", ""));//Empleados -> puestos
         nominaRElement.setAttribute("Departamento", t.getClue());//Empleados -> puestos
     }
-    nominaRElement.setAttribute("PeriodicidadPago", t.getPeriodoPago());//??
-    nominaRElement.setAttribute("NumEmpleado", t.getClave());//Tabla empleados
-    nominaRElement.setAttribute("Curp", t.getCurp());//Tabla empleados
-    nominaRElement.setAttribute("TipoRegimen", StringUtils.leftPad(t.getTipoRegimen(), 2, '0'));//Fijo?
+    nominaRElement.setAttribute("PeriodicidadPago", t.getPeriodoPago());
+    nominaRElement.setAttribute("NumEmpleado", t.getClave());
+    nominaRElement.setAttribute("Curp", t.getCurp());
+    nominaRElement.setAttribute("TipoRegimen", StringUtils.leftPad(t.getTipoRegimen(), 2, '0'));
     nominaRElement.setAttribute("TipoJornada", StringUtils.leftPad(t.getJornada(), 2, '0'));//03 mixta, 01 diurno
     nominaRElement.setAttribute("TipoContrato", t.getTipoContrato());//Verificada
     nominaElement.appendChild(nominaRElement);
@@ -219,18 +236,18 @@ public class GenerarXML {
         horasElement.setAttribute("ImportePagado", h.getImportePagado());
         percepcionesElement.appendChild(horasElement);
     }
-    
-
-
-    
+    if(t.descuentoFactura>0){
+            System.out.println("descuento factura " +t.descuentoFactura);
+            System.out.println("!!!!!!!!!!!!!!!!!!!! FOLIO : "+t.id);
+    }
     if(t.descuentoFactura!=0){
-        nominaElement.setAttribute("TotalDeducciones", fmt.format(t.totalImpuestos+t.totalDeducciones));
+        nominaElement.setAttribute("TotalDeducciones", fmt.format(t.getDescuentoFactura()));
         Element deduccionesElement=doc.createElement("nomina12:Deducciones");
         if(t.getTotalImpuestos()>0){
-            deduccionesElement.setAttribute("TotalImpuestosRetenidos", "cc");//Suma otros conceptos
+            deduccionesElement.setAttribute("TotalImpuestosRetenidos", fmt.format(t.getTotalImpuestos()));//Suma otros conceptos
         }
         if(t.getTotalDeducciones()>0){
-            deduccionesElement.setAttribute("TotalOtrasDeducciones", "cc");//Suma algunos conceptos
+            deduccionesElement.setAttribute("TotalOtrasDeducciones", fmt.format(t.getTotalDeducciones()));//Suma algunos conceptos
         }
         nominaElement.appendChild(deduccionesElement);
         for(Deducciones d : t.deduccionesList){//Cambiar por ciclo de objetos listados
@@ -242,23 +259,58 @@ public class GenerarXML {
             deduccionesElement.appendChild(deduccionElement);
         }
     }
-    Element otrosPagosElement=doc.createElement("nomina12:OtrosPagos");
-    nominaElement.appendChild(otrosPagosElement);
-    boolean b=false;
-    while(b){//Cambiar por while rs.next()
-        Element otroPagoElement=doc.createElement("nomina12:OtroPago");
-        otroPagoElement.setAttribute("Importe", "cc");
-        otroPagoElement.setAttribute("Concepto", "cc");
-        otroPagoElement.setAttribute("Clave", "cc");
-        otroPagoElement.setAttribute("TipoOtroPago", "cc");
-        otrosPagosElement.appendChild(otroPagoElement);
-        //Case aquí para determinar que nodo de "otros pagos" se agrega
-        Element subsidioElement=doc.createElement("nomina12:SubsidioAlEmpleo");
-        subsidioElement.setAttribute("SubsidioCausado", "cc");
-        otroPagoElement.appendChild(subsidioElement);
     
-        
-    }
+        if(t.otrosPagosList.size()>0&&t.getTotalOtro1NO()==0){
+        if((t.getTotalOtros()+t.getTotalOtro1())>0){
+            percepcionesElement.setAttribute("TotalOtrosPagos",fmt.format(t.getTotalOtros()+t.getTotalOtro1()));
+        }else{
+            percepcionesElement.setAttribute("TotalOtrosPagos",fmt.format((t.getTotalOtros()+t.getTotalOtro1())*(-1)));
+        }
+            Element otrosPagosElement=doc.createElement("nomina12:OtrosPagos");
+            nominaElement.appendChild(otrosPagosElement);
+            if(t.getTipoRegimen().equals("02")){
+                Element otroPagoSubsidioElement=doc.createElement("nomina12:OtroPago");
+                otroPagoSubsidioElement.setAttribute("TipoOtroPago", "002");
+                otroPagoSubsidioElement.setAttribute("Clave", "1SE00");
+                otroPagoSubsidioElement.setAttribute("Conceptop", "SUBSIDIO PARA EL EMPLEO (EFECTIVAMENTE ENTREGADO AL TRABAJADOR)");
+                otroPagoSubsidioElement.setAttribute("Importe", fmt.format(t.getTotalOtros()));
+                otrosPagosElement.appendChild(otroPagoSubsidioElement);
+                Element subsidioAlEmpleo=doc.createElement("nomina12:SubsidioAlEmpleo");
+                subsidioAlEmpleo.setAttribute("SubsidioCausado", fmt.format(t.getSubsidio()));
+                otroPagoSubsidioElement.appendChild(subsidioAlEmpleo);
+            }
+            for(OtrosPagos op:t.otrosPagosList){
+                Element otroPagoElement=doc.createElement("nomina12:OtroPago");
+                if(op.getTipo().equals("005")){
+                    otroPagoElement.setAttribute("Importe", fmt.format(t.getImpuestosSF()*(-1)));
+                }else if(op.getTipo().equals("001")){
+                    otroPagoElement.setAttribute("Importe", fmt.format(t.getImpuestosSF()));
+                }else{
+                    otroPagoElement.setAttribute("Importe", op.getImporte());
+
+                }
+                otroPagoElement.setAttribute("Concepto", op.getConcepto());
+                otroPagoElement.setAttribute("Clave", op.getClave());
+                otroPagoElement.setAttribute("TipoOtroPago", op.getTipo());
+                otrosPagosElement.appendChild(otroPagoElement);
+
+            }
+        } 
+
+        if(t.incapacidadesList.size()>0){
+            Element incapacidadesElement=doc.createElement("nomina12:Incapacidades");
+            nominaElement.appendChild(incapacidadesElement);
+            for(Incapacidades in:t.incapacidadesList){
+                Element incapacidadElement=doc.createElement("nomina12:Incapacidad");
+                incapacidadElement.setAttribute("DiasIncapacidad", in.getDias());
+                incapacidadElement.setAttribute("TipoIncapacidad", in.getTipo());
+                incapacidadElement.setAttribute("ImporteMonetario", in.getImporte());
+                incapacidadesElement.appendChild(incapacidadElement);
+            }
+
+        }
+
+
 
     
 
@@ -268,11 +320,12 @@ public class GenerarXML {
 
     
       doc.appendChild(rootElement);
-
+    i++;
+    System.out.println("Factura no: "+i);
       TransformerFactory transformerFactory = TransformerFactory.newInstance();
       Transformer transformer = transformerFactory.newTransformer();
       DOMSource source = new DOMSource(doc);
-      StreamResult result = new StreamResult(new File("C:/ruta/prueba.xml"));
+      StreamResult result = new StreamResult(new File("C:/ruta/"+t.id+".xml"));
       transformer.transform(source, result);
     } catch (ParserConfigurationException pce) {
       pce.printStackTrace();
@@ -328,6 +381,7 @@ public class GenerarXML {
             classes.DatosTimbrado.setTimbres(rs.getString(13));
 
             mysql.desconectar();
+
         } catch (SQLException ex) {
             Logger.getLogger(LoginViewController.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "Los datos patronales no han sido cargados. Favor de revisar su conexión y reiniciar el sistema.", "Advertencia", JOptionPane.WARNING_MESSAGE);

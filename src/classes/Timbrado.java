@@ -25,7 +25,47 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Timbrado {
     static NumberFormat fmt = NumberFormat.getInstance(Locale.US);
-    String percepciones,deducciones,rfc,nombre,fechai,fechaf,fechapago,sindicato,puesto,fecha_ingreso,nss,clave,curp,jornada,contrato,producto,id,movimiento,descripcionPuesto,unidad,actividad,banco,cuentaBancaria,actividad2,proyecto,partida,clavePago,clue,ingresoAcumulable,ingresoNoAcumulable,ultimoSueldo;
+    String percepciones,deducciones,rfc,nombre,fechai,fechaf,fechapago,sindicato,puesto,fecha_ingreso,nss,clave,curp,jornada,contrato,producto,id,movimiento,descripcionPuesto,unidad,actividad,banco,cuentaBancaria,actividad2,proyecto,partida,clavePago,clue,ingresoAcumulable,ingresoNoAcumulable,ultimoSueldo,tipoNomina;
+
+    public String getTipoNomina() {
+        return tipoNomina;
+    }
+
+    public void setTipoNomina(String tipoNomina) {
+        this.tipoNomina = tipoNomina;
+    }
+
+    public List<Horas> getHorasList() {
+        return horasList;
+    }
+
+    public void setHorasList(List<Horas> horasList) {
+        this.horasList = horasList;
+    }
+
+    public List<Deducciones> getDeduccionesList() {
+        return deduccionesList;
+    }
+
+    public void setDeduccionesList(List<Deducciones> deduccionesList) {
+        this.deduccionesList = deduccionesList;
+    }
+
+    public List<OtrosPagos> getOtrosPagosList() {
+        return otrosPagosList;
+    }
+
+    public void setOtrosPagosList(List<OtrosPagos> otrosPagosList) {
+        this.otrosPagosList = otrosPagosList;
+    }
+
+    public List<Incapacidades> getIncapacidadesList() {
+        return incapacidadesList;
+    }
+
+    public void setIncapacidadesList(List<Incapacidades> incapacidadesList) {
+        this.incapacidadesList = incapacidadesList;
+    }
 
 
     public void setIndemnizacionesList(List<Indemnizaciones> indemnizacionesList) {
@@ -52,6 +92,8 @@ public class Timbrado {
     List<Horas> horasList=new ArrayList<Horas>();
     List<Deducciones> deduccionesList=new ArrayList<Deducciones>();
     List<OtrosPagos> otrosPagosList=new ArrayList<OtrosPagos>();
+    List<Incapacidades> incapacidadesList=new ArrayList<Incapacidades>();
+
 
 
 
@@ -95,19 +137,21 @@ public class Timbrado {
         this.ultimoSueldo=ultimoSueldo;
         fmt.setMaximumFractionDigits(2);
         fmt.setMinimumFractionDigits(2);
-        salarioDiario=Double.parseDouble(this.percepciones);//Así estaba en el código, se tiene que recalcular, ahora solo se divide entre los días 
+        salarioDiario=Double.parseDouble("0");//Se calcula valor al saber los días y el total de sueldos
         //método calcular_subsidios
         //Se modificó para tomar la descripcion_sat de la tabla conceptos_sat ya que ese campo se borró de conceptos
         String select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion,c.tipo " +
         "from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and" +
-        " ((c.tipo='P' and dc.importe+dc.importe_ng<0) or (c.tipo='D' and dc.importe+dc.importe_ng>0)) and cs.clave_sat=c.clave_sat and" +
+        " ((c.tipo='P' and dc.importe+dc.importe_ng<0) or (c.tipo='D' and dc.importe+dc.importe_ng>0)) and cs.clave_sat=c.clave_sat and cs.tipo=c.tipo and" +
         " dn.producto='" + producto + "' and dn.rfc='" + rfc + "' and dn.id='" + id+"'";
-        System.out.println(select);
         MySQL mysql= new MySQL();
         mysql.conectar();
         ResultSet rs= mysql.select(select);
+        System.out.println("Este es :");
+        System.out.println(select);
         totalImpuestos=0;
         totalDeducciones=0;
+        //SE CALCULAN LAS DEDUCCIONES
         try {
             while(rs.next()){
                 //Calculamos impuestos y deducciones
@@ -125,6 +169,8 @@ public class Timbrado {
         } catch (SQLException ex) {
             Logger.getLogger(Timbrado.class.getName()).log(Level.SEVERE, null, ex);
         }
+        System.out.println("Impuestos: "+totalImpuestos);
+        descuentoFactura=totalImpuestos+totalDeducciones;
         subsidio=0;
         subsidio2=0;
         totalImpuestos2=99999;
@@ -132,51 +178,64 @@ public class Timbrado {
         devolucion=" OR (c.tipo='D' and dc.importe+dc.importe_ng<0 and (dc.id_concepto='P00' or mid(dc.id_concepto,1,3)='201'))";
         claveOtro="001";
         select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion "+
-        "from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and cs.clave_sat=c.clave_sat and "+
+        "from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and cs.clave_sat=c.clave_sat and cs.tipo=c.tipo and "+
         " ((c.tipo='P' and (c.clave_sat=17 or c.clave_sat=99)  and (dc.importe+dc.importe_ng>0)) "+devolucion+
         ") and dn.producto='" +producto+ "' and dn.rfc='" + rfc + "' and dn.id=" +"'"+id+"'";
-        System.out.println(select);
-        
         totalOtros=0;
         impuestosSF=0;
         totalOtro1=0;
         totalOtro2=0;
         totalOtro1NO=0;
+        rs= mysql.select(select);
         try{ 
-            String temp=rs.getString(5);
-            temp=temp.substring(0,3);
+            int CFDIDEV=0,CFDISF=0;
+
             while(rs.next()){
+                String temp=rs.getString(5);
+                temp=temp.substring(0,3);
                 if(temp.equals("201")){
                     if(rs.getString(5).equals("201SF")){
                         claveOtro="005";
                         impuestosSF=impuestosSF+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
+                        if(CFDISF==0){
+                            otrosPagosList.add(new OtrosPagos(claveOtro,rs.getString(5).replaceAll("\\s+",""),"REINTEGRO DE ISR RETENIDO EN EXCESO DE EJERCICIO ANTERIOR (SIEMPRE QUE NO HAYA SIDO ENTERADO AL SAT)",fmt.format((-1)*impuestosSF)));
+                            CFDISF=1;
+                        }
                     }
                     else{
                         claveOtro="001";    
+                        if(CFDIDEV==0){
+                            otrosPagosList.add(new OtrosPagos(claveOtro,rs.getString(5).replaceAll("\\s+",""),"REINTEGRO DE ISR RETENIDO EN EXCESO (SIEMPRE QUE NO HAYA SIDO ENTERADO AL SAT)",fmt.format(impuestosSF)));
+                            CFDIDEV=1;
+                        }
                     }
                 }else if(temp.equals("1SE")){
                     claveOtro="002";
+                }
+                if(rs.getString(3).equals("99")){//Compensasiones para no pagar ISR
+                        otrosPagosList.add(new OtrosPagos("999",rs.getString(5).replaceAll("\\s+",""),rs.getString(6),fmt.format(Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2)))));
                 }
                 switch(claveOtro){
                     case "001": totalOtro1=totalOtro1+((-1)*(Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2))));break;
                     case "002": totalOtro2=totalOtro2+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2)); break;
                     case "005": totalOtro1=totalOtro1+((-1)*(Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2))));break;
                 }
-                //Aquí va parte de totalotro1no que está pendiente ver si se programa o no
                 
-                if(totalImpuestos<totalOtro2&&totalOtro2>0){//Subsidio mayor que ISR
-                    totalOtros=totalOtro2-totalImpuestos;
-                    totalImpuestos2=0;
-                    totalImpuestos=0;
-                }else if(totalImpuestos>totalOtro2&&totalOtro2>0){
-                    subsidio=totalOtro2;
-                    totalImpuestos2=totalImpuestos-totalOtro2;
-                    totalImpuestos=totalImpuestos-totalOtro2;
-                    totalOtros=0.01;
-                    subsidio2=0;
-                    
-                }
+
             }
+            if(totalImpuestos<totalOtro2&&totalOtro2>0){//Subsidio mayor que ISR
+                totalOtros=totalOtro2-totalImpuestos;
+                totalImpuestos2=0;
+                totalImpuestos=0;
+            }else if(totalImpuestos>totalOtro2&&totalOtro2>0){
+                subsidio=totalOtro2;
+                totalImpuestos2=totalImpuestos-totalOtro2;
+                totalImpuestos=totalImpuestos-totalOtro2;
+                totalOtros=0.01;
+                subsidio2=0;
+
+            }
+
         }catch(Exception e){
            
         }
@@ -189,15 +248,14 @@ public class Timbrado {
         totalTraslados=0;
         select="select ifnull(sum(d.importe),0)from detalle_conceptos d,conceptos c "+
         "where d.id_concepto=c.id_concepto and c.clave_sat=2 and d.importe>0 and d.id_detalle_nomina='"+id+"'";
-        System.out.println(select);
         try{
             rs.next();
             totalRetenciones=Float.parseFloat(rs.getString(1));
         }catch(Exception e){
 
         }
-        select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion,c.activo from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs"+
-        " where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and cs.clave_sat=c.clave_sat and ((c.tipo='D' and dc.importe+dc.importe_ng>0) OR (c.tipo='P' and dc.importe+dc.importe_ng<0))"+
+        select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion,c.tipo from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs"+
+        " where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and cs.clave_sat=c.clave_sat and cs.tipo=c.tipo and((c.tipo='P' and dc.importe+dc.importe_ng>0) OR (c.tipo='D' and dc.importe+dc.importe_ng<0))"+
         " and dn.producto='" +producto+"' and dn.rfc='" +rfc+"' and dn.id='"+id+"'";
         rs=mysql.select(select);
         totalGravado=0;
@@ -239,6 +297,8 @@ public class Timbrado {
             
         }
         subtotalFactura=totalGravado+totalExento;
+
+
         if(importeMixto>0&&importePropio>0){
             EST=50;
         }
@@ -280,19 +340,22 @@ public class Timbrado {
         }else if(producto.substring(1,2).equals("O")){
             claveTipo="O";
         }
-        double tempDescuentos=0;//variable DescuentosFactura del método crear atributos comprobante.
+        System.out.println(rfc);
+        System.out.println(totalImpuestos);
+        System.out.println(totalDeducciones);
         if(totalImpuestos2!=99999){
             descuentoFactura=totalDeducciones+totalImpuestos;
-            subtotal=subtotalFactura+totalOtros-subsidio-totalOtro1NO;
-            totalFactura=subtotal-tempDescuentos-totalOtro1NO;
+            subtotal=subtotalFactura+totalOtros-subsidio;
+
+
+            totalFactura=subtotal-descuentoFactura;
         }else{
-            tempDescuentos=descuentoFactura-totalOtro1NO;
             subtotal=subtotalFactura+subsidio2-totalOtro1NO;
-            totalFactura=subtotal-tempDescuentos;
+
+            totalFactura=subtotal-descuentoFactura;
         }
-        descuentoFactura=descuentoFactura-totalOtro1NO;
         tipoContrato="01";
-        if(!DatosPatronales.getRfc().equals("SSN970115QI9")&&!DatosPatronales.getRfc().equals("REP150914KD0")&&!DatosPatronales.getRfc().equals("SSC961129CH3")){
+        if(!DatosPatronales.getRfc().equals("ISD9609109M3")&&!DatosPatronales.getRfc().equals("REP150914KD0")&&!DatosPatronales.getRfc().equals("SSC961129CH3")){
             tipoRegimen="02";
         }
         if(DatosPatronales.getRfc().equals("SSN970115QI9")&&unidad.equals("CON")){
@@ -311,6 +374,7 @@ public class Timbrado {
             tipoRiesgo="99";
         }else{
             ponerRegistroPatronal=true;
+            System.out.println("regimen "+tipoRegimen);
         }
         if(!DatosPatronales.getEntidad_sncf().equals("0")){
             if(check6){
@@ -333,10 +397,6 @@ public class Timbrado {
                 CFDOrigen="IM";
             }
         }
-        if(salarioDiario<0){
-            salarioDiario=salarioDiario*(-1);
-        }
-        salarioDiario=salarioDiario/diasPagados;
         //Método antiguedad
         LocalDate fechaIngreso=LocalDate.parse(fecha_ingreso);
         String anios=String.valueOf(ChronoUnit.YEARS.between(fechaIngreso, fechaFinal));
@@ -356,11 +416,11 @@ public class Timbrado {
         String dev=" and ((mid(dc.id_concepto,1,3)<>'201') and c.clave_sat<>2)";
         
         select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion,c.tipo "+
-        "from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and" +
+        "from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and cs.clave_sat=c.clave_sat and cs.tipo=c.tipo and" +
         " ((c.tipo='P' and (c.clave_sat<>17 and c.clave_sat<>99)  and (dc.importe+dc.importe_ng)>0 " + sub + ") " +
         " OR (c.tipo='D' and (dc.importe+dc.importe_ng)<0 " +dev + " ))" +
         " and dn.producto='" +producto+ "' and dn.rfc='" +rfc+ "' and dn.id='"+id+ "' order by dc.id";
-        System.out.println(select);
+        rs = mysql.select(select);
         totalGravado=0;
         totalExento=0;
         totalSueldos=0;
@@ -383,7 +443,7 @@ public class Timbrado {
                     if(!tipo_per.equals("022")&&!tipo_per.equals("023")&&!tipo_per.equals("025")&&!tipo_per.equals("039")&&!tipo_per.equals("044")&&!tipo_per.equals("019")){//Percepciones
                         totalSueldos=totalSueldos+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
                         String clv=rs.getString(5).replaceAll("\\s+","");
-                        String conc=rs.getString(6).replaceAll("\\s+","");
+                        String conc=rs.getString(6);
                         percepcionesList.add(new Percepciones(tipo_per,clv,conc,fmt.format(imp_gra),fmt.format(imp_exe)));
                     }else if(tipo_per.equals("025")||tipo_per.equals("022")||tipo_per.equals("023")){//Separaciones
                         indemnizacionesList.add(new Indemnizaciones(fmt.format(Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2))),anios,ultimoSueldo,ingresoAcumulable,ingresoNoAcumulable));
@@ -425,15 +485,19 @@ public class Timbrado {
 
                 }
             }
+        salarioDiario=totalSueldos/diasPagados;
+            if(salarioDiario<0){
+                salarioDiario=salarioDiario*(-1);
+            }
             String dev2="";
             sub="";
-            dev=" OR (c.activo=1 and dc.importe+dc.importe_ng<0 and (dc.id_concepto='P00' or mid(dc.id_concepto,1,3)='201')) ";
-            dev2=" OR (c.activo=1 and dc.importe+dc.importe_ng<0 and (dc.id_concepto<>'P00' and mid(dc.id_concepto,1,3)<>'201')) ";
+            dev=" OR (c.tipo='D' and dc.importe+dc.importe_ng<0 and (dc.id_concepto='P00' or mid(dc.id_concepto,1,3)='201')) ";
+            dev2=" OR (c.tipo='D' and dc.importe+dc.importe_ng<0 and (dc.id_concepto<>'P00' and mid(dc.id_concepto,1,3)<>'201')) ";
             claveOtro="001";
             
             select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion,c.tipo "+
             " from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs"+
-            " where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and "+
+            " where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and cs.clave_sat=c.clave_sat and cs.tipo=c.tipo and "+
             " ((c.tipo='P' and dc.importe+dc.importe_ng<0) or (c.tipo='D' and dc.importe+dc.importe_ng>0)) "+
             "and dn.id='"+id+"'";
             rs=mysql.select(select);
@@ -444,9 +508,13 @@ public class Timbrado {
                 String tipo_per=StringUtils.leftPad(rs.getString(3), 3, '0');
                 Float imp_gra=Float.parseFloat(rs.getString(1));
                 Float imp_exe=Float.parseFloat(rs.getString(2));
+                System.out.println("Total Impuestos 2 "+totalImpuestos2);
+                System.out.println("tipo_per "+tipo_per);
+
                 if(rs.getString(7).equals("D")){//Deducciones
                     if(tipo_per.equals("002")){
                         totalImpuestos=totalImpuestos+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
+                        System.out.println("Total Impuestos 1 "+totalImpuestos);
                     }else{
                         totalDeducciones=totalDeducciones+Float.parseFloat(rs.getString(1))+Float.parseFloat(rs.getString(2));
                     }
@@ -457,32 +525,46 @@ public class Timbrado {
                     imp_gra=Float.parseFloat("0");
                 }
                 if(totalImpuestos2>0||!tipo_per.equals("002")){
+                    System.out.println("entra");
                     if((totalImpuestos2==totalImpuestos||totalOtro1NO>0)&&tipo_per.equals("002")&&BAND==0){
                         String clv=rs.getString(5).replaceAll("\\s+","");
-                        String conc=rs.getString(6).replaceAll("\\s+","");
+                        String conc=rs.getString(6);
                         deduccionesList.add(new Deducciones(tipo_per,clv,conc,fmt.format(totalImpuestos)));
                         BAND=1;
-                    }
-                }else if((totalImpuestos2==totalImpuestos||totalOtro1NO>0)&&tipo_per.equals("002")&&BAND==1){
+                    }else if((totalImpuestos2==totalImpuestos||totalOtro1NO>0)&&tipo_per.equals("002")&&BAND==1){
+                    }else{
                         String clv=rs.getString(5).replaceAll("\\s+","");
-                        String conc=rs.getString(6).replaceAll("\\s+","");
+                        String conc=rs.getString(6);
                         deduccionesList.add(new Deducciones(tipo_per,clv,conc,fmt.format(imp_exe+imp_gra)));
+                    }
                 }
             }
             totalImpuestos=totalImpuestos-totalOtro1NO;
             if(totalImpuestos2==0){
                 totalImpuestos=0;
-            }else if(totalImpuestos!=99999){
+            }else if(totalImpuestos2!=99999){
                 totalImpuestos=totalImpuestos2;
             }
-            
+            select="select dc.importe,dc.importe_ng,c.clave_sat,cs.descripcion,c.id_concepto,c.descripcion from detalle_nomina dn, detalle_conceptos dc, conceptos c,conceptos_sat cs "+
+            " where dn.id=dc.id_detalle_nomina and dc.id_concepto=c.id_concepto and c.tipo='D' and c.clave_sat=6  and cs.clave_sat=c.clave_sat and cs.tipo=c.tipo and " +
+            " dn.producto='"+producto+ "' and dn.clave='"+ rfc + "' and dn.id='" +id+"'" ;
+            rs=mysql.select(select);
+            if(rs.next()){
+                rs.previous();
+                while(rs.next()){
+                    incapacidadesList.add(new Incapacidades("3","01",fmt.format(Double.parseDouble(rs.getString(1))+Double.parseDouble(rs.getString(2)))));
+                }
+            }
             
         }catch(Exception e){
             
         }
-        
 
+        tipoNomina=producto.substring(1,2);
 
+        if(!tipoNomina.equals("0")){
+            tipoNomina="E";
+        }
     }
 
     public double getTotalSueldos() {
