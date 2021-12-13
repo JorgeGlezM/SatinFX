@@ -37,27 +37,30 @@ import org.w3c.dom.Element;
 public class GenerarXML {
     static NumberFormat fmt = NumberFormat.getInstance(Locale.US);
     static int i=0;
+    static double totalProducto=0;
 
     
     public static void main(String args[]){
         try {
             MySQL mysql=new MySQL();
             mysql.conectar();
-            ResultSet rs= mysql.select("SELECT dn.total1,dn.total2,e.rfc,CONCAT(e.apaterno,\" \",e.amaterno,\" \",e.nombre) as nombre, dn.fechai,dn.fechaf,pn.fechapago,dn.sindicato,dn.puesto,e.fecha_ingreso,e.nss,e.clave,e.curp,e.jornada,dn.contrato,dn.producto,dn.id,dn.movimiento,p.descripcion,dn.unidad,dn.clavep,dn.banco,dn.cuenta_bancaria,dn.actividad,dn.proyecto,dn.partida,dn.clavepago,dn.clue,e.ingreso_acumulable,e.ingreso_no_acumulable, e.ultimo_sueldo from detalle_nomina dn, empleados e, puestos p,producto_nomina pn where dn.clave=e.clave and dn.puesto=p.id_puestos AND pn.clave=dn.producto;");
+            ResultSet rs= mysql.select("SELECT dn.total1,dn.total2,e.rfc,CONCAT(e.apaterno,\" \",e.amaterno,\" \",e.nombre) as nombre, dn.fechai,dn.fechaf,pn.fechapago,dn.sindicato,dn.puesto,e.fecha_ingreso,e.nss,e.clave,e.curp,e.jornada,dn.contrato,dn.producto,dn.id,dn.movimiento,p.descripcion,dn.unidad,dn.clavep,dn.banco,dn.cuenta_bancaria,dn.actividad,dn.proyecto,dn.partida,dn.clavepago,dn.clue,e.ingreso_acumulable,e.ingreso_no_acumulable, e.ultimo_sueldo from detalle_nomina dn, empleados e, puestos p,producto_nomina pn where dn.clave=e.clave and dn.rfc=e.rfc and dn.puesto=p.id_puestos AND pn.clave=dn.producto;");
             loadDatos();
             while(rs.next()){
-               Timbrado t=new Timbrado(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),rs.getString(29),rs.getString(30),rs.getString(31));
+               CalcularXML t=new CalcularXML(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),rs.getString(29),rs.getString(30),rs.getString(31));
                 xml(t); 
             }
+            System.out.println("total producto: "+fmt.format(totalProducto));
             
         } catch (SQLException ex) {
             Logger.getLogger(GenerarXML.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    public static void xml(Timbrado t){
+    public static void xml(CalcularXML t){
     fmt.setMaximumFractionDigits(2);
     fmt.setMinimumFractionDigits(2);
+    fmt.setGroupingUsed(false);
 
                   try {
     DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -77,11 +80,12 @@ public class GenerarXML {
     rootElement.setAttribute("Certificado", "");//No se genera
     rootElement.setAttribute("LugarExpedicion", DatosPatronales.getCodigo_esp());//Codigo especial
     rootElement.setAttribute("Moneda", "MXN");
+    totalProducto=totalProducto+t.getSubtotal()-t.getDescuentoFactura();
     String total=fmt.format(t.getSubtotal()-t.getDescuentoFactura());
     rootElement.setAttribute("Total", total);//percepciones- deducciones?
     String subtotal=fmt.format(t.getSubtotal());
     rootElement.setAttribute("SubTotal", subtotal);//percepciones?
-    rootElement.setAttribute("NoCertificado", DatosTimbrado.getNum_cert());//??
+    rootElement.setAttribute("NoCertificado", "");//DatosTimbrado.getNum_cert());//??
     if(!t.isPoneHonorarios()){
         rootElement.setAttribute("TipoCambio", "1");//Fijo
     }
@@ -99,7 +103,11 @@ public class GenerarXML {
     
     Element emisorElement = doc.createElement("cfdi:Emisor");
     emisorElement.setAttribute("RegimenFiscal", "603");//fijo 
+    /*
     emisorElement.setAttribute("Rfc", DatosPatronales.getRfc()); 
+    emisorElement.setAttribute("Nombre", DatosPatronales.getNombre()); */
+    //Lineas anteriores son el código correcto. Borrar siguientes 2 líneas. Son para Emisor de prueba
+    emisorElement.setAttribute("Rfc", "IXS7607092R5"); 
     emisorElement.setAttribute("Nombre", DatosPatronales.getNombre()); 
     rootElement.appendChild(emisorElement);
     
@@ -131,9 +139,9 @@ public class GenerarXML {
     rootElement.appendChild(complementoElement);
     Element nominaElement=doc.createElement("nomina12:Nomina");
     nominaElement.setAttribute("Version", DatosTimbrado.getVersion_nomina());//Estaba fijo, ingresar correctamente a BD
-    if((t.getTotalOtros()+t.getTotalOtro1())>=0){
+    if((t.getTotalOtros()+t.getTotalOtro1())>0){
         nominaElement.setAttribute("TotalOtrosPagos",fmt.format(t.getTotalOtros()+t.getTotalOtro1()));
-    }else{
+    }else if((t.getTotalOtros()+t.getTotalOtro1())<0){
         nominaElement.setAttribute("TotalOtrosPagos",fmt.format((t.getTotalOtros()+t.getTotalOtro1())*(-1)));
     }
     nominaElement.setAttribute("TotalPercepciones", fmt.format(t.getTotalGravado()+t.getTotalExento()));//Suma
@@ -141,7 +149,7 @@ public class GenerarXML {
     nominaElement.setAttribute("FechaFinalPago", t.getFechaf());//Tabla detalle
     nominaElement.setAttribute("FechaInicialPago", t.getFechai());//tabla detalle
     nominaElement.setAttribute("FechaPago", t.getFechapago());
-    nominaElement.setAttribute("TipoNomina", "O");//Pendiente determinar si es ordinaria o extraoridnaria
+    nominaElement.setAttribute("TipoNomina", t.getTipoNomina());//Pendiente determinar si es ordinaria o extraoridnaria
     complementoElement.appendChild(nominaElement);
     Element nominaEElement=doc.createElement("nomina12:Emisor");
     if(t.isPonerRegistroPatronal()){
@@ -237,8 +245,6 @@ public class GenerarXML {
         percepcionesElement.appendChild(horasElement);
     }
     if(t.descuentoFactura>0){
-            System.out.println("descuento factura " +t.descuentoFactura);
-            System.out.println("!!!!!!!!!!!!!!!!!!!! FOLIO : "+t.id);
     }
     if(t.descuentoFactura!=0){
         nominaElement.setAttribute("TotalDeducciones", fmt.format(t.getDescuentoFactura()));
@@ -246,9 +252,7 @@ public class GenerarXML {
         if(t.getTotalImpuestos()>0){
             deduccionesElement.setAttribute("TotalImpuestosRetenidos", fmt.format(t.getTotalImpuestos()));//Suma otros conceptos
         }
-        if(t.getTotalDeducciones()>0){
-            deduccionesElement.setAttribute("TotalOtrasDeducciones", fmt.format(t.getTotalDeducciones()));//Suma algunos conceptos
-        }
+        deduccionesElement.setAttribute("TotalOtrasDeducciones", fmt.format(t.getTotalDeducciones()));//Suma algunos conceptos
         nominaElement.appendChild(deduccionesElement);
         for(Deducciones d : t.deduccionesList){//Cambiar por ciclo de objetos listados
             Element deduccionElement=doc.createElement("nomina12:Deduccion");

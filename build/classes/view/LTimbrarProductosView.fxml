@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="468.0" prefWidth="695.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LTimbrarProductosViewController">
+   <children>
+      <TabPane tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Prooductos Timbrables">
+               <content>
+                  <VBox alignment="TOP_CENTER" prefHeight="468.0" prefWidth="695.0">
+                     <children>
+                        <Pane prefHeight="88.0" prefWidth="616.0" style="-fx-background-color: #2B3D74;">
+                           <children>
+                              <Label alignment="CENTER" layoutX="242.0" layoutY="14.0" prefHeight="61.0" prefWidth="281.0" style="-fx-font-weight: BOLD;" text="Puestos Pendientes" textFill="WHITE">
+                                 <font>
+                                    <Font size="23.0" />
+                                 </font>
+                              </Label>
+                              <Button fx:id="btnRegresar" layoutX="16.0" layoutY="20.0" mnemonicParsing="false" onAction="#btnRegresar" text="Regresar" />
+                           </children>
+                        </Pane>
+                        <HBox prefHeight="50.0" prefWidth="695.0">
+                           <children>
+                              <Label prefHeight="39.0" prefWidth="78.0" text="Búsqueda:">
+                                 <HBox.margin>
+                                    <Insets left="135.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <TextField fx:id="txtBusquedaTimbrables" prefHeight="31.0" prefWidth="360.0">
+                                 <HBox.margin>
+                                    <Insets top="5.0" />
+                                 </HBox.margin>
+                              </TextField>
+                           </children>
+                        </HBox>
+                        <StackPane prefWidth="200.0">
+                           <children>
+                              <TableView fx:id="tblTimbrables" prefHeight="275.0" prefWidth="695.0" />
+                           </children>
+                        </StackPane>
+                        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <Button fx:id="btnTimbrar" mnemonicParsing="false" prefHeight="56.0" prefWidth="149.0" text="Timbrar Producto">
+                                 <HBox.margin>
+                                    <Insets right="30.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </content>
+            </Tab>
+            <Tab text="Productos Timbrados">
+               <content>
+                  <VBox alignment="TOP_CENTER" prefHeight="468.0" prefWidth="695.0">
+                     <children>
+                        <Pane prefHeight="88.0" prefWidth="616.0" style="-fx-background-color: #2B3D74;">
+                           <children>
+                              <Label alignment="CENTER" layoutX="242.0" layoutY="14.0" prefHeight="61.0" prefWidth="281.0" style="-fx-font-weight: BOLD;" text="Conceptos Pendientes" textFill="WHITE">
+                                 <font>
+                                    <Font size="23.0" />
+                                 </font>
+                              </Label>
+                              <Button fx:id="btnRegresar1" layoutX="16.0" layoutY="20.0" mnemonicParsing="false" onAction="#btnRegresar" text="Regresar" />
+                           </children>
+                        </Pane>
+                        <HBox prefHeight="50.0" prefWidth="695.0">
+                           <children>
+                              <Label prefHeight="39.0" prefWidth="78.0" text="Búsqueda:">
+                                 <HBox.margin>
+                                    <Insets left="135.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <TextField fx:id="txtBusquedaTimbrados" prefHeight="31.0" prefWidth="360.0">
+                                 <HBox.margin>
+                                    <Insets top="5.0" />
+                                 </HBox.margin>
+                              </TextField>
+                           </children>
+                        </HBox>
+                        <StackPane prefWidth="200.0">
+                           <children>
+                              <TableView fx:id="tblTimbrados" prefHeight="275.0" prefWidth="695.0" />
+                           </children>
+                        </StackPane>
+                        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <Button fx:id="btnCancelarTimbrados" mnemonicParsing="false" onAction="#btnCancelarTimbrados" prefHeight="56.0" prefWidth="153.0" text="Cancelar Timbrados">
+                                 <HBox.margin>
+                                    <Insets right="30.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>

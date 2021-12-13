@@ -162,7 +162,8 @@ public class CargaArchivosNominaViewController implements Initializable {
             if(selectedFile!=null){
                 lblFile.setText(selectedFile.getAbsolutePath());
                 lblFile.setWrapText(true);
-                String rutaEMP=lblFile.getText().substring(0,lblFile.getText().lastIndexOf("TXT"))+"EMP";
+                String rt=lblFile.getText();
+                String rutaEMP=rt.substring(0,rt.length()-3)+"EMP";
                 selectedFile2=new File(rutaEMP);
                 if(!selectedFile2.exists()){
                     selectedFile=null;
@@ -255,9 +256,13 @@ public class CargaArchivosNominaViewController implements Initializable {
         pFechaPago=lineScanner.next();
         pRenglones=lineScanner.next();
         pTotal=lineScanner.next();
+        String tipoNomina=pClave.substring(1,2);
+        if(!tipoNomina.equals("0")){
+            tipoNomina="E";
+        }
         extraerDetalleTXT(Integer.valueOf(pRenglones));
-        sqlProducto="INSERT INTO satin.producto_nomina (clave,anio,mes,fechapago,total)"+
-               "VALUES('"+pClave+"','"+pAnio+"','"+pMes+"','"+pFechaPago+"','"+pTotal+"')";
+        sqlProducto="INSERT INTO satin.producto_nomina (clave,anio,mes,fechapago,total,tipo)"+
+               "VALUES('"+pClave+"','"+pAnio+"','"+pMes+"','"+pFechaPago+"','"+pTotal+"','"+tipoNomina+"')";
       
     } catch (IOException  exp) {
       // TODO Auto-generated catch block
@@ -290,6 +295,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             dCodigoPuesto=lineScanner.next();
             dCodigoPuesto=dCodigoPuesto.replaceAll("\\s", "");
             dClavePago=lineScanner.next();
+            dUnidadResponsable=dClavePago.substring(0,3);
             dContrato=lineScanner.next();
             dClaveContrato=lineScanner.next();
             dDescripcion=lineScanner.next();
@@ -322,7 +328,7 @@ public class CargaArchivosNominaViewController implements Initializable {
             /*String dClave, dNumEmp,dRFC,dBanco,dCuentaBancaria,dClaveP2,dCentroTrabajo,dCodigoPuesto,dClavePago,dContrato,dClaveContrato
             ,dDescripcion,dFechaInicial,dFechaFinal,dMovimiento,dPercepciones,dDeducciones,dFaltas,dDiaIncapacidad,dTipoIncapacidad,dImporteIncapacidad
             ,dDiasHorasDobles,dHorasDobles,dImporteHorasDobles,dDiasHorasTriples,dHorasTriples,dImporteHorasTriples,dClue,dSindicalizado;*/
-            detallesNomina.add(new DetalleNomina( dClave,  dNumEmp,  dRFC,  dBanco,  dCuentaBancaria,  dClaveP2,  dCentroTrabajo,  dCodigoPuesto,  dClavePago,  dContrato,  dClaveContrato, dDescripcion,  dFechaInicial,  dFechaFinal,  dMovimiento,  dPercepciones,  dDeducciones,  dFaltas,  dDiaIncapacidad,  dTipoIncapacidad,  dImporteIncapacidad,  dDiasHorasDobles,  dHorasDobles,  dImporteHorasDobles,  dDiasHorasTriples,  dHorasTriples,  dImporteHorasTriples,  dClue,  dSindicalizado,  dConceptos,  dID));
+            detallesNomina.add(new DetalleNomina( dClave,  dNumEmp,  dRFC,  dBanco,  dCuentaBancaria,  dClaveP2,  dCentroTrabajo,  dCodigoPuesto,  dClavePago,  dContrato,  dClaveContrato, dDescripcion,  dFechaInicial,  dFechaFinal,  dMovimiento,  dPercepciones,  dDeducciones,  dFaltas,  dDiaIncapacidad,  dTipoIncapacidad,  dImporteIncapacidad,  dDiasHorasDobles,  dHorasDobles,  dImporteHorasDobles,  dDiasHorasTriples,  dHorasTriples,  dImporteHorasTriples,  dClue,  dSindicalizado,  dConceptos,  dID,dUnidadResponsable));
             centros.add(new CentrosTrabajo(dCentroTrabajo,""));
             /*sqlDetalle=sqlDetalle+"insert into satin.detalle_nomina (id,producto,clave,centro_trabajo,puesto,clavepago,contrato,"
             +"fechai,fechaf,movimiento,total1,total2,conceptos,sindicato,rfc,cuenta_bancaria,banco,clue,instrumento_pago)"+
@@ -341,7 +347,9 @@ public class CargaArchivosNominaViewController implements Initializable {
         aScanner.useDelimiter(";");
         while(aScanner.hasNext()){
             adicional=aScanner.next();
-            adicionales.add(new Adicional(dID,adicional));
+            if(!adicional.equals("")){
+                            adicionales.add(new Adicional(dID,adicional));
+            }
         }
         
     }
@@ -415,8 +423,8 @@ public class CargaArchivosNominaViewController implements Initializable {
             
             //Insercion detalle_nomina
             String insertDetalleNomina="insert into satin.detalle_nomina (id,producto,clave,centro_trabajo,puesto,clavepago,contrato,"
-            +"fechai,fechaf,movimiento,total1,total2,conceptos,sindicato,rfc,cuenta_bancaria,banco,clue,instrumento_pago)"+
-            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            +"fechai,fechaf,movimiento,total1,total2,conceptos,sindicato,rfc,cuenta_bancaria,banco,clue,instrumento_pago,unidad)"+
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             try{
                 PreparedStatement pstmtDetalle = mysql.conn.prepareStatement(insertDetalleNomina);
                 for (DetalleNomina detalleNomina : detallesNomina) {
@@ -439,6 +447,7 @@ public class CargaArchivosNominaViewController implements Initializable {
                     pstmtDetalle.setString(17, detalleNomina.getdBanco());
                     pstmtDetalle.setString(18, detalleNomina.getdClue());
                     pstmtDetalle.setString(19, detalleNomina.getdBanco());
+                    pstmtDetalle.setString(20, detalleNomina.getdUnidadResponsable());
                     pstmtDetalle.addBatch();
             }
             pstmtDetalle.executeBatch();

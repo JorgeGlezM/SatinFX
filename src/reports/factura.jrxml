@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="612" pageHeight="792" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a36115d8-2908-4079-9702-df9a78504188">
+	<property name="ireport.zoom" value="1.3310000000000013"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<subDataset name="dataset1" uuid="48be2e5a-4d17-4d3f-8bbc-0b9ca95f2936"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="101" splitType="Stretch">
+			<rectangle radius="10">
+				<reportElement x="240" y="-2" width="327" height="77" uuid="4881b0dd-5a6f-4f72-973b-9d6377e1f0d3"/>
+			</rectangle>
+			<line>
+				<reportElement x="240" y="15" width="327" height="1" uuid="f0858435-bbc7-4465-98c3-823ac63c18c7"/>
+			</line>
+			<line>
+				<reportElement x="240" y="31" width="327" height="1" uuid="7c54302c-e468-4bf1-86b9-ac9ad055fd1e"/>
+			</line>
+			<line>
+				<reportElement x="240" y="45" width="327" height="1" uuid="74ae3957-ac8f-4320-b9bd-0895d843a0f2"/>
+			</line>
+			<line>
+				<reportElement x="240" y="59" width="327" height="1" uuid="74072d24-2d2d-4610-88de-ec95e6f14a03"/>
+			</line>
+			<line>
+				<reportElement x="354" y="-2" width="1" height="77" uuid="78ac0500-123a-4df9-970e-f393b86dac0a"/>
+			</line>
+			<staticText>
+				<reportElement x="258" y="-4" width="96" height="23" uuid="bc9f55d5-ff9a-4908-8956-1e4d69301e24"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Número de Comprobante]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="310" y="10" width="43" height="23" uuid="459a7505-55ff-48f1-9f8b-b3ab96584502"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Quincena]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="292" y="32" width="62" height="14" uuid="d7a3fb17-c7df-4ecd-94b5-78f8a9e6fc03"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Fecha de Pago]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="287" y="44" width="67" height="16" uuid="4db250e0-d60f-4994-93d4-0f616c556613"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Periodo de Pago]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="305" y="60" width="49" height="15" uuid="4bafecc8-d234-419f-b33b-8db01b6b8e74"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Folio Fiscal]]></text>
+			</staticText>
+			<image>
+				<reportElement x="44" y="-2" width="161" height="57" uuid="0997bb76-bb04-4297-8c4e-ab4275411a6c"/>
+				<imageExpression><![CDATA["C:\\Users\\Jorge\\Documents\\NetBeansProjects\\SatinFX\\src\\resources\\salud.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="69" y="48" width="146" height="9" uuid="31a10981-c6c2-44a0-871a-619ba4ba0ad2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[SERVICIOS DE SALUD DE NAYARIT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="58" width="100" height="12" uuid="5c711edf-41eb-4e54-8aa9-38cf7b59ede4"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[GUSTAVO BAZ 33 ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="70" width="136" height="11" uuid="4dbcc2b5-01eb-4e74-810d-95bc3a46646a"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[FRACC. FRAY JUNIPERO SERRA]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="81" width="136" height="11" uuid="17647234-0b67-4fa6-aad3-06b12be3359c"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[TEPIC, NAY. C.P. 63169]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="30" y="90" width="115" height="11" uuid="80ee46bb-f3c7-436f-8983-c91afaa52702"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[RFC: SSN960901HJ7]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="148" y="90" width="274" height="11" uuid="c7a8b23b-a056-4ba2-9641-066b99170ad6"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[REGIMEN FISCAL: PERSONAS MORALES CON FINES NO LUCRATIVOS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="422" y="90" width="66" height="11" uuid="bbf7e242-57e9-4ea7-9839-a6ca19aeba27"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[FECHA EMISION]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="82" splitType="Stretch">
+			<rectangle radius="10">
+				<reportElement x="1" y="4" width="567" height="76" backcolor="#FFFFFF" uuid="c04924ff-effb-47e8-8f89-68ae2ea755d4"/>
+			</rectangle>
+			<rectangle radius="5">
+				<reportElement x="1" y="3" width="567" height="23" backcolor="#CCCCCC" uuid="06f4e774-4f64-4adc-9fa1-be2643b3dbe9"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="215" y="6" width="144" height="20" uuid="b222d4e3-3b61-4525-9af6-e0ef1b63351c"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[DATOS DEL EMPLEADO]]></text>
+			</staticText>
+			<line>
+				<reportElement x="1" y="37" width="567" height="1" uuid="46d4ba5c-c9c1-45b6-9339-beb764b28742"/>
+			</line>
+			<line>
+				<reportElement x="1" y="53" width="567" height="1" uuid="1400d130-3985-46ee-933b-5ffaddf177c4"/>
+			</line>
+			<line>
+				<reportElement x="2" y="67" width="566" height="1" uuid="09637b63-63c4-46e4-8f69-dae62c62b8b6"/>
+			</line>
+			<staticText>
+				<reportElement x="15" y="22" width="43" height="16" uuid="a66a4f51-6d9c-4bc9-973c-98987bff71a3"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Nombre:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="15" y="38" width="43" height="15" uuid="0c3e2888-ac7d-490f-92ed-10453d3cd345"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[RFC:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="15" y="55" width="43" height="13" uuid="c8028453-2493-4605-8fe4-951f8cc010f0"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Puesto:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="15" y="67" width="71" height="12" uuid="00151b49-f6ff-4d71-8a78-22be2f3987d0"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Centro de Trabajo:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="166" y="38" width="43" height="15" uuid="49fded48-44de-48d5-bf1a-796b55d57905"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[CURP:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="322" y="38" width="67" height="15" uuid="8223e260-0eea-4ce2-8131-a75cd70ac92f"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Clave de Pago:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="322" y="24" width="96" height="15" uuid="871a6509-d656-49db-a813-d6c54f163d95"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[Numero de Empleado:]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="532" splitType="Stretch">
+			<rectangle radius="5">
+				<reportElement x="422" y="195" width="145" height="29" uuid="9649f4b9-76dd-43dc-97fc-6f48e9f6d6a3"/>
+			</rectangle>
+			<rectangle radius="5">
+				<reportElement x="134" y="197" width="145" height="28" uuid="0b7f6171-08b7-4cd2-9614-e054cf7b6a22"/>
+			</rectangle>
+			<rectangle radius="5">
+				<reportElement x="2" y="2" width="277" height="210" uuid="04244fae-3b4f-4eab-9f47-73137b6f7c0c"/>
+			</rectangle>
+			<rectangle radius="5">
+				<reportElement x="290" y="2" width="277" height="210" uuid="cde75b74-c64b-4162-b37c-0ac33b56b820"/>
+			</rectangle>
+			<rectangle radius="5">
+				<reportElement x="2" y="2" width="277" height="23" backcolor="#CCCCCC" uuid="0585619b-019e-4879-b814-5805ff326b23"/>
+			</rectangle>
+			<rectangle radius="5">
+				<reportElement x="290" y="2" width="277" height="23" backcolor="#CCCCCC" uuid="fb01a094-bfc2-4ae4-a023-05a11980e41f"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="96" y="5" width="80" height="20" uuid="959fe2dd-bbdc-47c5-aef8-366be60ae7fb"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[PERCEPCIONES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="389" y="5" width="77" height="20" uuid="5703bab9-a56c-4787-abd7-75f5bea4a13f"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[DEDUCCIONES]]></text>
+			</staticText>
+			<line>
+				<reportElement x="2" y="40" width="277" height="1" uuid="73b27660-1fe3-4689-b715-3cd52878ba7f"/>
+			</line>
+			<line>
+				<reportElement x="290" y="41" width="277" height="1" uuid="6b876019-720d-4601-a5cd-99db65c50086"/>
+			</line>
+			<line>
+				<reportElement x="44" y="25" width="1" height="187" uuid="3c43dd5a-f509-4503-9cb9-804e822e34c6"/>
+			</line>
+			<line>
+				<reportElement x="227" y="25" width="1" height="187" uuid="152e2f8f-c2a4-4f8a-82a7-716dcc833b5c"/>
+			</line>
+			<line>
+				<reportElement x="515" y="25" width="1" height="187" uuid="65e1295b-986b-40f0-bbe0-2bb7ad49169c"/>
+			</line>
+			<line>
+				<reportElement x="332" y="25" width="1" height="187" uuid="ec52f730-fbe3-4c10-989f-68581849529f"/>
+			</line>
+			<line>
+				<reportElement x="194" y="285" width="213" height="1" uuid="1cb62553-480c-463f-944d-4245b76c3a48"/>
+			</line>
+			<staticText>
+				<reportElement x="245" y="285" width="108" height="12" uuid="7ce29ea7-2e8f-4eb3-a972-404f6ba0b26a"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[FIRMA DEL TRABAJADOR]]></text>
+			</staticText>
+			<rectangle radius="10">
+				<reportElement x="127" y="336" width="361" height="43" uuid="800cc329-cb21-4897-b2ba-99b6a37d2812"/>
+			</rectangle>
+			<rectangle radius="10">
+				<reportElement x="127" y="389" width="361" height="43" uuid="2c809229-20b9-4273-befd-9a07b81ed1c8"/>
+			</rectangle>
+			<rectangle radius="10">
+				<reportElement x="127" y="432" width="361" height="43" uuid="88b10c8a-f60b-4190-99cd-0de36239aa3e"/>
+			</rectangle>
+			<staticText>
+				<reportElement x="130" y="310" width="274" height="11" uuid="ebe577df-dfe3-46ba-b5d0-0d23998cb1db"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[CERTIFICADO EMISOR:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="148" y="501" width="301" height="11" uuid="8ea05549-5d2f-4ca2-b330-24d43fd6f51d"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[La reproducción de este comprobante constituye un delito en los terminos de las disposiciones fiscales.
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="148" y="512" width="301" height="11" uuid="ed52cadf-5b10-40ec-8d91-4416edf6af7a"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[Este documento es una representación impresa de un CFDI.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="248" y="326" width="274" height="11" uuid="7e28b436-a04d-4bd6-a15e-8d26f1783ae5"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[SELLO DIGITAL CFDI]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="248" y="380" width="274" height="11" uuid="ede2ffa2-46ff-4b0c-9a7d-3110effa2ee0"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[SELLO DIGITAL SAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="174" y="432" width="301" height="11" uuid="5499a7a5-68b2-4554-bc26-28d661ce9acd"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[CADENA ORIGINAL DEL COMPLEMENTO DE CERTIFICACION DIGITAL DEL SAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="133" y="484" width="72" height="11" uuid="04ed14a2-e071-4465-97b9-2df4ee79fc8b"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[CERTIFICADO SAT: ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="292" y="484" width="112" height="11" uuid="4d16a473-94b8-4b3b-ba52-8547e17b7000"/>
+				<textElement>
+					<font size="6"/>
+				</textElement>
+				<text><![CDATA[FECHA Y HORA DE CERTIFICACIÓN]]></text>
+			</staticText>
+			<image>
+				<reportElement x="11" y="310" width="85" height="82" uuid="180a59f2-599e-402b-bd69-7b92375c9509"/>
+			</image>
+		</band>
+	</detail>
+</jasperReport>

@@ -146,6 +146,20 @@ public class MainViewController implements Initializable {
         stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
         stage.show();
     }
+        
+        @FXML private void btnTimbrarProductos (ActionEvent event) throws IOException{
+                
+                //Cambiamos la escena
+                root = FXMLLoader.load(getClass().getResource("/view/LTimbrarProductosView.fxml"));
+                stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                scene = new Scene(root);
+                stage.setScene(scene);
+                //Creamos un rectángulo del tamaño de la pantalla para obtener medidas y centrar la ventana antes de mostrarla
+                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+                stage.show();
+    }
 
     /**
      * Initializes the controller class.

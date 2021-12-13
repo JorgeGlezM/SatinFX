@@ -224,7 +224,7 @@ public class DetalleNomina {
         return dClave;
     }
 
-    public DetalleNomina(String dClave, String dNumEmp, String dRFC, String dBanco, String dCuentaBancaria, String dClaveP2, String dCentroTrabajo, String dCodigoPuesto, String dClavePago, String dContrato, String dClaveContrato, String dDescripcion, String dFechaInicial, String dFechaFinal, String dMovimiento, String dPercepciones, String dDeducciones, String dFaltas, String dDiaIncapacidad, String dTipoIncapacidad, String dImporteIncapacidad, String dDiasHorasDobles, String dHorasDobles, String dImporteHorasDobles, String dDiasHorasTriples, String dHorasTriples, String dImporteHorasTriples, String dClue, String dSindicalizado, String dConceptos, String dID) {
+    public DetalleNomina(String dClave, String dNumEmp, String dRFC, String dBanco, String dCuentaBancaria, String dClaveP2, String dCentroTrabajo, String dCodigoPuesto, String dClavePago, String dContrato, String dClaveContrato, String dDescripcion, String dFechaInicial, String dFechaFinal, String dMovimiento, String dPercepciones, String dDeducciones, String dFaltas, String dDiaIncapacidad, String dTipoIncapacidad, String dImporteIncapacidad, String dDiasHorasDobles, String dHorasDobles, String dImporteHorasDobles, String dDiasHorasTriples, String dHorasTriples, String dImporteHorasTriples, String dClue, String dSindicalizado, String dConceptos, String dID,String dUnidadResponsable) {
         this.dClave = dClave;
         this.dNumEmp = dNumEmp;
         this.dRFC = dRFC;
@@ -256,6 +256,7 @@ public class DetalleNomina {
         this.dSindicalizado = dSindicalizado;
         this.dConceptos = dConceptos;
         this.dID = dID;
+        this.dUnidadResponsable=dUnidadResponsable;
     }
 
     public void setdClave(String dClave) {
