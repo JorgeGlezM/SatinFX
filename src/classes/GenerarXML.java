@@ -35,11 +35,11 @@ import org.w3c.dom.Element;
  * @author Jorge
  */
 public class GenerarXML {
+    public static String ruta="C:/Facturacion";
     static NumberFormat fmt = NumberFormat.getInstance(Locale.US);
     static int i=0;
-    static double totalProducto=0;
 
-    
+    /* Clase main se utilizó para testing, no es necesaria pero se deja por si se requieren hacer más pruebas
     public static void main(String args[]){
         try {
             MySQL mysql=new MySQL();
@@ -50,12 +50,11 @@ public class GenerarXML {
                CalcularXML t=new CalcularXML(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),rs.getString(29),rs.getString(30),rs.getString(31));
                 xml(t); 
             }
-            System.out.println("total producto: "+fmt.format(totalProducto));
             
         } catch (SQLException ex) {
             Logger.getLogger(GenerarXML.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
+    }*/
     
     public static void xml(CalcularXML t){
     fmt.setMaximumFractionDigits(2);
@@ -80,7 +79,6 @@ public class GenerarXML {
     rootElement.setAttribute("Certificado", "");//No se genera
     rootElement.setAttribute("LugarExpedicion", DatosPatronales.getCodigo_esp());//Codigo especial
     rootElement.setAttribute("Moneda", "MXN");
-    totalProducto=totalProducto+t.getSubtotal()-t.getDescuentoFactura();
     String total=fmt.format(t.getSubtotal()-t.getDescuentoFactura());
     rootElement.setAttribute("Total", total);//percepciones- deducciones?
     String subtotal=fmt.format(t.getSubtotal());
@@ -103,11 +101,8 @@ public class GenerarXML {
     
     Element emisorElement = doc.createElement("cfdi:Emisor");
     emisorElement.setAttribute("RegimenFiscal", "603");//fijo 
-    /*
+    
     emisorElement.setAttribute("Rfc", DatosPatronales.getRfc()); 
-    emisorElement.setAttribute("Nombre", DatosPatronales.getNombre()); */
-    //Lineas anteriores son el código correcto. Borrar siguientes 2 líneas. Son para Emisor de prueba
-    emisorElement.setAttribute("Rfc", "IXS7607092R5"); 
     emisorElement.setAttribute("Nombre", DatosPatronales.getNombre()); 
     rootElement.appendChild(emisorElement);
     
@@ -329,7 +324,17 @@ public class GenerarXML {
       TransformerFactory transformerFactory = TransformerFactory.newInstance();
       Transformer transformer = transformerFactory.newTransformer();
       DOMSource source = new DOMSource(doc);
-      StreamResult result = new StreamResult(new File("C:/ruta/"+t.id+".xml"));
+      String rutaFinal=ruta+"/"+t.getProducto()+"/";
+      System.out.println(rutaFinal);
+    File directory = new File(rutaFinal);
+        if (! directory.exists()){
+        directory.mkdirs();
+        // If you require it to make the entire directory path including parents,
+        // use directory.mkdirs(); here instead.
+    }
+      
+      
+      StreamResult result = new StreamResult(new File(rutaFinal+t.id+".xml"));
       transformer.transform(source, result);
     } catch (ParserConfigurationException pce) {
       pce.printStackTrace();

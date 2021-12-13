@@ -10,16 +10,15 @@ package classes;
  * @author Jorge
  */
 public class DetalleTimbrable {
-    String ID,RFC,nombre,percepciones,deducciones,totalFactura,centroTrabajo,puesto,contrato;
+    String ID,RFC,nombre,percepciones,deducciones,totalFactura,puesto,contrato;
 
-    public DetalleTimbrable(String ID, String RFC, String nombre, String percepciones, String deducciones, String totalFactura, String centroTrabajo, String puesto, String contrato) {
+    public DetalleTimbrable(String ID, String RFC, String nombre, String percepciones, String deducciones, String totalFactura, String puesto, String contrato) {
         this.ID = ID;
         this.RFC = RFC;
         this.nombre = nombre;
         this.percepciones = percepciones;
         this.deducciones = deducciones;
         this.totalFactura = totalFactura;
-        this.centroTrabajo = centroTrabajo;
         this.puesto = puesto;
         this.contrato = contrato;
     }
@@ -70,14 +69,6 @@ public class DetalleTimbrable {
 
     public void setTotalFactura(String totalFactura) {
         this.totalFactura = totalFactura;
-    }
-
-    public String getCentroTrabajo() {
-        return centroTrabajo;
-    }
-
-    public void setCentroTrabajo(String centroTrabajo) {
-        this.centroTrabajo = centroTrabajo;
     }
 
     public String getPuesto() {

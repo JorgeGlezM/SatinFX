@@ -5,9 +5,7 @@
  */
 package controller;
 
-import classes.ConceptosPendientes;
 import classes.ProductoTimbrable;
-import classes.PuestosPendientes;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
@@ -77,13 +75,20 @@ public class LTimbrarProductosViewController implements Initializable {
         
             
         @FXML private void btnTimbrarProducto (ActionEvent event) throws IOException{
-                
                 //Obtenemos el valor del campo "id" para pasarlo a la ventana de edición como parametro.
                 ProductoTimbrable p = tblTimbrables.getSelectionModel().getSelectedItem();
-                PuestosViewController.edicion=false;
+                DetallesTimbradoViewController.idProducto=p.getProducto();
+                DetallesTimbradoViewController.fechaP=p.getFechaDePago();
+                DetallesTimbradoViewController.totalP=p.getTotal();
+                DetallesTimbradoViewController.totalR=p.getRegistros();
+
+                
+
+
+                System.out.println(p.getProducto());
 
                 //Cambiamos la escena
-                root = FXMLLoader.load(getClass().getResource("/view/PuestosView.fxml"));
+                root = FXMLLoader.load(getClass().getResource("/view/DetallesTimbradoView.fxml"));
                 stage = (Stage)((Node)event.getSource()).getScene().getWindow();
                 scene = new Scene(root);
                 stage.setScene(scene);
@@ -112,20 +117,20 @@ public class LTimbrarProductosViewController implements Initializable {
         //Abrimos conexión
         classes.MySQL mysql= new classes.MySQL();
         mysql.conectar();
-        //Cargamos pendientes de conceptos
+        //Cargamos Timbrables
         ResultSet rs = mysql.select("SELECT * FROM satin.productos_timbrables");
         try {
             // Cargamos las columnas de manera dinámica. Lanza advertencia por no checar tipos de variables pero para nuestro uso no nos afecta.
             for(int i=0 ; i<rs.getMetaData().getColumnCount(); i++){
                 final int j = i;                
                 TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i+1));
-                col.setCellValueFactory(new PropertyValueFactory<ConceptosPendientes,String>(rs.getMetaData().getColumnName(i+1)));
+                col.setCellValueFactory(new PropertyValueFactory<ProductoTimbrable,String>(rs.getMetaData().getColumnName(i+1)));
                 tblTimbrables.getColumns().addAll(col); 
             }
             //Cargamos los registros a una lista. Se rompe con datos nulos, checar.
             while(rs.next()){
                 //Iterate Row
-                ProductoTimbrable row = new ProductoTimbrable(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6));
+                ProductoTimbrable row = new ProductoTimbrable(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7));
                 dataTimbrables.add(row);
             }
             //Cargamos los resultados a la tabla
@@ -145,13 +150,13 @@ public class LTimbrarProductosViewController implements Initializable {
             for(int i=0 ; i<rs.getMetaData().getColumnCount(); i++){
                 final int j = i;                
                 TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i+1));
-                col.setCellValueFactory(new PropertyValueFactory<PuestosPendientes,String>(rs.getMetaData().getColumnName(i+1)));
+                col.setCellValueFactory(new PropertyValueFactory<ProductoTimbrable,String>(rs.getMetaData().getColumnName(i+1)));
                 tblTimbrados.getColumns().addAll(col); 
             }
             //Cargamos los registros a una lista. Se rompe con datos nulos, checar.
             while(rs.next()){
                 //Iterate Row
-                ProductoTimbrable row = new ProductoTimbrable(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6));
+                ProductoTimbrable row = new ProductoTimbrable(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7));
                 dataTimbrados.add(row);
             }
             //Cargamos los resultados a la tabla
@@ -167,12 +172,12 @@ public class LTimbrarProductosViewController implements Initializable {
         mysql.desconectar();
         
         
-        //Busqueda Pestaña Conceptos
-        FilteredList<ProductoTimbrable> fiteredDataConceptos = new FilteredList<>(dataTimbrables, p -> true);
+        //Busqueda Pestaña Timbrables
+        FilteredList<ProductoTimbrable> filteredDataTimbrables = new FilteredList<>(dataTimbrables, p -> true);
 		
 		// 2. Set the filter Predicate whenever the filter changes.
 		txtBusquedaTimbrables.textProperty().addListener((observable, oldValue, newValue) -> {
-			fiteredDataConceptos.setPredicate(timbrable -> {
+			filteredDataTimbrables.setPredicate(timbrable -> {
 				// If filter text is empty, display all persons.
 								
 				if (newValue == null || newValue.isEmpty()) {
@@ -207,23 +212,23 @@ public class LTimbrarProductosViewController implements Initializable {
 		});
 		
 		// 3. Wrap the FilteredList in a SortedList. 
-		SortedList<ProductoTimbrable> sortedDataConceptos = new SortedList<>(fiteredDataConceptos);
+		SortedList<ProductoTimbrable> sortedDataTimbrables = new SortedList<>(filteredDataTimbrables);
 		
 		// 4. Bind the SortedList comparator to the TableView comparator.
 		// 	  Otherwise, sorting the TableView would have no effect.
-		sortedDataConceptos.comparatorProperty().bind(tblTimbrables.comparatorProperty());
+		sortedDataTimbrables.comparatorProperty().bind(tblTimbrables.comparatorProperty());
 		
 		// 5. Add sorted (and filtered) dataTimbrables to the table.
-                tblTimbrables.setItems(sortedDataConceptos);
+                tblTimbrables.setItems(sortedDataTimbrables);
         
                 
         
         //Busqueda Pestaña Puestos
-        FilteredList<ProductoTimbrable> fiteredDataPuestos = new FilteredList<>(dataTimbrados, p -> true);
+        FilteredList<ProductoTimbrable> filteredDataTimbrados = new FilteredList<>(dataTimbrados, p -> true);
 		
 		// 2. Set the filter Predicate whenever the filter changes.
 		txtBusquedaTimbrados.textProperty().addListener((observable, oldValue, newValue) -> {
-			fiteredDataPuestos.setPredicate(timbrable -> {
+			filteredDataTimbrados.setPredicate(timbrable -> {
 				// If filter text is empty, display all persons.
 								
 				if (newValue == null || newValue.isEmpty()) {
@@ -258,11 +263,11 @@ public class LTimbrarProductosViewController implements Initializable {
 		});
 		
 		// 3. Wrap the FilteredList in a SortedList. 
-		SortedList<ProductoTimbrable> sortedDataTimbrados = new SortedList<>(fiteredDataPuestos);
+		SortedList<ProductoTimbrable> sortedDataTimbrados = new SortedList<>(filteredDataTimbrados);
 		
 		// 4. Bind the SortedList comparator to the TableView comparator.
 		// 	  Otherwise, sorting the TableView would have no effect.
-		sortedDataTimbrados.comparatorProperty().bind(tblTimbrables.comparatorProperty());
+		sortedDataTimbrados.comparatorProperty().bind(tblTimbrados.comparatorProperty());
 		
                 tblTimbrados.setItems(sortedDataTimbrados);
                 
