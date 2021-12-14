@@ -46,29 +46,42 @@ public class LTimbrarProductosViewController implements Initializable {
     private Parent root;
     @FXML private TableView<ProductoTimbrable> tblTimbrables;
     @FXML private TableView<ProductoTimbrable> tblTimbrados;
+    @FXML private TableView<ProductoTimbrable> tblCancelados;
+
     @FXML private TextField txtBusquedaTimbrados;
     @FXML private TextField txtBusquedaTimbrables;
+    @FXML private TextField txtBusquedaCancelados;
+
 
 
     ObservableList<ProductoTimbrable> dataTimbrables=FXCollections.observableArrayList();
     ObservableList<ProductoTimbrable> dataTimbrados=FXCollections.observableArrayList();
+    ObservableList<ProductoTimbrable> dataCancelados=FXCollections.observableArrayList();
+
     
 
         
                 @FXML private void btnCancelarTimbrados (ActionEvent event) throws IOException{
                 
                 //Obtenemos el valor del campo "id" para pasarlo a la ventana de edición como parametro.
-                ProductoTimbrable p = tblTimbrables.getSelectionModel().getSelectedItem();
-                String delete=p.getProducto();
-                classes.MySQL mysql= new classes.MySQL();
-                mysql.conectar();
-                String sql="CALL deleteProducto('"+delete+"');";
-                int input = JOptionPane.showConfirmDialog(null, "¿Seguro que deseas eliminar el producto "+delete+" y todos los registros relacionados a éste?", "Confirmar acción",
-				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.ERROR_MESSAGE);
-		if(input==0){
-                    mysql.stmt(sql);
-                    load(); 
-                }
+                ProductoTimbrable p = tblTimbrados.getSelectionModel().getSelectedItem();
+                DetallesCanceladoViewController.idProducto=p.getProducto();
+                DetallesCanceladoViewController.fechaP=p.getFechaDePago();
+                DetallesCanceladoViewController.totalP=p.getTotal();
+                DetallesCanceladoViewController.totalR=p.getRegistros();
+
+                System.out.println(p.getProducto());
+
+                //Cambiamos la escena
+                root = FXMLLoader.load(getClass().getResource("/view/DetallesCanceladoView.fxml"));
+                stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                scene = new Scene(root);
+                stage.setScene(scene);
+                //Creamos un rectángulo del tamaño de la pantalla para obtener medidas y centrar la ventana antes de mostrarla
+                Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                stage.setX((screenBounds.getWidth() - stage.getWidth()) / 2);
+                stage.setY((screenBounds.getHeight() - stage.getHeight()) / 2);
+                stage.show();
     }
 
 
@@ -143,7 +156,7 @@ public class LTimbrarProductosViewController implements Initializable {
         }
         
         
-        //Carga de puestos pendientes
+        //Cargamos timbrados
         rs = mysql.select("SELECT * FROM satin.productos_timbrados");
         try {
             // Cargamos las columnas de manera dinámica. Lanza advertencia por no checar tipos de variables pero para nuestro uso no nos afecta.
@@ -163,6 +176,31 @@ public class LTimbrarProductosViewController implements Initializable {
             tblTimbrados.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY); 
 
             tblTimbrados.setItems(dataTimbrables);
+            
+        } catch (SQLException ex) {
+                    JOptionPane.showMessageDialog(null, "Error de conexión.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+        }
+        //Cargamos cancelados
+                rs = mysql.select("SELECT * FROM satin.productos_cancelados");
+        try {
+            // Cargamos las columnas de manera dinámica. Lanza advertencia por no checar tipos de variables pero para nuestro uso no nos afecta.
+            for(int i=0 ; i<rs.getMetaData().getColumnCount(); i++){
+                final int j = i;                
+                TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i+1));
+                col.setCellValueFactory(new PropertyValueFactory<ProductoTimbrable,String>(rs.getMetaData().getColumnName(i+1)));
+                tblCancelados.getColumns().addAll(col); 
+            }
+            //Cargamos los registros a una lista. Se rompe con datos nulos, checar.
+            while(rs.next()){
+                //Iterate Row
+                ProductoTimbrable row = new ProductoTimbrable(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9));
+                dataCancelados.add(row);
+                System.out.println("agrega cancelado"+row.getProducto());
+            }
+            //Cargamos los resultados a la tabla
+            tblCancelados.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY); 
+
+            tblCancelados.setItems(dataCancelados);
             
         } catch (SQLException ex) {
                     JOptionPane.showMessageDialog(null, "Error de conexión.", "Advertencia", JOptionPane.WARNING_MESSAGE);
@@ -223,7 +261,7 @@ public class LTimbrarProductosViewController implements Initializable {
         
                 
         
-        //Busqueda Pestaña Puestos
+        //Busqueda Pestaña Timbrados
         FilteredList<ProductoTimbrable> filteredDataTimbrados = new FilteredList<>(dataTimbrados, p -> true);
 		
 		// 2. Set the filter Predicate whenever the filter changes.
@@ -270,6 +308,58 @@ public class LTimbrarProductosViewController implements Initializable {
 		sortedDataTimbrados.comparatorProperty().bind(tblTimbrados.comparatorProperty());
 		
                 tblTimbrados.setItems(sortedDataTimbrados);
+                
+                //Busqueda Pestaña Cancelados
+                FilteredList<ProductoTimbrable> filteredDataCancelados = new FilteredList<>(dataCancelados, p -> true);
+		
+		// 2. Set the filter Predicate whenever the filter changes.
+		txtBusquedaCancelados.textProperty().addListener((observable, oldValue, newValue) -> {
+			filteredDataCancelados.setPredicate(timbrable -> {
+				// If filter text is empty, display all persons.
+								
+				if (newValue == null || newValue.isEmpty()) {
+					return true;
+				}
+				
+				// Compare first name and last name of every person with filter text.
+				String lowerCaseFilter = newValue.toLowerCase();
+				
+		if (timbrable.getProducto().toLowerCase().indexOf(lowerCaseFilter) != -1 ) {
+					return true; // Un if por cada campo con su getter para compararlo
+				} else if (timbrable.getProducto().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				}
+                                else if (timbrable.getAño().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				}
+                                else if (timbrable.getQuincena().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				}
+                                else if (timbrable.getFechaDePago().toLowerCase().indexOf(lowerCaseFilter) != -1) {
+					return true; // Filter matches last name.
+				}
+				else if (timbrable.getTotal().toLowerCase().indexOf(lowerCaseFilter) != -1){
+				     return true;
+                                }
+                                else if (timbrable.getTipoNomina().toLowerCase().indexOf(lowerCaseFilter) != -1){
+				     return true;
+                                }else if (timbrable.getFechaCancelacion().toLowerCase().indexOf(lowerCaseFilter) != -1){
+				     return true;
+                                }else if (timbrable.getMotivo().toLowerCase().indexOf(lowerCaseFilter) != -1){
+				     return true;
+                                }else  
+				    	 return false; // Does not match.
+			});
+		});
+		
+		// 3. Wrap the FilteredList in a SortedList. 
+		SortedList<ProductoTimbrable> sortedDataCancelados = new SortedList<>(filteredDataCancelados);
+		
+		// 4. Bind the SortedList comparator to the TableView comparator.
+		// 	  Otherwise, sorting the TableView would have no effect.
+		sortedDataCancelados.comparatorProperty().bind(tblCancelados.comparatorProperty());
+		
+                tblCancelados.setItems(sortedDataCancelados);
                 
         
     }

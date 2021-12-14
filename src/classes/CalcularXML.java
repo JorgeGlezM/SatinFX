@@ -27,6 +27,19 @@ public class CalcularXML {
     static NumberFormat fmt = NumberFormat.getInstance(Locale.US);
     String percepciones,deducciones,rfc,nombre,fechai,fechaf,fechapago,sindicato,puesto,fecha_ingreso,nss,clave,curp,jornada,contrato,producto,id,movimiento,descripcionPuesto,unidad,actividad,banco,cuentaBancaria,actividad2,proyecto,partida,clavePago,clue,ingresoAcumulable,ingresoNoAcumulable,ultimoSueldo,tipoNomina;
 
+    //Cadenas para UPDATE post-timbrado.
+    String rutaXML;
+
+    public CalcularXML() {
+    }
+
+    public String getRutaXML() {
+        return rutaXML;
+    }
+
+    public void setRutaXML(String rutaXML) {
+        this.rutaXML = rutaXML;
+    }
     public String getTipoNomina() {
         return tipoNomina;
     }
@@ -551,7 +564,7 @@ public class CalcularXML {
         tipoNomina=producto.substring(1,2);
 
         if(!tipoNomina.equals("0")){
-            tipoNomina="E";
+            this.tipoNomina="E";
         }
     }
 

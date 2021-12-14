@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="612" pageHeight="792" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a36115d8-2908-4079-9702-df9a78504188">
 	<property name="ireport.zoom" value="1.3310000000000013"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="0"/>
+	<property name="ireport.y" value="396"/>
 	<subDataset name="dataset1" uuid="48be2e5a-4d17-4d3f-8bbc-0b9ca95f2936"/>
 	<background>
 		<band splitType="Stretch"/>
@@ -267,7 +267,7 @@
 				<reportElement x="127" y="432" width="361" height="43" uuid="88b10c8a-f60b-4190-99cd-0de36239aa3e"/>
 			</rectangle>
 			<staticText>
-				<reportElement x="130" y="310" width="274" height="11" uuid="ebe577df-dfe3-46ba-b5d0-0d23998cb1db"/>
+				<reportElement x="130" y="310" width="75" height="11" uuid="ebe577df-dfe3-46ba-b5d0-0d23998cb1db"/>
 				<textElement>
 					<font size="6"/>
 				</textElement>

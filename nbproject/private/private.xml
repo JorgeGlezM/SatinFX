@@ -8,9 +8,10 @@
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/LoginViewController.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/DetallesTimbradoViewController.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/LBancosViewController.java</file>
-            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/ValidacionesPendientesViewController.java</file>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/DatosTimbrado.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/CargaArchivosNominaViewController.java</file>
-            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/LTimbrarProductosViewController.java</file>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/CalcularXML.java</file>
+            <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/classes/Timbrar.java</file>
             <file>file:/C:/Users/Jorge/Documents/NetBeansProjects/SatinFX/src/controller/BancosViewController.java</file>
         </group>
     </open-files>

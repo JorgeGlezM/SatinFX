@@ -43,23 +43,20 @@ import javax.swing.JOptionPane;
 import classes.CalcularXML;
 import classes.GenerarXML;
 import classes.Timbrar;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import static controller.DetallesTimbradoViewController.fmt;
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.stage.FileChooser;
 
 /**
  * FXML Controller class
  *
  * @author Jorge
  */
-public class DetallesTimbradoViewController implements Initializable {
+public class DetallesCanceladoViewController implements Initializable {
     static NumberFormat fmt = NumberFormat.getInstance(Locale.US);
 
     /**
@@ -74,6 +71,8 @@ public class DetallesTimbradoViewController implements Initializable {
     public static String fechaP;
     public static String totalP;
     public static String totalR;
+    PreparedStatement pstmtCancelar;
+    String[] uuid;
 
     List<CalcularXML> xmlList=new ArrayList<CalcularXML>();
     List<DetalleTimbrable> detallesList=new ArrayList<DetalleTimbrable>();
@@ -93,101 +92,27 @@ public class DetallesTimbradoViewController implements Initializable {
     @FXML Label txtTotal;
     @FXML Label txtTotalR;
 
-    @FXML private void btnTimbrar(ActionEvent event) throws IOException{
-        Timbrar t=new Timbrar();
-        String faltantes="";
-        int count=0;
-    for(CalcularXML c : xmlList){
-        GenerarXML.xml(c);
-        try{
-            String temp=t.timbrar(c);
-            if(!temp.equals("")){
-                faltantes=faltantes+temp+"\n";
-            }else{
-                count++;
-            }
-        }catch(Exception e){
-            System.out.println(e);
-        }
-    }
-    System.out.println(faltantes);
-    int totalTimbrables=Integer.valueOf(totalR);
-    if(totalTimbrables!=count){        
-        JOptionPane.showMessageDialog(null, "Algunos registros no fueron timbrados. Se generará un archivo con los registros pendientes.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        FileChooser fileChooser = new FileChooser();
-
-        //Set extension filter for text files
-            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Archivo de texto (*.txt)", "*.txt");
-            fileChooser.getExtensionFilters().add(extFilter);
- 
-            //Show save file dialog
-            File file = fileChooser.showSaveDialog(stage);
-            if(file!=null){
-            PrintWriter writer;
-            try {
-                writer = new PrintWriter(file);
-                writer.println(faltantes);
-                writer.close();
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            }
-                    try {
-            Files.write(Paths.get("./Pendientes"+idProducto+".txt"), faltantes.getBytes());
-        } catch (IOException ex) {
-            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        int reply = JOptionPane.showConfirmDialog(null, "¿Enviar comprobantes?", "Éxito.", JOptionPane.YES_NO_OPTION);
-    if (reply == JOptionPane.YES_OPTION) {
-        JOptionPane.showMessageDialog(null, "Los comprobantes se han enviado por correo electrónico exitosamente.");
-    } else {
-    }
-    }else if(count==0){
-        JOptionPane.showMessageDialog(null, "Ningún registro pudo ser timbrado. Se generará un archivo con los errores correspondientes.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        FileChooser fileChooser = new FileChooser();
-
-        //Set extension filter for text files
-            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Archivo de texto (*.txt)", "*.txt");
-            fileChooser.getExtensionFilters().add(extFilter);
- 
-            //Show save file dialog
-            File file = fileChooser.showSaveDialog(stage);
-            if(file!=null){
-            PrintWriter writer;
-            try {
-                writer = new PrintWriter(file);
-                writer.println(faltantes);
-                writer.close();
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            }
-                    try {
-            Files.write(Paths.get("./Pendientes"+idProducto+".txt"), faltantes.getBytes());
-        } catch (IOException ex) {
-            Logger.getLogger(CargaArchivosNominaViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        
-    }else{
-    JOptionPane.showMessageDialog(null,"El producto se ha timbardo en su totalidad.");
-    int reply = JOptionPane.showConfirmDialog(null, "¿Enviar comprobantes?", "Éxito.", JOptionPane.YES_NO_OPTION);
-    if (reply == JOptionPane.YES_OPTION) {
-        JOptionPane.showMessageDialog(null, "Los comprobantes se han enviado por correo electrónico exitosamente.");
-    } else {
-    }
-    }
-    
-    if (count!=0){
+    @FXML private void btnCancelar(ActionEvent event) throws IOException, Exception{
         classes.MySQL mysql=new classes.MySQL();
         mysql.conectar();
-        String update="UPDATE `satin`.`producto_nomina` SET `estado` = 'TIMBRADO', `timbrados` = '"+count+"' WHERE (`clave` = '"+idProducto+"');";
+        String motivo=JOptionPane.showInputDialog("Ingrese el motivo de la cancelación:");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Timestamp ts = new Timestamp(System.currentTimeMillis());
+        String fechaC=sdf.format(ts);
+        String updateC="UPDATE `satin`.`detalle_nomina` SET `fechacancelacion` = ?, `motivo_can` = ? WHERE (`id` = ?);";
+        pstmtCancelar=mysql.conn.prepareStatement(updateC);
+        for(DetalleTimbrable dt : data) {
+            pstmtCancelar.setString(1, fechaC);
+            pstmtCancelar.setString(2, motivo);
+            pstmtCancelar.setString(3, dt.getID());
+            pstmtCancelar.addBatch();
+        }
+        pstmtCancelar.executeBatch();
+        String update="UPDATE `satin`.`producto_nomina` SET `estado` = 'CANCELADO', `timbrados` = '0', `cancelados` = '"+totalR+"' WHERE (`clave` = '"+idProducto+"');";
         mysql.stmt(update);
-    }
-    
-
+        Timbrar t=new Timbrar();
+        t.cancelar(uuid);
+        JOptionPane.showMessageDialog(null,"El producto se ha cancelado exitosamente.");
         //Cambiamos la escena
         root = FXMLLoader.load(getClass().getResource("/view/LTimbrarProductosView.fxml"));
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
@@ -246,22 +171,25 @@ public class DetallesTimbradoViewController implements Initializable {
                 col8.setCellValueFactory(new PropertyValueFactory<DetalleTimbrable,String>("Contrato"));
                 tblRegistros.getColumns().addAll(col8); 
                 
-                CalcularXML c=new CalcularXML();
+            uuid=new String[Integer.valueOf(totalR)];
+            CalcularXML c=new CalcularXML();
             //Cargamos los registros a una lista. Se rompe con datos nulos, checar.
+            int i=0;
             while(rs.next()){
+                uuid[i]=rs.getString(32);
+                System.out.println(uuid[i]);
                 c=new CalcularXML(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),rs.getString(29),rs.getString(30),rs.getString(31));
                 xmlList.add(c);
                 String total="$"+fmt.format(c.getSubtotal()-c.getDescuentoFactura());
 
                 DetalleTimbrable d=new DetalleTimbrable(c.getId(),c.getRfc(),c.getNombre(),"$"+fmt.format(c.getTotalGravado()+c.getTotalExento()),"$"+fmt.format(c.getDescuentoFactura()),total,c.getDescripcionPuesto(),c.getContrato());
+                
                 //Iterate Row
                 DetalleTimbrable row = d;
                 data.add(row);
             }
             txtFechaI.setText(txtFechaI.getText()+c.getFechai());
             txtFechaF.setText(txtFechaF.getText()+c.getFechaf());
-
-            
             //Cargamos los resultados a la tabla
             tblRegistros.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY); 
 

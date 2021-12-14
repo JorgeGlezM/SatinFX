@@ -10,7 +10,35 @@ package classes;
  * @author Jorge
  */
 public class ProductoTimbrable {
-    String producto,año,quincena,fechaDePago,total,tipoNomina,registros;
+    String producto,año,quincena,fechaDePago,total,tipoNomina,registros,fechaCancelacion,motivo;
+
+    public String getFechaCancelacion() {
+        return fechaCancelacion;
+    }
+
+    public void setFechaCancelacion(String fechaCancelacion) {
+        this.fechaCancelacion = fechaCancelacion;
+    }
+
+    public String getMotivo() {
+        return motivo;
+    }
+
+    public void setMotivo(String motivo) {
+        this.motivo = motivo;
+    }
+
+    public ProductoTimbrable(String producto, String año, String quincena, String fechaDePago, String total, String tipoNomina, String registros, String fechaCancelacion, String motivo) {
+        this.producto = producto;
+        this.año = año;
+        this.quincena = quincena;
+        this.fechaDePago = fechaDePago;
+        this.total = total;
+        this.tipoNomina = tipoNomina;
+        this.registros = registros;
+        this.fechaCancelacion = fechaCancelacion;
+        this.motivo = motivo;
+    }
 
     public String getRegistros() {
         return registros;

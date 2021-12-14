@@ -7,11 +7,15 @@ package classes;
 
 import controller.LoginViewController;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -37,6 +41,7 @@ import org.w3c.dom.Element;
 public class GenerarXML {
     public static String ruta="C:/Facturacion";
     static NumberFormat fmt = NumberFormat.getInstance(Locale.US);
+    public static String cert="";
     static int i=0;
 
     /* Clase main se utilizó para testing, no es necesaria pero se deja por si se requieren hacer más pruebas
@@ -57,6 +62,9 @@ public class GenerarXML {
     }*/
     
     public static void xml(CalcularXML t){
+    if(cert.equals("")){
+        cert=encoder(DatosTimbrado.getArchivo_cert());
+    }
     fmt.setMaximumFractionDigits(2);
     fmt.setMinimumFractionDigits(2);
     fmt.setGroupingUsed(false);
@@ -67,7 +75,6 @@ public class GenerarXML {
     //Obtenemos la fecha y le damos formato
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     Timestamp ts = new Timestamp(System.currentTimeMillis());
-    Date date = new Date();
     String timestamp=sdf.format(ts);
 
 
@@ -76,14 +83,18 @@ public class GenerarXML {
     Element rootElement = doc.createElement("cfdi:Comprobante");
     
     rootElement.setAttribute("Sello", "");//No se genera
-    rootElement.setAttribute("Certificado", "");//No se genera
+    rootElement.setAttribute("Certificado", cert);//No se genera
     rootElement.setAttribute("LugarExpedicion", DatosPatronales.getCodigo_esp());//Codigo especial
     rootElement.setAttribute("Moneda", "MXN");
     String total=fmt.format(t.getSubtotal()-t.getDescuentoFactura());
     rootElement.setAttribute("Total", total);//percepciones- deducciones?
+    if(t.getDescuentoFactura()>0){
+        rootElement.setAttribute("Descuento", fmt.format(t.getDescuentoFactura()));
+    }else{
+    }
     String subtotal=fmt.format(t.getSubtotal());
     rootElement.setAttribute("SubTotal", subtotal);//percepciones?
-    rootElement.setAttribute("NoCertificado", "");//DatosTimbrado.getNum_cert());//??
+    rootElement.setAttribute("NoCertificado", DatosTimbrado.getNum_cert());//DatosTimbrado.getNum_cert());//??
     if(!t.isPoneHonorarios()){
         rootElement.setAttribute("TipoCambio", "1");//Fijo
     }
@@ -151,6 +162,7 @@ public class GenerarXML {
             nominaEElement.setAttribute("RegistroPatronal", DatosPatronales.getRegistro_patronal());//??
     }
     nominaElement.appendChild(nominaEElement);
+    /*/   Se descomenta cuando sean timbrados reales
     if(t.isPonerEntidadSNCF()){
         Element EntidadSNCFElement=doc.createElement("nomina12:EntidadSNCF");
         EntidadSNCFElement.setAttribute("OrigenRecurso", t.getCFDOrigen());
@@ -158,7 +170,7 @@ public class GenerarXML {
             EntidadSNCFElement.setAttribute("MontoRecursoPropio", fmt.format(t.getImportePropio()));
         }
         nominaEElement.appendChild(EntidadSNCFElement);
-    }
+    }*/
 
     Element nominaRElement=doc.createElement("nomina12:Receptor");
     nominaRElement.setAttribute("Sindicalizado", t.getSindicato());//Tabla empleados
@@ -186,7 +198,12 @@ public class GenerarXML {
         nominaRElement.setAttribute("CuentaBancaria", t.getCuentaBancaria().replaceAll("'", ""));//Empleados -> puestos
         nominaRElement.setAttribute("Departamento", t.getClue());//Empleados -> puestos
     }
-    nominaRElement.setAttribute("PeriodicidadPago", t.getPeriodoPago());
+    if(t.getTipoNomina().equals("E")){
+        nominaRElement.setAttribute("PeriodicidadPago", "99");
+    }else{
+        nominaRElement.setAttribute("PeriodicidadPago", t.getPeriodoPago());
+
+    }
     nominaRElement.setAttribute("NumEmpleado", t.getClave());
     nominaRElement.setAttribute("Curp", t.getCurp());
     nominaRElement.setAttribute("TipoRegimen", StringUtils.leftPad(t.getTipoRegimen(), 2, '0'));
@@ -239,8 +256,7 @@ public class GenerarXML {
         horasElement.setAttribute("ImportePagado", h.getImportePagado());
         percepcionesElement.appendChild(horasElement);
     }
-    if(t.descuentoFactura>0){
-    }
+
     if(t.descuentoFactura!=0){
         nominaElement.setAttribute("TotalDeducciones", fmt.format(t.getDescuentoFactura()));
         Element deduccionesElement=doc.createElement("nomina12:Deducciones");
@@ -325,7 +341,7 @@ public class GenerarXML {
       Transformer transformer = transformerFactory.newTransformer();
       DOMSource source = new DOMSource(doc);
       String rutaFinal=ruta+"/"+t.getProducto()+"/";
-      System.out.println(rutaFinal);
+      t.setRutaXML(rutaFinal+t.id+".xml");
     File directory = new File(rutaFinal);
         if (! directory.exists()){
         directory.mkdirs();
@@ -334,7 +350,7 @@ public class GenerarXML {
     }
       
       
-      StreamResult result = new StreamResult(new File(rutaFinal+t.id+".xml"));
+      StreamResult result = new StreamResult(new File(t.getRutaXML()));
       transformer.transform(source, result);
     } catch (ParserConfigurationException pce) {
       pce.printStackTrace();
@@ -342,7 +358,23 @@ public class GenerarXML {
       tfe.printStackTrace();
     }
     }
-    //BORRAR. ESTA EN LOGIN.
+    
+    public static String encoder(String filePath) {
+        String base64File = "";
+        File file = new File(filePath);
+        try (FileInputStream imageInFile = new FileInputStream(file)) {
+            // Reading a file from file system
+            byte fileData[] = new byte[(int) file.length()];
+            imageInFile.read(fileData);
+            base64File = Base64.getEncoder().encodeToString(fileData);
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found" + e);
+        } catch (IOException ioe) {
+            System.out.println("Exception while reading the file " + ioe);
+        }
+        return base64File;
+    }
+    /*/BORRAR. ESTA EN LOGIN.
         public static void loadDatos(){
         MySQL mysql = new MySQL();
         mysql.conectar();
@@ -396,6 +428,6 @@ public class GenerarXML {
             JOptionPane.showMessageDialog(null, "Los datos patronales no han sido cargados. Favor de revisar su conexión y reiniciar el sistema.", "Advertencia", JOptionPane.WARNING_MESSAGE);
 
         }
-    }
+    }*/
 
 }

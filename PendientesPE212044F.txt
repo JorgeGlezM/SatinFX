@@ -1,0 +1,6 @@
+El detalle con folio: PE212044F6 no pudo timbrarse. [301] Error en complemento Nómina. [Error #NOM166] El nodo Nomina.Emisor.EntidadSNCF no debe existir. Folio: 183369413. Serie: BPM.  
+El detalle con folio: PE212044F5 no pudo timbrarse. [301] Error en complemento Nómina. [Error #NOM166] El nodo Nomina.Emisor.EntidadSNCF no debe existir. Folio: 183369412. Serie: BPM.  
+El detalle con folio: PE212044F4 no pudo timbrarse. [301] Error en complemento Nómina. [Error #NOM166] El nodo Nomina.Emisor.EntidadSNCF no debe existir. Folio: 183369411. Serie: BPM.  
+El detalle con folio: PE212044F3 no pudo timbrarse. [301] Error en complemento Nómina. [Error #NOM166] El nodo Nomina.Emisor.EntidadSNCF no debe existir. Folio: 183369410. Serie: BPM.  
+El detalle con folio: PE212044F2 no pudo timbrarse. [301] Error en complemento Nómina. [Error #NOM166] El nodo Nomina.Emisor.EntidadSNCF no debe existir. Folio: 183369409. Serie: BPM.  
+El detalle con folio: PE212044F1 no pudo timbrarse. [301] Error en complemento Nómina. [Error #NOM166] El nodo Nomina.Emisor.EntidadSNCF no debe existir. Folio: 183369408. Serie: BPM.  
