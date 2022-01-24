@@ -97,7 +97,9 @@ public class DetallesTimbradoViewController implements Initializable {
         Timbrar t=new Timbrar();
         String faltantes="";
         int count=0;
+        int factura=1;
     for(CalcularXML c : xmlList){
+        
         GenerarXML.xml(c);
         try{
             String temp=t.timbrar(c);
@@ -109,6 +111,9 @@ public class DetallesTimbradoViewController implements Initializable {
         }catch(Exception e){
             System.out.println(e);
         }
+        txtTotalR.setText("Timbrando factura "+factura+"/"+totalR);
+        factura++;
+
     }
     System.out.println(faltantes);
     int totalTimbrables=Integer.valueOf(totalR);
@@ -249,7 +254,7 @@ public class DetallesTimbradoViewController implements Initializable {
                 CalcularXML c=new CalcularXML();
             //Cargamos los registros a una lista. Se rompe con datos nulos, checar.
             while(rs.next()){
-                c=new CalcularXML(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),rs.getString(29),rs.getString(30),rs.getString(31));
+                c=new CalcularXML(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(33));
                 xmlList.add(c);
                 String total="$"+fmt.format(c.getSubtotal()-c.getDescuentoFactura());
 

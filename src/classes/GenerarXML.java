@@ -82,12 +82,12 @@ public class GenerarXML {
     Document doc = docBuilder.newDocument();
     Element rootElement = doc.createElement("cfdi:Comprobante");
     
-    rootElement.setAttribute("Sello", "");//No se genera
-    rootElement.setAttribute("Certificado", cert);//No se genera
+    rootElement.setAttribute("Sello", "");//Se asigna en el timbrado
+    rootElement.setAttribute("Certificado", cert);//Se asigna en el timbrado
     rootElement.setAttribute("LugarExpedicion", DatosPatronales.getCodigo_esp());//Codigo especial
     rootElement.setAttribute("Moneda", "MXN");
     String total=fmt.format(t.getSubtotal()-t.getDescuentoFactura());
-    rootElement.setAttribute("Total", total);//percepciones- deducciones?
+    rootElement.setAttribute("Total", total);//subtotal- deducciones
     if(t.getDescuentoFactura()>0){
         rootElement.setAttribute("Descuento", fmt.format(t.getDescuentoFactura()));
     }else{
@@ -334,20 +334,20 @@ public class GenerarXML {
 
 
     
-      doc.appendChild(rootElement);
+    doc.appendChild(rootElement);
     i++;
     System.out.println("Factura no: "+i);
       TransformerFactory transformerFactory = TransformerFactory.newInstance();
       Transformer transformer = transformerFactory.newTransformer();
       DOMSource source = new DOMSource(doc);
       String rutaFinal=ruta+"/"+t.getProducto()+"/";
-      t.setRutaXML(rutaFinal+t.id+".xml");
     File directory = new File(rutaFinal);
         if (! directory.exists()){
         directory.mkdirs();
-        // If you require it to make the entire directory path including parents,
-        // use directory.mkdirs(); here instead.
     }
+        rutaFinal=rutaFinal+t.id+".xml";
+        t.setRutaXML(rutaFinal);
+
       
       
       StreamResult result = new StreamResult(new File(t.getRutaXML()));

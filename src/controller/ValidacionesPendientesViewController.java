@@ -69,8 +69,7 @@ public class ValidacionesPendientesViewController implements Initializable {
                     mysql.stmt(sql);
                     load(); 
                 }
-
-    }
+        }
         
                 @FXML private void btnCancelarPuesto (ActionEvent event) throws IOException{
                 

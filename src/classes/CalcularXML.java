@@ -25,11 +25,18 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class CalcularXML {
     static NumberFormat fmt = NumberFormat.getInstance(Locale.US);
-    String percepciones,deducciones,rfc,nombre,fechai,fechaf,fechapago,sindicato,puesto,fecha_ingreso,nss,clave,curp,jornada,contrato,producto,id,movimiento,descripcionPuesto,unidad,actividad,banco,cuentaBancaria,actividad2,proyecto,partida,clavePago,clue,ingresoAcumulable,ingresoNoAcumulable,ultimoSueldo,tipoNomina;
+    String percepciones,deducciones,rfc,nombre,fechai,fechaf,fechapago,sindicato,puesto,fecha_ingreso,nss,clave,curp,jornada,contrato,producto,id,movimiento,descripcionPuesto,unidad,actividad,banco,cuentaBancaria,actividad2,proyecto,partida,clavePago,clue,ingresoAcumulable,ingresoNoAcumulable,ultimoSueldo,tipoNomina,centro;
 
     //Cadenas para UPDATE post-timbrado.
-    String rutaXML;
+    String rutaXML,firma,sello,fechaTimbrado,uuid;
 
+    
+    double totalImpuestos,totalDeducciones,totalOtros,subsidio,subsidio2,totalImpuestos2,impuestosSF,totalOtro1,totalOtro2,totalOtro1NO,totalRetenciones,totalTraslados,totalGravado,totalExento,importeMixto,importePropio,totalP,subtotalFactura,descuentoFactura,totalFactura,subtotal,salarioDiario,totalSueldos,totalJubilacionPensionRetiro,totalSeparacion;
+    int EST,leyenda,diasPagados;
+    boolean poneHonorarios=false;//Pone o no atributo
+    boolean ponerRegistroPatronal=false;//Pone o no atributo
+    boolean ponerEntidadSNCF=false;//Pone o no atributo 
+    public static boolean check1=false,check2=false,check3=false,check4=false,check5=false,check6=false;//Checks del formulario
     public CalcularXML() {
     }
 
@@ -84,12 +91,6 @@ public class CalcularXML {
     public void setIndemnizacionesList(List<Indemnizaciones> indemnizacionesList) {
         this.indemnizacionesList = indemnizacionesList;
     }
-    double totalImpuestos,totalDeducciones,totalOtros,subsidio,subsidio2,totalImpuestos2,impuestosSF,totalOtro1,totalOtro2,totalOtro1NO,totalRetenciones,totalTraslados,totalGravado,totalExento,importeMixto,importePropio,totalP,subtotalFactura,descuentoFactura,totalFactura,subtotal,salarioDiario,totalSueldos,totalJubilacionPensionRetiro,totalSeparacion;
-    int EST,leyenda,diasPagados;
-    boolean poneHonorarios=false;//Pone o no atributo
-    boolean ponerRegistroPatronal=false;//Pone o no atributo
-    boolean ponerEntidadSNCF=false;//Pone o no atributo 
-    public static boolean check1=false,check2=false,check3=false,check4=false,check5=false,check6=false;//Checks del formulario
 
     public boolean isPonerRegistroPatronal() {
         return ponerRegistroPatronal;
@@ -116,7 +117,7 @@ public class CalcularXML {
     
 
 
-    public CalcularXML(String percepciones, String deducciones, String rfc, String nombre, String fechai, String fechaf, String fechapago, String sindicato, String puesto, String fecha_ingreso, String nss, String clave, String curp, String jornada, String contrato,String producto,String id,String movimiento,String descripcionPuesto,String unidad,String actividad,String banco,String cuentaBancaria,String actividad2,String proyecto,String partida,String clavePago,String clue,String ingresoAcumulable,String ingresoNoAcumulable,String ultimoSueldo) {
+    public CalcularXML(String percepciones, String deducciones, String rfc, String nombre, String fechai, String fechaf, String fechapago, String sindicato, String puesto, String fecha_ingreso, String nss, String clave, String curp, String jornada, String contrato,String producto,String id,String movimiento,String descripcionPuesto,String unidad,String actividad,String banco,String cuentaBancaria,String actividad2,String proyecto,String partida,String clavePago,String clue,String ingresoAcumulable,String ingresoNoAcumulable,String ultimoSueldo,String centro) {
         this.percepciones = percepciones;
         this.deducciones = deducciones;
         this.rfc = rfc;
@@ -148,6 +149,7 @@ public class CalcularXML {
         this.ingresoAcumulable=ingresoAcumulable;
         this.ingresoNoAcumulable=ingresoNoAcumulable;
         this.ultimoSueldo=ultimoSueldo;
+        this.centro=centro;
         fmt.setMaximumFractionDigits(2);
         fmt.setMinimumFractionDigits(2);
         fmt.setGroupingUsed(false);

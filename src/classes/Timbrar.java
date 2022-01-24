@@ -62,7 +62,7 @@ public class Timbrar {
     static String uuid,fecha,sellosat,sellocfdi, qrCodeB64,xml="";
     MySQL mysql=new MySQL();
 
-static PreparedStatement pstmtTimbrados;
+static PreparedStatement pstmtTimbrados,pstmtXml;
     public Timbrar() {
         mysql.conectar();
     }
@@ -81,7 +81,7 @@ static PreparedStatement pstmtTimbrados;
         File cfdi = new File(rutaXml);
         StreamSource sourceXML = new StreamSource(cfdi);
  
-// crear el procesador XSLT que nos ayudará a generar la cadena original
+        // crear el procesador XSLT que nos ayudará a generar la cadena original
         // con base en las reglas del archivo XSLT
         TransformerFactory tFactory = TransformerFactory.newInstance();
         Transformer transformer = tFactory.newTransformer(sourceXSL);
@@ -154,6 +154,8 @@ static PreparedStatement pstmtTimbrados;
                     xml=new String(r.getCfdiTimbrado());
                     //Se usa la libreria de apache commons codec.
                     qrCodeB64 = new String(org.apache.commons.codec.binary.Base64.encodeBase64(r.getQrCode()));
+                    System.out.println("QR:");
+                    System.out.println(qrCodeB64);
                     uuid=r.getUuid();
                     Calendar cal=r.getFechaTimbrado();
                     Date date = cal.getTime();             
@@ -174,6 +176,8 @@ static PreparedStatement pstmtTimbrados;
         pstmtTimbrados.setString(5, idNomina);
         pstmtTimbrados.addBatch();
         pstmtTimbrados.executeBatch();
+        
+
                 //TERMINA TIMBRADO
     } catch (SQLException ex) {
         System.out.println(ex);
@@ -193,16 +197,37 @@ static PreparedStatement pstmtTimbrados;
             fw.write(xml);
     }
     fw.close();
+    String insert="INSERT INTO `satin`.`xml`  (id_detalle,xml) "+
+            "VALUES(?,?) on duplicate key UPDATE xml=?";
+    try {
+        pstmtXml = mysql.conn.prepareStatement(insert);
+        pstmtXml.setString(1, c.id);
+        File file= new File(rutaXml);
+        FileInputStream inputStream= new FileInputStream(file);
+        pstmtXml.setBlob(2, inputStream);
+        pstmtXml.setBlob(3, inputStream);
+        pstmtXml.addBatch();
+        pstmtXml.executeBatch();
+    } catch (SQLException ex) {
+        Logger.getLogger(Timbrar.class.getName()).log(Level.SEVERE, null, ex);
+    }
+
     return error;
     }
-    public static void cancelar(String[] uuid) throws Exception{
+    public static void cancelar(String[] uuid) {
         String user = "testing-cfdi33@bpm920113pb3.sf";
         String pass = "4qWNLLtZTZ8ZzEDdG3YYyjls";
         String cer=DatosTimbrado.getArchivo_cert();
         String key=DatosTimbrado.archivo_key;
         String passwordCer=DatosTimbrado.getPassword_key();
         Timbrado timbrado = new Timbrado();
-        timbrado.cancelar(user, passwordCer, uuid, cer, key, passwordCer, false);
-        System.out.println("si se canceló");
+        try{
+            timbrado.cancelar(user, passwordCer, uuid, cer, key, passwordCer, false);
+            System.out.println("si se canceló"); 
+        }catch(Exception e){
+            System.out.println("no se canceló"); 
+
+        }
+
     }
 }

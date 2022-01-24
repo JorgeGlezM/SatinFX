@@ -71,7 +71,7 @@ public class DetallesCanceladoViewController implements Initializable {
     public static String fechaP;
     public static String totalP;
     public static String totalR;
-    PreparedStatement pstmtCancelar;
+    PreparedStatement pstmtCancelar,pstmtHistorico;
     String[] uuid;
 
     List<CalcularXML> xmlList=new ArrayList<CalcularXML>();
@@ -93,26 +93,51 @@ public class DetallesCanceladoViewController implements Initializable {
     @FXML Label txtTotalR;
 
     @FXML private void btnCancelar(ActionEvent event) throws IOException, Exception{
-        classes.MySQL mysql=new classes.MySQL();
+
+        Timbrar t=new Timbrar();
+                String motivo=JOptionPane.showInputDialog("Ingrese el motivo de la cancelación:");
+
+        try{
+            t.cancelar(uuid);
+                    classes.MySQL mysql=new classes.MySQL();
         mysql.conectar();
-        String motivo=JOptionPane.showInputDialog("Ingrese el motivo de la cancelación:");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Timestamp ts = new Timestamp(System.currentTimeMillis());
         String fechaC=sdf.format(ts);
         String updateC="UPDATE `satin`.`detalle_nomina` SET `fechacancelacion` = ?, `motivo_can` = ? WHERE (`id` = ?);";
+        String insertH="INSERT INTO `satin`.`detalle_cancelados` (`id_detalle_nomina`, `fechacancelacion`, `uuid`, `xml`) SELECT ?,?,?, xml.xml from xml where xml.id_detalle=?;";
         pstmtCancelar=mysql.conn.prepareStatement(updateC);
+        pstmtHistorico=mysql.conn.prepareStatement(insertH);
+        System.out.println("uuid: "+uuid[0]);
+        int c=0;
         for(DetalleTimbrable dt : data) {
             pstmtCancelar.setString(1, fechaC);
             pstmtCancelar.setString(2, motivo);
             pstmtCancelar.setString(3, dt.getID());
             pstmtCancelar.addBatch();
+            pstmtHistorico.setString(1, dt.getID());
+            pstmtHistorico.setString(2, fechaC);
+            String actual=uuid[c];
+            System.out.println("contador : "+c);
+            c++;
+            
+            System.out.println("uuid actual "+actual);
+            pstmtHistorico.setString(3, actual);
+            pstmtHistorico.setString(4, dt.getID());
+            pstmtHistorico.addBatch();
+            System.out.println(pstmtHistorico.toString());
         }
         pstmtCancelar.executeBatch();
+        pstmtHistorico.executeBatch();
+        
         String update="UPDATE `satin`.`producto_nomina` SET `estado` = 'CANCELADO', `timbrados` = '0', `cancelados` = '"+totalR+"' WHERE (`clave` = '"+idProducto+"');";
         mysql.stmt(update);
-        Timbrar t=new Timbrar();
-        t.cancelar(uuid);
         JOptionPane.showMessageDialog(null,"El producto se ha cancelado exitosamente.");
+        }catch(Exception e){
+        JOptionPane.showMessageDialog(null,"El producto no ha podido ser cancelado. Revise su conexión a internet e intentelo de nuevo.");
+
+        }
+        
         //Cambiamos la escena
         root = FXMLLoader.load(getClass().getResource("/view/LTimbrarProductosView.fxml"));
         stage = (Stage)((Node)event.getSource()).getScene().getWindow();
@@ -177,8 +202,8 @@ public class DetallesCanceladoViewController implements Initializable {
             int i=0;
             while(rs.next()){
                 uuid[i]=rs.getString(32);
-                System.out.println(uuid[i]);
-                c=new CalcularXML(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),rs.getString(29),rs.getString(30),rs.getString(31));
+                i++;
+                c=new CalcularXML(rs.getString(1),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),rs.getString(8),rs.getString(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),rs.getString(25),rs.getString(26),rs.getString(27),rs.getString(28),rs.getString(29),rs.getString(30),rs.getString(31),rs.getString(33));
                 xmlList.add(c);
                 String total="$"+fmt.format(c.getSubtotal()-c.getDescuentoFactura());
 
